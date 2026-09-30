@@ -109,7 +109,7 @@
     $('#deck').innerHTML = CARDS.map(function (c) {
       return '<div class="pcard' + (c.live ? '' : ' off') + '" role="button" tabindex="0" data-card="' + c.key + '"'
         + ' style="--c0:' + c.g[0] + ';--c1:' + c.g[1] + ';--c2:' + c.g[2] + ';--c3:' + c.g[3] + '">'
-        + '<i class="ph-fill ph-cell-signal-full nfcic"></i>'
+        + '<i class="ph ph-wifi-high nfcic"></i>'
         + '<div class="nm">' + esc(ME.nm) + '</div>'
         + '<div class="mid"><div class="co">' + esc(c.co) + '</div>'
         + '<div class="term">' + esc(c.term) + '</div>'
@@ -144,17 +144,32 @@
   var slideT = null, slideIdx = 0;
   function autoSlide() {
     var deck = $('#deck');
+    /* 카드를 화면 가운데에 놓는 스크롤 위치 */
+    function posOf(i) {
+      var el = deck.children[i]; if (!el) return 0;
+      return el.offsetLeft - (deck.clientWidth - el.offsetWidth) / 2;
+    }
+    function nearest() {
+      var best = 0, gap = Infinity;
+      for (var i = 0; i < deck.children.length; i++) {
+        var d = Math.abs(deck.scrollLeft - posOf(i));
+        if (d < gap) { gap = d; best = i; }
+      }
+      return best;
+    }
+    var idleT = null;
     deck.addEventListener('scroll', function () {
-      var w = deck.clientWidth, i = Math.round(deck.scrollLeft / (w - 34));
-      i = Math.max(0, Math.min(CARDS.length - 1, i));
+      var i = nearest();
       if (i !== slideIdx) { slideIdx = i; tint(i); }
+      clearTimeout(idleT); idleT = setTimeout(function () { hold = Date.now(); }, 200);
     });
+    var hold = 0;
     clearInterval(slideT);
     slideT = setInterval(function () {
       if (!$('#scrCards').classList.contains('on')) return;
+      if (Date.now() - hold < 6000) return;        /* 손으로 넘긴 직후에는 쉰다 */
       slideIdx = (slideIdx + 1) % CARDS.length;
-      var w = deck.clientWidth;
-      deck.scrollTo({ left: slideIdx * (w - 34), behavior: 'smooth' });
+      deck.scrollTo({ left: posOf(slideIdx), behavior: 'smooth' });
       tint(slideIdx);
     }, 4200);
   }

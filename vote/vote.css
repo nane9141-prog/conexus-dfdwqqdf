@@ -120,7 +120,7 @@ button{background:none;border:none;cursor:pointer}
   50%{transform:translate3d(-6%,-4%,0) scale(1.18)}
   100%{transform:translate3d(3%,-6%,0) scale(1.05)}}
 @media (prefers-reduced-motion:reduce){ .pcard::before,.pcard::after{animation:none} }
-.pcard .nfcic{position:absolute;right:22px;top:22px;font-size:22px;opacity:.95}
+.pcard .nfcic{position:absolute;right:22px;top:22px;font-size:24px;opacity:.95;transform:rotate(90deg)}
 .pcard .nm{margin-top:34px;font-size:30px;font-weight:800;letter-spacing:-.03em}
 .pcard .mid{margin-top:auto}
 .pcard .co{font-size:21px;font-weight:800;letter-spacing:-.03em}
