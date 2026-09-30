@@ -221,9 +221,8 @@
     if (!MAP) {
       MAP = L.map('map', { zoomControl: false, attributionControl: true })
         .setView([ME.lat, ME.lng], 11);
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19, subdomains: 'abcd',
-        attribution: '&copy; OpenStreetMap &copy; CARTO'
+      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '&copy; OpenStreetMap'
       }).addTo(MAP);
       MAP.on('moveend zoomend', paintMarkers);
     }
