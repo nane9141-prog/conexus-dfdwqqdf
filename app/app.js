@@ -317,7 +317,8 @@
 
   function drawDetail() {
     var x = CUR, s = ST[x.st], mk = APP.mapLinks(x), bk = BOOK.indexOf(x.i) >= 0;
-    var pct = (x.rt != null ? (x.rt * 100).toFixed(4).replace(/0+$/, '').replace(/\.$/, '') : '-');
+    /* cx-roster 의 rt 는 이미 퍼센트 값이다 */
+    var pct = (x.rt != null ? Number(x.rt).toFixed(4).replace(/0+$/, '').replace(/\.$/, '') : '-');
     $('#dtBd').innerHTML =
       '<div class="dt-hd"><div class="l1"><span class="nm">' + esc(x.name) + '</span>'
       + '<button type="button" id="dtBook" style="margin-left:auto;color:' + (bk ? '#0071F3' : '#A3A3A3') + '">'
