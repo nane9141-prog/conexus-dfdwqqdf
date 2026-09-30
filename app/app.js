@@ -9,8 +9,10 @@
 
   /* ── 토스트 ─────────────────────────────────── */
   var tTimer = null;
-  function toast(t) {
-    var el = $('#toastT'); el.textContent = t; el.classList.add('on');
+  function toast(t, ok) {
+    var el = $('#toastT'); el.textContent = t;
+    el.classList.toggle('ok', !!ok);
+    el.classList.add('on');
     clearTimeout(tTimer); tTimer = setTimeout(function () { el.classList.remove('on'); }, 2200);
   }
 
@@ -936,44 +938,107 @@
   $('#dtBack').addEventListener('click', function () { goTab(backTo || 'list'); });
 
   function drawDetail() {
-    var x = CUR, s = ST[x.st], mk = APP.mapLinks(x), bk = BOOK.indexOf(x.i) >= 0;
+    var x = CUR, st = ST[x.st], bk = BOOK.indexOf(x.i) >= 0;
     /* cx-roster 의 rt 는 이미 퍼센트 값이다 */
     var pct = (x.rt != null ? Number(x.rt).toFixed(4).replace(/0+$/, '').replace(/\.$/, '') : '-');
-    $('#dtBd').innerHTML =
-      '<div class="dt-hd"><div class="l1"><span class="nm">' + esc(x.name) + '</span>'
-      + '<button type="button" id="dtBook" style="margin-left:auto;color:' + (bk ? '#0071F3' : '#A3A3A3') + '">'
-      + '<i class="' + (bk ? 'ph-fill' : 'ph') + ' ph-bookmark-simple" style="font-size:22px"></i></button></div>'
-      + '<div class="bgs"><span class="bg ' + s.cls + '">' + s.nm + '</span>' + liveBg(x)
-      + '<span class="bg gray">' + esc(x.org) + '</span></div></div>'
+    var a0 = x.addrs[0];
 
-      + '<div class="sect"><h3>기본 정보</h3>'
-      + kv('성별', x.sex) + kv('생년월일', x.born + ' (' + x.age + '세)')
-      + kv('보유 주식', cm(x.sh) + '주 <span class="sub">지분율 ' + pct + '%</span>')
-      + kv('연락처', x.tel ? ('<a class="lnk" href="tel:' + x.tel.replace(/[^0-9]/g, '') + '">' + esc(x.tel) + '</a>')
-        : '<button class="lnk" type="button" id="dtTel">연락처 등록</button>')
-      + kv('주소', x.zip + '<div class="sub">' + esc(x.addr) + '</div>')
-      + '<div class="maplinks">'
-      + '<a href="' + mk.naver + '" target="_blank" rel="noopener"><i class="ph ph-map-pin"></i>네이버 지도</a>'
-      + '<a href="' + mk.google + '" target="_blank" rel="noopener"><i class="ph ph-map-trifold"></i>구글 지도</a>'
-      + '<a href="' + mk.route + '" target="_blank" rel="noopener"><i class="ph ph-navigation-arrow"></i>길찾기</a>'
+    $('#dtBd').innerHTML =
+      '<div class="dt-hd">'
+      + '<div class="l1"><span class="nm">' + esc(x.name) + '</span>'
+      + '<span class="bkm' + (bk ? ' on' : '') + '" id="dtBook" role="button" aria-label="관심 주주">'
+      + '<i class="' + (bk ? 'ph-fill' : 'ph') + ' ph-bookmark-simple"></i></span>'
+      + '<span class="stb ' + st.cls + '">' + st.nm + '</span></div>'
+
+      + '<div style="margin-top:14px">'
+      + dkv('성별', esc(x.sex))
+      + dkv('생년월일', x.born)
+      + dkv('보유주식', cm(x.sh) + '주 <span class="sm">(' + pct + '%)</span>')
+      + dkv('연락처', x.tel
+          ? '<span class="telval"><a href="tel:' + x.tel.replace(/[^0-9]/g, '') + '">' + esc(x.tel) + '</a>'
+            + '<button class="ed" type="button" id="dtTel">변경</button></span>'
+          : '<button class="telbtn" type="button" id="dtTel">연락처 등록</button>')
+      + dkv('주소',
+          '<div class="adbox"><div class="z"><span>' + a0.zip + '</span>'
+          + '<span class="cp" id="dtCopy" role="button" aria-label="주소 복사"><i class="ph ph-copy"></i></span>'
+          + '<span class="sp"></span>'
+          + (x.addrs.length > 1 ? '<span class="more" id="dtMore" role="button">전체 주소 ' + x.addrs.length + '건 ›</span>' : '')
+          + '</div><div class="tx">' + esc(a0.full) + '</div></div>')
       + '</div></div>'
 
-      + '<div class="sect"><h3>메모<span class="sp"></span>'
-      + '<button type="button" id="dtMemo">' + (x.memo ? '수정' : '메모하기') + '</button></h3>'
-      + '<div class="memo' + (x.memo ? ' has' : '') + '">' + (x.memo ? esc(x.memo) : '메모가 없습니다') + '</div></div>'
+      + '<div class="dsec"><div class="h"><b>메모</b>'
+      + '<button class="mbtn" type="button" id="dtMemo"><i class="ph ph-pencil-simple"></i>메모하기</button></div>'
+      + memoList(x) + '</div>'
 
-      + '<div class="sect" style="margin-bottom:12px"><h3>권유 이력</h3>'
+      + '<div class="dsec" style="margin-bottom:12px"><div class="h"><b>권유 이력</b></div>'
       + '<div class="hist">' + histHtml(x) + '</div></div>';
 
     $('#dtBook').addEventListener('click', function () {
-      var i = BOOK.indexOf(x.i);
-      if (i >= 0) { BOOK.splice(i, 1); toast('관심 주주에서 해제했습니다'); }
+      var k = BOOK.indexOf(x.i);
+      if (k >= 0) { BOOK.splice(k, 1); toast('관심 주주에서 해제했습니다'); }
       else { BOOK.push(x.i); toast('관심 주주로 등록했습니다'); }
       saveBook(); drawDetail();
     });
-    var tel = $('#dtTel'); if (tel) tel.addEventListener('click', editTel);
-    $('#dtMemo').addEventListener('click', editMemo);
+    $('#dtTel').addEventListener('click', openTel);
+    $('#dtCopy').addEventListener('click', function () { copyAddr(a0); });
+    var more = $('#dtMore'); if (more) more.addEventListener('click', openAddrs);
+    $('#dtMemo').addEventListener('click', function () { editMemo(null); });
+    $('#dtBd').querySelectorAll('[data-mdel]').forEach(function (b) {
+      b.addEventListener('click', function () { delMemo(+b.dataset.mdel); });
+    });
+    $('#dtBd').querySelectorAll('[data-medit]').forEach(function (b) {
+      b.addEventListener('click', function () { editMemo(+b.dataset.medit); });
+    });
     $('#dtStart').textContent = x.st === 'done' ? '위임장 확인' : '위임 시작';
+  }
+  function dkv(k, v) { return '<div class="dt-kv"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>'; }
+
+  /* ── 메모 — 여러 건을 날짜와 함께 쌓는다 ───────────────────── */
+  function memos(x) {
+    if (!x.memo) return [];
+    try { var v = JSON.parse(x.memo); return v instanceof Array ? v : [{ at: '', tx: x.memo }]; }
+    catch (e) { return [{ at: '', tx: x.memo }]; }
+  }
+  function saveMemos(x, list) { APP.setMemo(x.i, list.length ? JSON.stringify(list) : ''); }
+  function memoList(x) {
+    var L = memos(x);
+    if (!L.length) return '<div class="memo-empty"><i class="ph ph-note-blank"></i>메모가 없습니다</div>';
+    return '<div class="memos">' + L.map(function (m, i) {
+      var d = (m.at || '').split(' ');
+      return '<div class="memo-c"><div class="t">'
+        + '<b>' + esc((d[0] || '').replace(/-/g, '.')) + '</b><span>' + esc(d[1] || '') + '</span>'
+        + '<span class="sp"></span>'
+        + '<span class="del" data-medit="' + i + '" role="button" aria-label="수정"><i class="ph ph-pencil-simple"></i></span>'
+        + '<span class="del" data-mdel="' + i + '" role="button" aria-label="삭제"><i class="ph ph-trash"></i></span>'
+        + '</div><div class="x">' + esc(m.tx) + '</div></div>';
+    }).join('') + '</div>';
+  }
+  function nowStamp() {
+    var d = new Date();
+    function p(v) { return (v < 10 ? '0' : '') + v; }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+      + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+  function delMemo(i) {
+    var L = memos(CUR); L.splice(i, 1); saveMemos(CUR, L); drawDetail();
+    toast('메모를 삭제했습니다');
+  }
+
+  /* ── 주소 복사 — 지도 앱으로 바로 열 수 있게 ──────────────── */
+  function copyAddr(a) {
+    try { navigator.clipboard.writeText(a.zip + ' ' + a.full); } catch (e) {}
+    var q = encodeURIComponent(a.full);
+    sheet({
+      title: '주소를 복사했습니다',
+      body: '<div style="color:#171717;font-size:14px;font-weight:600;line-height:1.55">' + esc(a.full) + '</div>'
+        + '<div style="margin-top:6px;font-size:12px;color:#8A8F99">우편번호 ' + a.zip + '</div>'
+        + '<div class="maplinks" style="margin-top:16px">'
+        + '<a href="https://map.naver.com/p/search/' + q + '" target="_blank" rel="noopener">'
+        + '<img src="assets/map-naver.png" alt="">네이버 지도</a>'
+        + '<a href="https://map.kakao.com/?q=' + q + '" target="_blank" rel="noopener">'
+        + '<img src="assets/map-kakao.png" alt="">카카오맵</a></div>',
+      foot: '<button class="btn gh" type="button" data-ovx>닫기</button>'
+    });
   }
   function kv(k, v) { return '<div class="kv"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>'; }
 
@@ -993,41 +1058,121 @@
     sheet({ title: '권유 이력', body: '<div class="hist" style="padding:4px 0 8px">' + histHtml(CUR) + '</div>' });
   });
 
-  function editMemo() {
+  function editMemo(idx) {
+    var L = memos(CUR), cur = (idx == null) ? '' : L[idx].tx;
     sheet({
-      title: '메모', body: '<textarea class="ta" id="mmTa" placeholder="방문 시 참고할 내용을 적어 두세요">' + esc(CUR.memo) + '</textarea>',
+      title: idx == null ? '메모하기' : '메모 수정',
+      body: '<textarea class="ta" id="mmTa" placeholder="방문 시 참고할 내용을 적어 두세요">' + esc(cur) + '</textarea>',
       foot: '<button class="btn gh" type="button" data-ovx>취소</button><button class="btn" type="button" id="mmOk">저장</button>',
       after: function (bx) {
         bx.querySelector('#mmTa').focus();
         bx.querySelector('#mmOk').addEventListener('click', function () {
-          APP.setMemo(CUR.i, bx.querySelector('#mmTa').value.trim());
-          closeSheet(); drawDetail(); toast('메모를 저장했습니다');
-        });
-      }
-    });
-  }
-  function editTel() {
-    sheet({
-      title: '연락처 등록',
-      body: '<input id="tlIn" inputmode="tel" placeholder="010-0000-0000" style="width:100%;height:48px;padding:0 14px;border:1px solid #E5E5E5;border-radius:12px;outline:none">',
-      foot: '<button class="btn gh" type="button" data-ovx>취소</button><button class="btn" type="button" id="tlOk">저장</button>',
-      after: function (bx) {
-        bx.querySelector('#tlIn').focus();
-        bx.querySelector('#tlOk').addEventListener('click', function () {
-          var v = bx.querySelector('#tlIn').value.trim(); if (!v) return;
-          APP.setTel(CUR.i, v); closeSheet(); drawDetail(); toast('연락처를 등록했습니다');
+          var t = bx.querySelector('#mmTa').value.trim();
+          if (!t) { closeSheet(); return; }
+          if (idx == null) L.unshift({ at: nowStamp(), tx: t });
+          else { L[idx].tx = t; L[idx].at = nowStamp(); }
+          saveMemos(CUR, L);
+          closeSheet(); drawDetail(); toast('메모가 저장되었습니다', true);
         });
       }
     });
   }
 
+  /* ── 연락처 등록 — 전체 화면 (Figma 5359:13549) ──────────── */
+  function openTel() {
+    var i = $('#telIn');
+    i.value = CUR.tel || '';
+    $('#telClr').hidden = !i.value;
+    $('#telCb').classList.add('on');
+    telChk();
+    show('#scrTel'); $('#tabbar').hidden = true;
+    setTimeout(function () { i.focus(); }, 60);
+  }
+  function telFmt(v) {
+    v = v.replace(/[^0-9]/g, '').slice(0, 11);
+    if (v.length < 4) return v;
+    if (v.length < 8) return v.slice(0, 3) + '-' + v.slice(3);
+    return v.slice(0, 3) + '-' + v.slice(3, 7) + '-' + v.slice(7);
+  }
+  function telChk() {
+    var v = $('#telIn').value.replace(/[^0-9]/g, '');
+    $('#telOk').disabled = !(v.length >= 10 && $('#telCb').classList.contains('on'));
+  }
+  $('#telIn').addEventListener('input', function () {
+    this.value = telFmt(this.value);
+    $('#telClr').hidden = !this.value;
+    telChk();
+  });
+  $('#telClr').addEventListener('click', function () {
+    $('#telIn').value = ''; this.hidden = true; telChk(); $('#telIn').focus();
+  });
+  $('#telAgree').addEventListener('click', function (e) {
+    if (e.target.closest('[data-help]')) return;
+    $('#telCb').classList.toggle('on'); telChk();
+  });
+  $('#telX').addEventListener('click', function () { show('#scrDetail'); $('#tabbar').hidden = true; });
+  $('#telOk').addEventListener('click', function () {
+    APP.setTel(CUR.i, $('#telIn').value.trim());
+    show('#scrDetail'); $('#tabbar').hidden = true;
+    drawDetail(); toast('연락처를 등록했습니다', true);
+  });
+
+  /* ── 전체 주소 — 대표 주소 설정 (Figma 5471:22059) ───────── */
+  var ADSEL = 0, ADSORT = 'live';
+  function openAddrs() {
+    ADSEL = 0; drawAddrs();
+    show('#scrAddr'); $('#tabbar').hidden = true;
+  }
+  function adOrder() {
+    var L = CUR.addrs.map(function (a, i) { return { a: a, i: i }; });
+    var rank = { high: 0, mid: 1, low: 2 };
+    if (ADSORT === 'live') L.sort(function (p, q) { return rank[p.a.live.k] - rank[q.a.live.k]; });
+    else L.sort(function (p, q) { return distTo(p.a, ME) - distTo(q.a, ME); });
+    return L;
+  }
+  function drawAddrs() {
+    var L = adOrder();
+    $('#adCnt').textContent = L.length;
+    $('#adSort').querySelector('span').textContent = ADSORT === 'live' ? '거주 가능성 높은 순' : '가까운 순';
+    $('#adList').innerHTML = L.map(function (o) {
+      var a = o.a;
+      return '<div class="adrow' + (o.i === ADSEL ? ' on' : '') + '" role="button" tabindex="0" data-ad="' + o.i + '">'
+        + '<span class="cb rd' + (o.i === ADSEL ? ' on' : '') + '"></span>'
+        + '<div class="c"><div class="z"><b>' + a.zip + '</b>'
+        + '<span class="cp" data-adcp="' + o.i + '" role="button"><i class="ph ph-copy"></i></span>'
+        + '<span class="sp"></span><span class="lv ' + a.live.k + '">' + a.live.nm + '</span></div>'
+        + '<div class="tx">' + esc(a.full) + '</div>'
+        + (a.other ? '<span class="tag">타인거주 확인</span>' : '')
+        + '</div></div>';
+    }).join('');
+    $('#adList').querySelectorAll('[data-ad]').forEach(function (r) {
+      r.addEventListener('click', function (e) {
+        var cp = e.target.closest('[data-adcp]');
+        if (cp) { e.stopPropagation(); copyAddr(CUR.addrs[+cp.dataset.adcp]); return; }
+        ADSEL = +r.dataset.ad; drawAddrs();
+      });
+    });
+  }
+  $('#adSort').addEventListener('click', function () {
+    pickSheet('정렬', ['거주 가능성 높은 순', '가까운 순'],
+      ADSORT === 'live' ? '거주 가능성 높은 순' : '가까운 순',
+      function (v) { if (v) ADSORT = (v === '가까운 순') ? 'near' : 'live'; drawAddrs(); });
+  });
+  $('#adX').addEventListener('click', function () { show('#scrDetail'); $('#tabbar').hidden = true; });
+  $('#adOk').addEventListener('click', function () {
+    APP.setPrimaryAddr(CUR.i, ADSEL);
+    show('#scrDetail'); $('#tabbar').hidden = true;
+    drawDetail(); refresh(); toast('대표 주소를 변경했습니다', true);
+  });
+
+  /* 방문 상태 변경 */
   /* 방문 상태 변경 */
   $('#dtState').addEventListener('click', function () {
     sheet({
       title: '방문 상태 변경',
-      body: '<div style="padding:4px 0 8px">' + APP.STATE_ORDER.map(function (k) {
-        return '<button class="opt" type="button" data-sst="' + k + '"><span class="cb rd' + (CUR.st === k ? ' on' : '') + '"></span>'
-          + '<span class="sp">' + ST[k].nm + '</span><span class="bg ' + ST[k].cls + '">' + ST[k].nm.slice(0, 2) + '</span></button>';
+      body: '<div class="stlist">' + ['plan', 'replan', 'no'].map(function (k) {
+        return '<button class="strow' + (CUR.st === k ? ' on' : '') + '" type="button" data-sst="' + k + '">'
+          + ST[k].nm + '</button>';
       }).join('') + '</div>',
       after: function (bx) {
         bx.querySelectorAll('[data-sst]').forEach(function (b) {
@@ -1110,37 +1255,49 @@
   }
 
   /* ══ 수집현황 ════════════════════════════════ */
-  function gauge(pct) {
-    var r = 46, c = Math.PI * r, off = c * (1 - Math.min(1, pct / 100));
-    var col = pct >= 100 ? '#059669' : pct >= 60 ? '#0071F3' : '#F97316';
-    return '<div class="gauge"><svg viewBox="0 0 110 58" width="110" height="58">'
-      + '<path d="M9 52 A46 46 0 0 1 101 52" fill="none" stroke="#EEF0F3" stroke-width="10" stroke-linecap="round"/>'
-      + '<path d="M9 52 A46 46 0 0 1 101 52" fill="none" stroke="' + col + '" stroke-width="10" stroke-linecap="round"'
-      + ' stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"/>'
-      + '</svg><div class="pc">' + pct + '%<small>달성</small></div></div>';
+  /* 카드 아래를 가로지르는 큰 호 — 진행중은 파랑 + 끝에 손잡이, 종료는 진회색 */
+  function arc(pct, live) {
+    var W = 402, H = 104, R = 300, cx = W / 2, cy = 104 + R;   /* 아래쪽 먼 중심 */
+    function pt(t) {                                            /* t: 0(왼) ~ 1(오) */
+      var a = Math.PI + t * Math.PI * 0.42 - Math.PI * 0.21;    /* 위쪽 얕은 호 */
+      return [cx + R * Math.sin((t - 0.5) * 0.84), cy - R * Math.cos((t - 0.5) * 0.84)];
+    }
+    var p0 = pt(0), p1 = pt(1);
+    var d = 'M' + p0[0].toFixed(1) + ' ' + p0[1].toFixed(1)
+      + ' A' + R + ' ' + R + ' 0 0 1 ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1);
+    var len = R * 0.84;                                         /* 호 길이 */
+    var on = len * Math.min(1, pct / 100);
+    var k = pt(Math.min(1, pct / 100));
+    var col = live ? '#0071F3' : '#4B5058';
+    return '<div class="arc"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">'
+      + '<path d="' + d + '" fill="none" stroke="#EDEFF2" stroke-width="14" stroke-linecap="round"/>'
+      + '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="14" stroke-linecap="round"'
+      + ' stroke-dasharray="' + on.toFixed(1) + ' ' + (len * 2).toFixed(1) + '"/>'
+      + (live && pct > 0 && pct < 100
+          ? '<circle cx="' + k[0].toFixed(1) + '" cy="' + k[1].toFixed(1) + '" r="9" fill="#0071F3"'
+            + ' stroke="#CFE3FF" stroke-width="6"/>' : '')
+      + '</svg><div class="pct">' + pct + '% 달성</div></div>';
   }
   function dday(due) {
-    var d = Math.ceil((new Date(due + 'T00:00:00') - new Date('2026-09-30T00:00:00')) / 86400000);
-    return d;
+    return Math.ceil((new Date(due + 'T00:00:00') - new Date('2026-09-30T00:00:00')) / 86400000);
   }
   function drawStat() {
     $('#statBd').innerHTML = APP.CAMPAIGNS.map(function (c) {
-      var s = APP.stat(c.id), dd = dday(c.due);
-      var live = c.state === 'live';
-      return '<div class="cmp"><div class="l1"><span class="co">' + esc(c.org) + '</span>'
-        + (live ? (dd > 0 ? '<span class="bg blue">D-' + dd + '</span>'
-          : dd === 0 ? '<span class="bg blue">D-DAY</span>' : '<span class="bg red">마감 임박</span>')
-          : '<span class="bg gray">종료</span>')
-        + '</div><div class="tm">' + esc(c.term) + '</div>'
-        + '<div class="gg">'
-        + '<div class="g"><div class="lb">주주 확보</div><div class="vl">' + cm(s.sh) + '<small>명</small></div>'
-        + '<div class="gl">목표 ' + cm(s.goalSh) + '명</div></div>'
-        + '<div class="g"><div class="lb">주식 수 확보</div><div class="vl">' + cm(s.vt) + '<small>주</small></div>'
-        + '<div class="gl">목표 ' + cm(s.goalVt) + '주</div></div>'
-        + '<div class="g" style="padding-top:10px">' + gauge(s.pct) + '</div>'
+      var t = APP.stat(c.id), dd = dday(c.due), live = c.state === 'live';
+      var badge = live
+        ? '<span class="dd">' + (dd > 0 ? 'D-' + dd : dd === 0 ? 'D-DAY' : '마감 임박') + '</span>'
+        : '<span class="dd end">종료</span>';
+      return '<div class="cmp2' + (live ? '' : ' end') + '">'
+        + '<div class="l1"><span class="co">' + esc(c.org) + '</span>' + badge + '</div>'
+        + '<div class="tm">' + esc(c.term) + '</div>'
+        + '<div class="box">'
+        + '<div class="r"><span class="k">주주</span>'
+        + '<span class="got">확보 ' + cm(t.sh) + '명</span><span class="goal">목표 ' + cm(t.goalSh) + '명</span></div>'
+        + '<div class="r"><span class="k">주식 수</span>'
+        + '<span class="got">확보 ' + cm(t.vt) + '주</span><span class="goal">목표 ' + cm(t.goalVt) + '주</span></div>'
         + '</div>'
-        + '<div class="due"><i class="ph ph-calendar-blank"></i>마감일 ' + esc(c.due)
-        + (live ? ' · 남은 기간 안에 위임장 검증까지 끝나야 반영됩니다' : ' · 마감된 캠페인입니다') + '</div>'
+        + arc(t.pct, live)
+        + (live ? '' : '<div class="due2">마감일 ' + c.due.replace(/-/g, '.') + '</div>')
         + '</div>';
     }).join('')
       + '<div style="padding:4px 2px 24px;font-size:12px;color:#A3A3A3;line-height:1.6">'
@@ -1194,11 +1351,9 @@
     var a = APP.auth.get() || { id: 'partner' };
     var done = APP.list().filter(function (x) { return x.st === 'done'; }).length;
     $('#setBd').innerHTML =
-      '<button class="prof" type="button" data-help="내 프로필"><div class="av"><i class="ph-fill ph-user"></i></div>'
-      + '<div class="c"><div class="nm">' + esc(a.id) + '</div>'
-      + '<div class="id">현장 파트너 · 위임 완료 ' + cm(done) + '건</div></div><i class="ph ph-caret-right"></i></button>'
-
-      + '<div class="grp">'
+      '<div class="grp" style="margin-top:0">'
+      + '<button class="li" type="button" id="setProfile"><i class="ph ph-user"></i>'
+      + '<span class="t">내 프로필</span><i class="ph ph-caret-right"></i></button>'
       + li('ph-receipt', '정산 내역', '10,000,000원 지급예정', 'hi', '정산 내역')
       + '<div id="setNoti"></div>'
       + '</div>'
@@ -1234,6 +1389,7 @@
     $('#setNoti').innerHTML = '<button class="li" type="button" id="setNotiBtn"><i class="ph ph-bell"></i>'
       + '<span class="t">알림 설정</span><span class="r">' + notiOn() + '개 켜짐</span><i class="ph ph-caret-right"></i></button>';
     $('#setNotiBtn').addEventListener('click', openNoti);
+    $('#setProfile').addEventListener('click', openProfile);
     $('#setKey').addEventListener('click', function () {
       sheet({
         title: '네이버 지도 Client ID',
@@ -1283,6 +1439,43 @@
       });
     });
   }
+  /* ── 내 프로필 (Figma 5148:25712) ─────────────────────────── */
+  var PROF = { nm: '도지연', since: '2026.03.02', tel: '010-2367-6429',
+    mail: 'doji@irkudos.co.kr', org: '아이알큐더스', tier: '우수파트너 · 상위 7%' };
+  function openProfile() {
+    var done = APP.list().filter(function (x) { return x.st === 'done'; }).length;
+    $('#pfBd').innerHTML =
+      '<div class="pf-top">'
+      + '<div class="pf-av"><i class="ph ph-user"></i></div>'
+      + '<div class="pf-nm">' + esc(PROF.nm) + '</div>'
+      + '<div class="pf-since">활동 시작일 ' + PROF.since + '</div>'
+      + '<div class="pf-tier">' + esc(PROF.tier) + '</div></div>'
+
+      + '<div class="pf-stats">'
+      + '<div class="s"><div class="k">누적 수집</div><div class="v">' + cm(213 + done) + '</div></div>'
+      + '<div class="s"><div class="k">평균 완료율</div><div class="v">90%</div></div>'
+      + '<div class="s"><div class="k">보완 요청</div><div class="v">100%</div></div></div>'
+
+      + '<div class="pf-lb">기본 정보</div>'
+      + '<div class="pf-card">'
+      + '<button class="pf-row" type="button" data-help="연락처 변경"><div class="c">'
+      + '<div class="k">연락처</div><div class="v">' + esc(PROF.tel) + '</div></div>'
+      + '<span class="go">변경하기<i class="ph ph-caret-right"></i></span></button>'
+      + '<button class="pf-row" type="button" data-help="이메일 변경"><div class="c">'
+      + '<div class="k">이메일</div><div class="v">' + esc(PROF.mail) + '</div></div>'
+      + '<span class="go">변경하기<i class="ph ph-caret-right"></i></span></button></div>'
+
+      + '<div class="pf-lb">소속 정보</div>'
+      + '<div class="pf-org"><b>' + esc(PROF.org) + '</b>'
+      + '<div>소속 정보 변경은 고객센터로 요청해 주세요.</div></div>'
+
+      + '<button class="pf-quit" type="button" data-help="회원 탈퇴">회원 탈퇴</button>';
+    show('#scrProfile'); $('#tabbar').hidden = true;
+    $('#pfBd').scrollTop = 0;
+  }
+  $('#pfBack').addEventListener('click', function () { goTab('set'); });
+  $('#pfOut').addEventListener('click', function () { $('#setOut') && $('#setOut').click(); });
+
   function li(ic, t, r, cls, help) {
     return '<button class="li" type="button" data-help="' + esc(help) + '"><i class="ph ' + ic + '"></i>'
       + '<span class="t">' + t + '</span>' + (r ? '<span class="r ' + cls + '">' + r + '</span>' : '')

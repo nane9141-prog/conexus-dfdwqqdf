@@ -20,7 +20,7 @@
 
   /* 기업 목록 — 주주PASS 시청 페이지가 쓰는 기업 리스트와 같은 이름을 쓴다 */
   APP.COMPANIES = [
-    '아이알큐더스', '큐더스전자', '카카오뱅크', '네이버', '현대차', '신세계', '기아',
+    '큐더스전자', '카카오뱅크', '네이버', '현대차', '신세계', '기아',
     '고려아연', '한미반도체', '달바글로벌', 'GS', '한화에어로스페이스', '미래에셋증권',
     '농심', 'HD현대', '신한지주', '무신사', '대한항공'
   ];
@@ -126,10 +126,10 @@
       due: M.date || '2026-09-29', state: 'live',
       goalSh: 50, goalVt: 15000000 },
     /* 지난 캠페인은 마감된 실적을 그대로 보여 준다 */
-    { id: 'c2', org: '아이알큐더스', term: '제 1기 정기주주총회', due: '2026-03-12', state: 'end',
+    { id: 'c2', org: '카카오뱅크', term: '제 9기 정기주주총회', due: '2026-03-12', state: 'end',
       goalSh: 50, goalVt: 15000000, doneSh: 50, doneVt: 15420000 },
-    { id: 'c3', org: '아이알큐더스', term: '제 1기 임시주주총회', due: '2026-02-20', state: 'end',
-      goalSh: 50, goalVt: 15000000, doneSh: 44, doneVt: 13610000 }
+    { id: 'c3', org: '네이버', term: '제 26기 임시주주총회', due: '2026-02-20', state: 'end',
+      goalSh: 50, goalVt: 15000000, doneSh: 45, doneVt: 13610000 }
   ];
 
   /* ── 행정구역 — 지역 선택 드롭다운용 ───────────────────────────────── */
@@ -167,6 +167,21 @@
     return 'plan';
   }
 
+  /* 명부에 잡히는 주소들 — 첫 번째가 대표 주소.
+     추가 주소는 같은 동네에서 조금씩 어긋난 이력 주소로 만든다. */
+  var LIVE3 = [{ k: 'high', nm: '거주 가능성 높음' }, { k: 'mid', nm: '거주 가능성 보통' }, { k: 'low', nm: '거주 가능성 낮음' }];
+  function addrList(i, ad, lv) {
+    var out = [{ zip: ad.zip, full: ad.full, short: ad.short, lat: ad.lat, lng: ad.lng, live: lv, other: false }];
+    var n = (rnd(i, 52) < 0.35) ? 1 + Math.floor(rnd(i, 53) * 3) : 0;
+    for (var k = 0; k < n; k++) {
+      var a2 = addrOf(i + 613 * (k + 1));
+      var l2 = LIVE3[Math.min(2, Math.floor(rnd(i, 60 + k) * 3))];
+      out.push({ zip: a2.zip, full: a2.full, short: a2.short, lat: a2.lat, lng: a2.lng,
+        live: l2, other: l2.k === 'low' });    /* 거주 가능성 낮음 → 타인거주 확인 대상 */
+    }
+    return out;
+  }
+
   /* 권유 기간(9/15~9/29) 안의 처리 일시 */
   function atOf(i) {
     function p(v) { return (v < 10 ? '0' : '') + v; }
@@ -198,9 +213,9 @@
         zip: ad.zip, addr: ad.full, area: ad.short, lat: ad.lat, lng: ad.lng,
         gb: r.gb,                                   /* 개인 · 법인 */
         bld: rnd(r.i, 51) < 0.72 ? '집합건물' : '단독건물',
-        /* 명부에 주소가 여러 건 잡히는 경우 — 대표주소 외 N개 */
-        more: rnd(r.i, 52) < 0.35 ? 1 + Math.floor(rnd(r.i, 53) * 3) : 0,
         live: lv, st: st,
+        addrs: addrList(r.i, ad, lv),               /* 대표 주소 + 추가 주소 */
+        get more() { return Math.max(0, this.addrs.length - 1); },
         memo: SAVED.memo[r.i] || '',
         /* 앱에서 처리한 적이 없는 건은 배정 이후 아무 날짜나 하나 붙여 둔다 */
         at: SAVED.at[r.i] || (st === 'plan' ? '' : atOf(r.i))
@@ -213,10 +228,10 @@
   function load() {
     var s = {};
     try { s = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
-    return { st: s.st || {}, memo: s.memo || {}, tel: s.tel || {}, at: s.at || {} };
+    return { st: s.st || {}, memo: s.memo || {}, tel: s.tel || {}, at: s.at || {}, addr: s.addr || {} };
   }
   function save() {
-    var s = { st: SAVED.st, memo: SAVED.memo, tel: SAVED.tel, at: SAVED.at, ts: Date.now() };
+    var s = { st: SAVED.st, memo: SAVED.memo, tel: SAVED.tel, at: SAVED.at, addr: SAVED.addr, ts: Date.now() };
     /* CONEXUS 가 바로 쓰도록 확보 합계도 함께 적어 둔다 */
     var done = APP.list().filter(function (x) { return x.st === 'done'; });
     s.done = done.length;
@@ -243,6 +258,14 @@
     save();
   };
   APP.setMemo = function (i, t) { var x = APP.find(i); if (!x) return; x.memo = t; SAVED.memo[x.i] = t; save(); };
+  /* 대표 주소 바꾸기 — 고른 주소를 맨 앞으로 올리고 카드·지도에 쓰는 값도 같이 바꾼다 */
+  APP.setPrimaryAddr = function (i, k) {
+    var x = APP.find(i); if (!x || !x.addrs[k]) return;
+    var a = x.addrs.splice(k, 1)[0];
+    x.addrs.unshift(a);
+    x.zip = a.zip; x.addr = a.full; x.area = a.short; x.lat = a.lat; x.lng = a.lng; x.live = a.live;
+    SAVED.addr[x.i] = k; save();
+  };
   APP.setTel  = function (i, t) { var x = APP.find(i); if (!x) return; x.tel  = t; SAVED.tel[x.i]  = t; save(); };
 
   /* 수집현황 — 캠페인별 확보 주주 수 · 주식수 */

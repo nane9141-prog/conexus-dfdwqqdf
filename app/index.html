@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=36">
+<link rel="stylesheet" href="app.css?v=40">
 </head>
 <body>
 <div id="phone">
@@ -120,6 +120,56 @@
     </div>
   </section>
 
+  <!-- ══ 전체 주소 (대표 주소 설정) ══ -->
+  <section class="scr" id="scrAddr">
+    <div class="tb">
+      <h1>전체 주소</h1>
+      <span class="sp"></span>
+      <button class="ic" id="adX" type="button" aria-label="닫기"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="admeta">
+      <button class="srt" id="adSort" type="button"><i class="ph ph-funnel-simple"></i><span>거주 가능성 높은 순</span></button>
+      <span><b id="adCnt">0</b>건</span>
+    </div>
+    <div class="bd plain"><div class="adlist" id="adList"></div></div>
+    <div class="dt-ft"><button class="btn dark" id="adOk" type="button">대표주소로 변경하기</button></div>
+  </section>
+
+  <!-- ══ 연락처 등록 ══ -->
+  <section class="scr" id="scrTel">
+    <div class="tb">
+      <h1>연락처 등록</h1>
+      <span class="sp"></span>
+      <button class="ic" id="telX" type="button" aria-label="닫기"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="bd plain telbd">
+      <div class="telmid">
+        <div class="tellead">주주총회 진행 현황을 알림톡으로 보내드립니다.</div>
+        <div class="telfld">
+          <input id="telIn" inputmode="tel" placeholder="010-0000-0000" maxlength="13">
+          <button class="clr" id="telClr" type="button" hidden aria-label="지우기"><i class="ph-fill ph-x-circle"></i></button>
+        </div>
+        <button class="telagree" id="telAgree" type="button">
+          <span class="cb on" id="telCb"></span>
+          <span class="t">알림톡 발송 및 안내를 위한 정보 수집 동의</span>
+          <span class="more" data-help="정보 수집 동의">자세히 보기</span>
+        </button>
+      </div>
+    </div>
+    <button class="telok" id="telOk" type="button" disabled>등록 완료</button>
+  </section>
+
+  <!-- ══ 내 프로필 ══ -->
+  <section class="scr" id="scrProfile">
+    <div class="tb">
+      <button class="ic bk" id="pfBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>내 프로필</h1>
+      <span class="sp"></span>
+      <button class="ic" id="pfOut" type="button" aria-label="로그아웃"><i class="ph ph-sign-out"></i></button>
+    </div>
+    <div class="bd" id="pfBd"></div>
+  </section>
+
   <!-- ══ 수집현황 ══ -->
   <section class="scr" id="scrStat">
     <div class="tb"><h1>수집현황</h1></div>
@@ -158,7 +208,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../cx-data.js?v=1"></script>
 <script src="../cx-roster.js?v=r9"></script>
-<script src="app-data.js?v=9"></script>
-<script src="app.js?v=36"></script>
+<script src="app-data.js?v=10"></script>
+<script src="app.js?v=40"></script>
 </body>
 </html>

@@ -498,3 +498,170 @@ a{color:inherit;text-decoration:none}
 #toast .t{max-width:100%;padding:12px 16px;border-radius:12px;background:rgba(21,20,25,.94);color:#fff;
   font-size:13px;font-weight:600;opacity:0;transform:translateY(8px);transition:.2s;line-height:1.5}
 #toast .t.on{opacity:1;transform:none}
+
+/* ═══ 주주 상세정보 — 피그마 5148:26384 ═══════════════════════ */
+#scrDetail .bd{background:var(--bg)}
+.dt-hd{padding:18px 16px 20px;background:#fff}
+.dt-hd .l1{display:flex;align-items:center;gap:6px}
+.dt-hd .nm{font-size:22px;font-weight:800;letter-spacing:-.03em}
+.dt-hd .bkm{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;color:#C9CBD1}
+.dt-hd .bkm i{font-size:20px}
+.dt-hd .bkm.on{color:var(--ink)}
+.dt-hd .stb{margin-left:auto;display:inline-flex;align-items:center;height:30px;padding:0 14px;
+  border-radius:1000px;font-size:13px;font-weight:700}
+.dt-hd .stb.blue{background:#EBF4FF;color:#0071F3}
+.dt-hd .stb.orange{background:#FFF4E8;color:#F97316}
+.dt-hd .stb.red{background:#FFEFF1;color:#E9081B}
+.dt-hd .stb.green{background:#E9FBF3;color:#059669}
+.dt-hd .stb.purple{background:#F3EFFE;color:#7C3AED}
+/* 정보 줄 */
+.dt-kv{display:flex;gap:12px;padding:7px 0;font-size:14px;align-items:flex-start}
+.dt-kv .k{width:64px;flex:none;color:#8A8F99;font-size:14px;padding-top:2px}
+.dt-kv .v{flex:1;min-width:0;font-weight:600;color:var(--fg);word-break:keep-all}
+.dt-kv .v .sm{font-weight:500;color:#6B7280}
+/* 연락처 등록 버튼 */
+.telbtn{display:inline-flex;align-items:center;height:32px;padding:0 12px;border:1px solid #DDE0E5;
+  border-radius:8px;background:#fff;font-size:13px;font-weight:700;color:var(--fg)}
+.telbtn:active{background:#F5F5F5}
+.telval{display:flex;align-items:center;gap:8px}
+.telval a{font-weight:700;color:var(--fg)}
+.telval .ed{font-size:12px;font-weight:600;color:var(--blue)}
+/* 주소 패널 */
+.adbox{background:#F4F5F7;border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+.adbox .z{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--fg)}
+.adbox .z .cp{display:inline-flex;color:#A7AAB1}
+.adbox .z .cp i{font-size:15px}
+.adbox .z .sp{flex:1}
+.adbox .z .more{font-size:12px;font-weight:700;color:var(--blue)}
+.adbox .tx{font-size:13px;color:#4B5058;line-height:1.55}
+/* 구역 */
+.dsec{background:#fff;padding:16px;margin-top:10px}
+.dsec .h{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.dsec .h b{font-size:16px;font-weight:800;flex:1}
+.mbtn{display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 13px;border:1px solid #DDE0E5;
+  border-radius:9px;background:#fff;font-size:13px;font-weight:700;color:var(--fg)}
+.mbtn i{font-size:15px}
+.mbtn:active{background:#F5F5F5}
+/* 메모 카드 */
+.memos{display:flex;flex-direction:column;gap:10px}
+.memo-c{background:#F5F6F8;border-radius:12px;padding:14px}
+.memo-c .t{display:flex;align-items:center;gap:8px}
+.memo-c .t b{font-size:14px;font-weight:800;color:var(--fg)}
+.memo-c .t span{font-size:13px;color:#8A8F99}
+.memo-c .t .sp{flex:1}
+.memo-c .t .del{color:#9AA0A8;display:inline-flex}
+.memo-c .t .del i{font-size:17px}
+.memo-c .x{margin-top:8px;font-size:14px;color:#3F444E;line-height:1.6;white-space:pre-wrap}
+.memo-empty{padding:44px 0 48px;text-align:center;color:#B4B8C0;font-size:14px}
+.memo-empty i{display:block;font-size:34px;margin-bottom:10px;color:#D4D7DD}
+/* 하단 버튼 */
+#scrDetail .dt-ft .btn.gh{border-color:#DDE0E5;font-weight:700}
+.btn.dark{background:var(--ink)}
+.btn.dark:active{background:#000}
+
+/* 토스트 — 저장 확인 */
+#toast .t.ok{display:flex;align-items:center;gap:8px}
+#toast .t.ok::before{content:"";width:18px;height:18px;border-radius:1000px;background:#22C55E;flex:none;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+  background-size:12px 12px;background-repeat:no-repeat;background-position:center}
+
+/* ═══ 연락처 등록 화면 ═══════════════════════════════════════ */
+.telbd{display:flex;align-items:center;justify-content:center}
+.telmid{width:100%;padding:0 16px;margin-top:-80px}
+.tellead{text-align:center;font-size:15px;font-weight:700;color:var(--blue);margin-bottom:16px}
+.telfld{position:relative}
+.telfld input{width:100%;height:56px;padding:0 44px 0 16px;border:1px solid #DDE0E5;border-radius:12px;
+  font-size:17px;font-weight:600;outline:none}
+.telfld input:focus{border-color:var(--ink)}
+.telfld input::placeholder{color:#B4B8C0;font-weight:500}
+.telfld .clr{position:absolute;right:12px;top:0;height:56px;display:flex;align-items:center;color:#C9CBD1}
+.telfld .clr[hidden]{display:none}
+.telfld .clr i{font-size:20px}
+.telagree{display:flex;align-items:center;gap:8px;width:100%;margin-top:14px;text-align:left}
+.telagree .t{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--fg)}
+.telagree .more{font-size:12px;color:#9AA0A8;text-decoration:underline;flex:none}
+.telok{flex:none;height:56px;background:var(--blue);color:#fff;font-size:16px;font-weight:700;
+  padding-bottom:0;margin-bottom:var(--sa-bot)}
+.telok:disabled{background:#BFDBFE}
+
+/* ═══ 전체 주소 ═════════════════════════════════════════════ */
+.admeta{flex:none;display:flex;align-items:center;justify-content:space-between;padding:4px 16px 12px;
+  font-size:13px;color:var(--mut);background:#fff}
+.admeta .srt{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--fg)}
+.admeta .srt i{font-size:15px;color:#8A8F99}
+.admeta b{color:var(--fg);font-weight:700}
+.adlist{display:flex;flex-direction:column;gap:10px;padding:0 16px 20px}
+.adrow{display:flex;gap:10px;align-items:flex-start;background:#F5F6F8;border-radius:12px;padding:14px;
+  text-align:left;width:100%}
+.adrow.on{background:#EBF4FF;outline:1px solid #B2D5FF}
+.adrow .cb{margin-top:2px}
+.adrow .c{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
+.adrow .z{display:flex;align-items:center;gap:6px}
+.adrow .z b{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+.adrow .z .cp{color:#A7AAB1;display:inline-flex}
+.adrow .z .cp i{font-size:15px}
+.adrow .z .sp{flex:1}
+.adrow .z .lv{font-size:12px;font-weight:700}
+.adrow .z .lv.high{color:var(--blue)} .adrow .z .lv.mid{color:#6B7280} .adrow .z .lv.low{color:var(--red)}
+.adrow .tx{font-size:13px;color:#4B5058;line-height:1.55}
+.adrow .tag{align-self:flex-start;display:inline-flex;align-items:center;height:24px;padding:0 9px;
+  border-radius:7px;background:#E5E7EB;color:#5B6070;font-size:11px;font-weight:700}
+
+/* ═══ 수집현황 — 피그마 5148:25675 ═══════════════════════════ */
+.cmp2{background:#fff;border-radius:16px;padding:18px 16px 0;margin-bottom:12px;overflow:hidden}
+.cmp2 .l1{display:flex;align-items:center;gap:8px}
+.cmp2 .co{font-size:21px;font-weight:800;letter-spacing:-.03em;flex:1;min-width:0}
+.cmp2 .dd{flex:none;display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:1000px;
+  font-size:13px;font-weight:700;background:#EBF4FF;color:var(--blue)}
+.cmp2 .dd.end{background:#F1F2F4;color:#7A8089}
+.cmp2 .tm{margin-top:6px;font-size:14px;color:#6B7280}
+.cmp2 .box{margin-top:14px;background:#F4F5F7;border-radius:10px;padding:12px 14px;
+  display:flex;flex-direction:column;gap:7px}
+.cmp2 .r{display:flex;align-items:center;gap:10px;font-size:13px}
+.cmp2 .r .k{width:44px;flex:none;color:#8A8F99}
+.cmp2 .r .got{font-weight:800;color:var(--blue)}
+.cmp2.end .r .got{color:var(--fg)}
+.cmp2 .r .goal{color:#6B7280;font-weight:600}
+.cmp2 .arc{position:relative;margin:6px -16px 0;height:104px}
+.cmp2 .arc svg{display:block;width:100%;height:104px}
+.cmp2 .arc .pct{position:absolute;left:0;right:0;bottom:12px;text-align:center;
+  font-size:19px;font-weight:800;color:var(--blue)}
+.cmp2.end .arc .pct{color:var(--ink)}
+.cmp2 .due2{position:absolute;right:12px;top:-6px;background:var(--ink);color:#fff;font-size:12px;
+  font-weight:600;padding:7px 11px;border-radius:9px;white-space:nowrap}
+
+/* ═══ 내 프로필 ═════════════════════════════════════════════ */
+.pf-top{padding:26px 16px 22px;text-align:center}
+.pf-av{width:104px;height:104px;border-radius:1000px;background:#E7E9ED;color:#B4B8C0;margin:0 auto;
+  display:flex;align-items:center;justify-content:center}
+.pf-av i{font-size:52px}
+.pf-nm{margin-top:14px;font-size:21px;font-weight:800;letter-spacing:-.03em}
+.pf-since{margin-top:6px;font-size:14px;font-weight:600;color:var(--blue)}
+.pf-tier{margin-top:10px;display:inline-flex;align-items:center;height:28px;padding:0 14px;border-radius:1000px;
+  background:var(--blue);color:#fff;font-size:12px;font-weight:700}
+.pf-stats{margin:0 16px;background:#fff;border-radius:14px;padding:18px 8px;display:flex}
+.pf-stats .s{flex:1;text-align:center}
+.pf-stats .s .k{font-size:13px;color:#6B7280;font-weight:600}
+.pf-stats .s .v{margin-top:8px;font-size:24px;font-weight:800;letter-spacing:-.03em}
+.pf-lb{padding:22px 16px 8px;font-size:13px;font-weight:700;color:#8A8F99}
+.pf-card{margin:0 16px;background:#fff;border-radius:14px;padding:0 16px}
+.pf-row{display:flex;align-items:center;gap:10px;padding:16px 0;border-bottom:1px solid #F0F1F3;width:100%;text-align:left}
+.pf-row:last-child{border-bottom:0}
+.pf-row .c{flex:1;min-width:0}
+.pf-row .k{font-size:13px;color:#8A8F99}
+.pf-row .v{margin-top:5px;font-size:16px;font-weight:700}
+.pf-row .go{display:inline-flex;align-items:center;gap:2px;font-size:13px;color:#6B7280;font-weight:600;flex:none}
+.pf-row .go i{font-size:15px;color:#B4B8C0}
+.pf-org{margin:0 16px;background:#fff;border-radius:14px;padding:16px}
+.pf-org b{font-size:17px;font-weight:800}
+.pf-org div{margin-top:6px;font-size:13px;color:#8A8F99}
+.pf-quit{display:block;margin:26px auto calc(28px + var(--sa-bot));font-size:13px;color:#8A8F99;
+  text-decoration:underline}
+
+/* 방문 상태 변경 시트 — 현재 상태는 회색 채움 */
+.stlist{display:flex;flex-direction:column;padding:2px 0 6px}
+.strow{height:52px;padding:0 14px;border-radius:10px;text-align:left;font-size:15px;font-weight:600;
+  color:var(--fg);display:flex;align-items:center}
+.strow.on{background:#F1F2F4;font-weight:800}
+/* 주소 복사 시트 — 지도 앱 바로가기 */
+.maplinks a img{width:22px;height:22px;border-radius:6px;object-fit:cover}
