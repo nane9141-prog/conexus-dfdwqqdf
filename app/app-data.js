@@ -85,13 +85,22 @@
     };
   }
 
-  /* 생년월일 · 성별 — 주주번호(마스킹) 앞자리에서 만들 수 없으니 순번으로 만든다 */
-  function bornOf(i) {
-    var y = 1948 + Math.floor(rnd(i, 11) * 52);
-    var m = 1 + Math.floor(rnd(i, 12) * 12);
-    var d = 1 + Math.floor(rnd(i, 13) * 28);
+  /* 생년월일 · 성별 — 명부의 마스킹된 주민등록번호 앞자리를 그대로 읽는다.
+     (앞 6자리 생년월일 + 뒷자리 첫 숫자로 1900년대·2000년대와 성별이 갈린다) */
+  function bornOf(r) {
+    var i = r.i;
     function p(v) { return (v < 10 ? '0' : '') + v; }
-    return { ymd: y + '-' + p(m) + '-' + p(d), age: 2026 - y, sex: rnd(i, 14) < 0.47 ? '남성' : '여성' };
+    var m = /^(\d{2})(\d{2})(\d{2})-([1-4])/.exec(String(r.id || ''));
+    if (m) {
+      var c = (m[4] === '1' || m[4] === '2') ? 1900 : 2000;
+      var y = c + (+m[1]);
+      return { ymd: y + '-' + m[2] + '-' + m[3], age: 2026 - y,
+        sex: (m[4] === '1' || m[4] === '3') ? '남성' : '여성' };
+    }
+    /* 법인 등록번호처럼 형식이 다르면 순번으로 만든다 */
+    var y2 = 1948 + Math.floor(rnd(i, 11) * 52);
+    return { ymd: y2 + '-' + p(1 + Math.floor(rnd(i, 12) * 12)) + '-' + p(1 + Math.floor(rnd(i, 13) * 28)),
+      age: 2026 - y2, sex: rnd(i, 14) < 0.47 ? '남성' : '여성' };
   }
 
   /* 거주 가능성 — 명부 주소와 최근 우편물 반송 여부를 섞은 값(시연용) */
@@ -150,7 +159,7 @@
       if (t) R.push(t); else R = R.slice(0, 150);
     }
     return R.map(function (r, i) {
-      var ad = addrOf(r.i), bn = bornOf(r.i), lv = liveOf(r.i);
+      var ad = addrOf(r.i), bn = bornOf(r), lv = liveOf(r.i);
       var st = SAVED.st[r.i] || baseState(r.i);
       return {
         i: r.i, name: r.nm, sh: r.sh, rt: r.rt,
