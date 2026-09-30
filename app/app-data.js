@@ -78,10 +78,11 @@
     { id: 'c1', org: M.org || '큐더스전자', term: M.name || '제10기 정기주주총회',
       due: M.date || '2026-09-29', state: 'live',
       goalSh: 50, goalVt: 15000000 },
+    /* 지난 캠페인은 마감된 실적을 그대로 보여 준다 */
     { id: 'c2', org: '아이알큐더스', term: '제 1기 정기주주총회', due: '2026-03-12', state: 'end',
-      goalSh: 50, goalVt: 15000000 },
+      goalSh: 50, goalVt: 15000000, doneSh: 50, doneVt: 15420000 },
     { id: 'c3', org: '아이알큐더스', term: '제 1기 임시주주총회', due: '2026-02-20', state: 'end',
-      goalSh: 50, goalVt: 15000000 }
+      goalSh: 50, goalVt: 15000000, doneSh: 44, doneVt: 13610000 }
   ];
 
   /* ── 수집 대상 만들기 ──────────────────────────────────────────────── */
@@ -163,6 +164,10 @@
     var c = null; APP.CAMPAIGNS.forEach(function (x) { if (x.id === campId) c = x; });
     var gSh = (c && c.goalSh) || 50, gVt = (c && c.goalVt) || 15000000;
     var vt = done.reduce(function (a, x) { return a + x.sh; }, 0);
+    if (c && c.state === 'end') {
+      return { sh: c.doneSh, goalSh: gSh, vt: c.doneVt, goalVt: gVt,
+        pct: Math.min(100, Math.round(Math.min(c.doneSh / gSh, c.doneVt / gVt) * 100)) };
+    }
     /* 달성률은 주주 수·주식 수 둘 다 본다 — 낮은 쪽이 실제 진척이다 */
     var p1 = gSh ? done.length / gSh : 0, p2 = gVt ? vt / gVt : 0;
     return {

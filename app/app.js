@@ -525,7 +525,9 @@
       var s = APP.stat(c.id), dd = dday(c.due);
       var live = c.state === 'live';
       return '<div class="cmp"><div class="l1"><span class="co">' + esc(c.org) + '</span>'
-        + (live ? '<span class="bg blue">D' + (dd >= 0 ? '-' + dd : '+' + (-dd)) + '</span>' : '<span class="bg gray">종료</span>')
+        + (live ? (dd > 0 ? '<span class="bg blue">D-' + dd + '</span>'
+          : dd === 0 ? '<span class="bg blue">D-DAY</span>' : '<span class="bg red">마감 임박</span>')
+          : '<span class="bg gray">종료</span>')
         + '</div><div class="tm">' + esc(c.term) + '</div>'
         + '<div class="gg">'
         + '<div class="g"><div class="lb">주주 확보</div><div class="vl">' + cm(s.sh) + '<small>명</small></div>'
