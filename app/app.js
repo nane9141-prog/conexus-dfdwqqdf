@@ -361,7 +361,7 @@
   function openCoSheet() {
     var pick = DRAFT.co.slice(), q = '';
     function body() {
-      var L = APP.COMPANIES.filter(function (n) { return !q || n.indexOf(q) >= 0; });
+      var L = APP.liveCompanies().filter(function (n) { return !q || n.indexOf(q) >= 0; });
       return '<div class="srch" style="padding:0 0 12px"><div class="wrap">'
         + '<i class="ph ph-magnifying-glass"></i><input id="coQ" placeholder="기업명 검색" value="' + esc(q) + '"></div></div>'
         + '<div class="colist">' + L.map(function (n) {
@@ -389,7 +389,7 @@
         + '<button class="btn" type="button" id="coOk">선택 완료</button>',
       after: function (bx) {
         paint(bx);
-        bx.querySelector('#coAll').addEventListener('click', function () { pick = APP.COMPANIES.slice(); paint(bx); });
+        bx.querySelector('#coAll').addEventListener('click', function () { pick = APP.liveCompanies(); paint(bx); });
         bx.querySelector('#coOk').addEventListener('click', function () {
           DRAFT.co = pick; closeSheet(); drawFilter();
         });

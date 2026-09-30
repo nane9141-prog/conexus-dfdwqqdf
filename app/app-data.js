@@ -19,11 +19,11 @@
   APP.NAVER_KEY = '434fyvv4r5';
 
   /* 기업 목록 — 주주PASS 시청 페이지가 쓰는 기업 리스트와 같은 이름을 쓴다 */
-  APP.COMPANIES = [
-    '큐더스전자', '카카오뱅크', '네이버', '현대차', '신세계', '기아',
-    '고려아연', '한미반도체', '달바글로벌', 'GS', '한화에어로스페이스', '미래에셋증권',
-    '농심', 'HD현대', '신한지주', '무신사', '대한항공'
-  ];
+  /* 상세 조건의 기업 선택은 지금 권유가 진행중인 기업만 보여 준다 (아래 CAMPAIGNS 에서 뽑는다) */
+  APP.liveCompanies = function () {
+    return APP.CAMPAIGNS.filter(function (c) { return c.state === 'live'; })
+      .map(function (c) { return c.org; });
+  };
 
   /* ── 상태 ─────────────────────────────────────────────────────────── */
   APP.STATES = {
@@ -135,6 +135,12 @@
     { id: 'c6', org: '무신사', term: '제 9기 정기주주총회',
       from: '2026-09-10', due: '2026-10-03', state: 'live',
       goalSh: 30, goalVt: 6000000, doneSh: 27, doneVt: 5460000 },
+    { id: 'c7', org: '농심', term: '제 9기 정기주주총회',
+      from: '2026-09-25', due: '2026-10-28', state: 'live',
+      goalSh: 45, goalVt: 12000000, doneSh: 9, doneVt: 2180000 },
+    { id: 'c8', org: 'GS', term: '제 9기 정기주주총회',
+      from: '2026-09-12', due: '2026-10-09', state: 'live',
+      goalSh: 35, goalVt: 8000000, doneSh: 24, doneVt: 5900000 },
     /* 지난 캠페인은 마감된 실적을 그대로 보여 준다 */
     { id: 'c2', org: '카카오뱅크', term: '제 9기 정기주주총회', from: '2026-02-16', due: '2026-03-12', state: 'end',
       goalSh: 50, goalVt: 15000000, doneSh: 50, doneVt: 15420000 },
