@@ -89,17 +89,37 @@ button{background:none;border:none;cursor:pointer}
 /* ── 현장 · 출입증 카드 ──────────────────────── */
 #scrCards{background:#fff}
 .cardstage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:calc(24px + var(--sa-top)) 0 10px;min-height:0;position:relative;overflow:hidden}
-/* 뒤쪽 그라데이션이 카드 색을 따라 부드럽게 바뀐다 */
-.cardstage::before{content:"";position:absolute;inset:-20% -30% 30%;z-index:0;filter:blur(60px);opacity:.28;
-  background:var(--g1,#5B7CFA);transition:background 1.1s ease}
+  padding:calc(24px + var(--sa-top)) 0 10px;min-height:0;position:relative;overflow:hidden;background:#fff}
 .deck{position:relative;z-index:1;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
   display:flex;gap:14px;padding:0 24px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .deck::-webkit-scrollbar{display:none}
 .pcard{scroll-snap-align:center;flex:0 0 calc(100% - 48px);border-radius:24px;overflow:hidden;
   aspect-ratio:.66/1;max-height:62vh;position:relative;display:flex;flex-direction:column;
-  padding:24px;color:#fff;text-align:left;
-  box-shadow:0 18px 40px rgba(16,24,40,.22)}
+  padding:24px;color:#fff;text-align:left;isolation:isolate;
+  background:var(--c0);box-shadow:0 18px 40px rgba(16,24,40,.22)}
+/* 색 덩어리 네 개가 서로 다른 속도로 움직여 그라데이션이 살아 있게 보인다 */
+.pcard::before,.pcard::after{content:"";position:absolute;inset:-30%;z-index:-1;pointer-events:none}
+.pcard::before{
+  background:
+    radial-gradient(48% 42% at 22% 18%, var(--c1) 0%, transparent 62%),
+    radial-gradient(52% 46% at 82% 30%, var(--c2) 0%, transparent 66%),
+    radial-gradient(60% 52% at 50% 96%, var(--c3) 0%, transparent 70%);
+  animation:gflow 14s ease-in-out infinite alternate}
+.pcard::after{
+  background:
+    radial-gradient(40% 34% at 76% 76%, var(--c1) 0%, transparent 64%),
+    radial-gradient(44% 38% at 14% 66%, var(--c3) 0%, transparent 66%);
+  mix-blend-mode:screen;opacity:.72;
+  animation:gflow2 19s ease-in-out infinite alternate}
+@keyframes gflow{
+  0%{transform:translate3d(-4%,-3%,0) scale(1.04) rotate(0deg)}
+  50%{transform:translate3d(5%,4%,0) scale(1.14) rotate(8deg)}
+  100%{transform:translate3d(-2%,6%,0) scale(1.06) rotate(-6deg)}}
+@keyframes gflow2{
+  0%{transform:translate3d(4%,5%,0) scale(1.08)}
+  50%{transform:translate3d(-6%,-4%,0) scale(1.18)}
+  100%{transform:translate3d(3%,-6%,0) scale(1.05)}}
+@media (prefers-reduced-motion:reduce){ .pcard::before,.pcard::after{animation:none} }
 .pcard .nfcic{position:absolute;right:22px;top:22px;font-size:22px;opacity:.95}
 .pcard .nm{margin-top:34px;font-size:30px;font-weight:800;letter-spacing:-.03em}
 .pcard .mid{margin-top:auto}

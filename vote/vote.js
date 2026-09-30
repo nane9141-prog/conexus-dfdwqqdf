@@ -17,13 +17,13 @@
   var CARDS = [
     { key: 'kudos', co: M.org || '큐더스전자', term: M.name || '제10기 정기주주총회',
       sh: 41847, seat: 'A129', asof: '2026년 9월 14일 기준', live: true,
-      g: ['#4F6BFF', '#7B5CFF', '#3BA7FF'] },
+      g: ['#3D5AFE', '#7A4DFF', '#2E9BFF', '#63C2FF'] },
     { key: 'naver', co: '네이버', term: '제27기 정기주주총회',
       sh: 20000, seat: 'B061', asof: '2026년 9월 14일 기준', live: false,
-      g: ['#12B76A', '#0E9F6E', '#63D39B'] },
+      g: ['#0FA968', '#12B76A', '#37C7A0', '#7BE3B4'] },
     { key: 'kakaobank', co: '카카오뱅크', term: '제10기 정기주주총회',
       sh: 1200, seat: 'C412', asof: '2026년 9월 14일 기준', live: false,
-      g: ['#FFB020', '#FF8A3D', '#FFD166'] }
+      g: ['#FF9E1B', '#FF7A3D', '#FFC24D', '#FFD97A'] }
   ];
   var CUR = null, CURAG = null;
 
@@ -90,6 +90,7 @@
 
   /* ══ 1. NFC 태깅 ═════════════════════════════ */
   var tagged = false;
+  show('#scrNfc', 'site');
   $('#nfcGo').addEventListener('click', doTag);
   function doTag() {
     if (tagged) return;
@@ -107,8 +108,7 @@
   function drawCards() {
     $('#deck').innerHTML = CARDS.map(function (c) {
       return '<div class="pcard' + (c.live ? '' : ' off') + '" role="button" tabindex="0" data-card="' + c.key + '"'
-        + ' style="background:linear-gradient(150deg,' + c.g[0] + ' 0%,' + c.g[1] + ' 48%,' + c.g[2] + ' 100%)">'
-        + (c.live ? '<span class="st">진행 중</span>' : '<span class="st">예정</span>')
+        + ' style="--c0:' + c.g[0] + ';--c1:' + c.g[1] + ';--c2:' + c.g[2] + ';--c3:' + c.g[3] + '">'
         + '<i class="ph-fill ph-cell-signal-full nfcic"></i>'
         + '<div class="nm">' + esc(ME.nm) + '</div>'
         + '<div class="mid"><div class="co">' + esc(c.co) + '</div>'
@@ -139,8 +139,6 @@
   }
   /* 뒤 배경을 지금 보는 카드 색으로 천천히 바꾼다 */
   function tint(i) {
-    var c = CARDS[i] || CARDS[0];
-    $('#cardStage').style.setProperty('--g1', c.g[0]);
     $$('#dots span').forEach(function (d, n) { d.classList.toggle('on', n === i); });
   }
   var slideT = null, slideIdx = 0;
@@ -258,7 +256,7 @@
     return '<div class="ch3' + (cur ? ' has' : '') + '" data-k="' + key + '">'
       + ['찬성', '반대', '기권'].map(function (c) {
           return '<button type="button" data-c="' + c + '"' + (cur === c ? ' class="on"' : '') + '>'
-            + '<i class="ph-bold ' + I[c] + '"></i>' + c + '</button>';
+            + '<i class="ph ' + I[c] + '"></i>' + c + '</button>';
         }).join('') + '</div>';
   }
   function exclHtml(no, d) {
