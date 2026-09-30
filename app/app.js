@@ -622,13 +622,31 @@
       + '<div class="li"><i class="ph ph-info"></i><span class="t">버전 정보</span><span class="r">v.2.0.1</span></div>'
       + '</div>'
 
-      + '<div class="grp"><button class="li" type="button" id="setOut"><i class="ph ph-sign-out"></i>'
+      + '<div class="grp"><button class="li" type="button" id="setReset"><i class="ph ph-arrow-counter-clockwise"></i>'
+      + '<span class="t">시연 데이터 초기화</span><i class="ph ph-caret-right"></i></button>'
+      + '<button class="li" type="button" id="setOut"><i class="ph ph-sign-out"></i>'
       + '<span class="t">로그아웃</span><i class="ph ph-caret-right"></i></button></div>'
       + '<div class="ver">CONEXUS 의결권 위임 플랫폼 · 시연용</div>';
 
     $('#setNoti').innerHTML = '<button class="li" type="button" id="setNotiBtn"><i class="ph ph-bell"></i>'
       + '<span class="t">알림 설정</span><span class="r">' + notiOn() + '개 켜짐</span><i class="ph ph-caret-right"></i></button>';
     $('#setNotiBtn').addEventListener('click', openNoti);
+    $('#setReset').addEventListener('click', function () {
+      sheet({
+        mid: true, title: '시연 데이터 초기화',
+        body: '앱에서 바꾼 방문 상태 · 메모 · 연락처 · 관심 주주를 모두 지우고 처음 상태로 되돌립니다. '
+          + 'CONEXUS 사전 의결권 현황에 넘긴 수집 결과도 함께 지워집니다.',
+        foot: '<button class="btn gh" type="button" data-ovx>취소</button><button class="btn" type="button" id="rsOk">초기화</button>',
+        after: function (bx) {
+          bx.querySelector('#rsOk').addEventListener('click', function () {
+            ['cx.collect', 'cx.app.book', 'cx.app.noti'].forEach(function (k) {
+              try { localStorage.removeItem(k); } catch (e) {}
+            });
+            location.reload();
+          });
+        }
+      });
+    });
     $('#setOut').addEventListener('click', function () {
       sheet({
         mid: true, title: '로그아웃', body: '로그아웃하면 다시 로그인해야 합니다.',
