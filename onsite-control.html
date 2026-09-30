@@ -2377,9 +2377,32 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
     if(!v){ m.style.display='none'; return; }
     m.style.display=''; m.className='stbadge '+v[1]; m.innerHTML='<span class="d"></span>'+v[0];
   }
+  /* 현장투표 앱(vote/)에서 주주가 직접 행사한 표를 현장표결에 더한다.
+     같은 오리진의 cx.onsite 를 보고, 의안 하나당 한 번만 반영한다. */
+  var APPVOTED = {};
+  function pullAppVotes(){
+    var v = {};
+    try { v = JSON.parse(localStorage.getItem('cx.onsite') || '{}'); } catch(e){ return; }
+    var rec = v[OC.agenda];
+    if(!rec || APPVOTED[OC.agenda]) return;
+    APPVOTED[OC.agenda] = true;
+    OC.siteN++; OC.siteW += (+rec.sh || 0);
+    updateMetric();
+    try{
+      var el = document.createElement('div');
+      el.textContent = '현장투표 앱 — ' + rec.nm + ' ' + Number(rec.sh).toLocaleString('en-US') + '주 ' + rec.pick;
+      el.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:9999;'
+        + 'background:rgba(21,20,25,.94);color:#fff;font-size:13px;font-weight:600;padding:12px 16px;border-radius:12px';
+      document.body.appendChild(el);
+      setTimeout(function(){ el.remove(); }, 3200);
+    }catch(e){}
+  }
+  window.addEventListener('storage', function(e){ if(e.key==='cx.onsite') pullAppVotes(); });
+
   /* 투표 중 1초마다 조금씩 오른다. stage 2 를 벗어나면 ticker 가 멈춰 값이 고정된다. */
   function bumpSite(){
     if(OC.stage!==2) return;
+    pullAppVotes();                 /* 같은 탭에서 열어 둔 경우를 대비해 매 초 한 번 더 본다 */
     var moved=false;
     /* 60명이 5분 남짓에 걸쳐 들어오는 속도 — 시연에서 눈으로 따라갈 수 있을 만큼 */
     if(OC.siteN<SITE_TOT && Math.random()<0.18){
