@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=35">
+<link rel="stylesheet" href="app.css?v=36">
 </head>
 <body>
 <div id="phone">
@@ -47,8 +47,12 @@
       <button class="ic" id="btnBook" type="button" aria-label="관심 주주"><i class="ph ph-bookmark-simple"></i></button>
       <button class="ic" id="btnMap" type="button" aria-label="지도 보기"><i class="ph ph-map-trifold"></i></button>
     </div>
-    <div class="chips" id="chips"></div>
-    <div class="srch">
+    <div class="fbar">
+      <div class="chips" id="chips"></div>
+      <button class="chipsrch" id="chipSearch" type="button" hidden aria-label="검색">
+        <i class="ph ph-magnifying-glass"></i></button>
+    </div>
+    <div class="srch" id="srchWrap">
       <div class="wrap"><i class="ph ph-magnifying-glass"></i>
         <input id="q" type="search" placeholder="이름, 주소, 생년월일 검색" enterkeyhint="search">
         <button class="clr" id="qClr" type="button" hidden aria-label="지우기"><i class="ph-fill ph-x-circle"></i></button></div>
@@ -155,6 +159,6 @@
 <script src="../cx-data.js?v=1"></script>
 <script src="../cx-roster.js?v=r9"></script>
 <script src="app-data.js?v=9"></script>
-<script src="app.js?v=34"></script>
+<script src="app.js?v=36"></script>
 </body>
 </html>

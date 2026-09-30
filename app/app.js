@@ -565,14 +565,32 @@
   /* 목록 ↔ 지도 — 같은 수집 탭 안에서 본문만 바꾼다 */
   var MAPMODE = false;
   $('#btnMap').addEventListener('click', function () { setMapMode(!MAPMODE); });
+  var SRCHOPEN = false;
   function setMapMode(on) {
     MAPMODE = on;
     $('#listBd').hidden = on;
     $('#mapwrap').hidden = !on;
     $('#btnMap').querySelector('i').className = on ? 'ph ph-list-bullets' : 'ph ph-map-trifold';
     $('#btnMap').setAttribute('aria-label', on ? '목록 보기' : '지도 보기');
+    /* 지도에서는 검색창 대신 칩 줄 오른쪽 돋보기 아이콘으로 */
+    if (!on) SRCHOPEN = false;
+    paintSearch();
     if (on) openMap(); else { nearClose(); drawList(); }
   }
+  function paintSearch() {
+    var btn = $('#chipSearch');
+    btn.hidden = !MAPMODE;
+    btn.classList.toggle('on', SRCHOPEN);
+    btn.querySelector('i').className = SRCHOPEN ? 'ph ph-x' : 'ph ph-magnifying-glass';
+    $('#srchWrap').hidden = MAPMODE && !SRCHOPEN;
+  }
+  $('#chipSearch').addEventListener('click', function () {
+    SRCHOPEN = !SRCHOPEN;
+    if (!SRCHOPEN && F.q) { $('#q').value = ''; F.q = ''; $('#qClr').hidden = true; refresh(); }
+    paintSearch();
+    if (SRCHOPEN) setTimeout(function () { $('#q').focus(); }, 30);
+    setTimeout(resize, 60);           /* 검색창이 접히고 펴지면 지도 크기가 바뀐다 */
+  });
 
   /* ══ 지도 ════════════════════════════════════ */
   /* 기본 위치는 시연 구역인 여의도 */

@@ -139,6 +139,18 @@ a{color:inherit;text-decoration:none}
 .cb.rd.on{background-size:13px 13px}
 
 /* ── 필터 칩 · 검색 ───────────────────────────── */
+/* 필터 칩 줄 — 지도 모드에서는 오른쪽 끝에 검색 아이콘이 붙는다 */
+.fbar{display:flex;align-items:flex-start;gap:2px}
+.fbar .chips{flex:1;min-width:0}
+.chipsrch{flex:none;width:36px;height:36px;margin:4px 12px 12px 0;border-radius:1000px;
+  border:1px solid #E6E8EC;background:#fff;display:flex;align-items:center;justify-content:center;color:#3F444E}
+.chipsrch[hidden]{display:none}
+.chipsrch:active{background:#F5F5F5}
+.chipsrch i{font-size:17px}
+.chipsrch.on{background:var(--ink);border-color:var(--ink);color:#fff}
+/* 칩 줄 오른쪽 끝이 아이콘 밑으로 잘리지 않게 살짝 가려 준다 */
+.fbar .chips{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 14px),transparent);
+  mask-image:linear-gradient(90deg,#000 calc(100% - 14px),transparent)}
 .chips{display:flex;gap:6px;padding:4px 16px 12px;overflow-x:auto;scrollbar-width:none;
   touch-action:pan-x;cursor:grab;user-select:none;-webkit-user-select:none}
 .chips:active{cursor:grabbing}
@@ -154,6 +166,7 @@ a{color:inherit;text-decoration:none}
 .chip.act i{font-size:16px}
 .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
 .chip.on .x{color:rgba(255,255,255,.7)}
+.srch[hidden]{display:none}
 .srch{padding:0 16px 10px}
 .srch .wrap{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;
   border:1px solid var(--bd);border-radius:12px;background:#fff}
