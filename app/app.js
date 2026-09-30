@@ -25,10 +25,9 @@
     var isTab = Object.keys(TABS).some(function (k) { return TABS[k] === sel; });
     tabbar.hidden = !isTab;
     if (isTab) {
+      /* 아이콘 모양은 그대로 두고 색만 바꾼다 */
       $$('#tabbar button').forEach(function (b) {
         b.classList.toggle('on', TABS[b.dataset.tab] === sel);
-        var i = b.querySelector('i');
-        i.className = (TABS[b.dataset.tab] === sel ? 'ph-fill ph-' : 'ph ph-') + i.className.replace(/^.*ph-/, '');
       });
     }
   }
