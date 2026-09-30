@@ -43,7 +43,12 @@ a{color:inherit;text-decoration:none}
   padding:var(--sa-top) 8px 0 16px;
   background:#fff;border-bottom:1px solid transparent;position:relative;z-index:5}
 .tb.line{border-bottom-color:var(--bd)}
-.tb h1{font-size:18px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* 타이틀은 아이콘 개수와 상관없이 늘 화면 가운데 */
+.tb h1{position:absolute;left:56px;right:56px;top:var(--sa-top);height:52px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  pointer-events:none}
+.tb .sp{flex:1}
 .tb .ic{width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;
   border-radius:10px;color:var(--fg);flex:none}
 .tb .ic:active{background:#F1F2F4}
@@ -138,11 +143,17 @@ a{color:inherit;text-decoration:none}
   touch-action:pan-x;cursor:grab;user-select:none;-webkit-user-select:none}
 .chips:active{cursor:grabbing}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 12px;
-  border:1px solid var(--bd);border-radius:1000px;background:#fff;font-size:13px;font-weight:600;color:var(--mut)}
-.chip i{font-size:14px}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;
+  border:1px solid #E6E8EC;border-radius:1000px;background:#fff;font-size:14px;font-weight:600;color:#3F444E}
+.chip i{font-size:15px}
+/* × 는 라벨보다 연하게 */
+.chip .x{color:#A7AAB1;display:inline-flex;margin-right:-2px}
+.chip .x i{font-size:14px}
+/* 상세 — 늘 검정 채움 */
+.chip.act{background:var(--ink);border-color:var(--ink);color:#fff;padding:0 13px}
+.chip.act i{font-size:16px}
 .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
-.chip.sel{background:var(--blue-l);border-color:var(--blue-b);color:var(--blue)}
+.chip.on .x{color:rgba(255,255,255,.7)}
 .srch{padding:0 16px 10px}
 .srch .wrap{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;
   border:1px solid var(--bd);border-radius:12px;background:#fff}
@@ -367,9 +378,12 @@ a{color:inherit;text-decoration:none}
 .maplinks a{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:42px;
   border:1px solid var(--bd);border-radius:11px;font-size:13px;font-weight:700;background:#fff}
 .maplinks a i{font-size:16px;color:var(--blue)}
-.dt-ft{flex:none;display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--bd);background:#fff;
+.dt-ft{flex:none;display:flex;gap:10px;padding:12px 16px;border-top:1px solid var(--bd);background:#fff;
   padding-bottom:calc(12px + var(--sa-bot))}
-.dt-ft .btn{flex:1}
+.dt-ft .btn{flex:1;height:54px;font-size:16px;border-radius:12px}
+/* 상세 조건 설정 — 초기화(테두리) · 조건 적용하기(파랑) */
+#scrFilter .dt-ft{border-top:0;box-shadow:0 -6px 18px rgba(16,24,40,.06)}
+#scrFilter .dt-ft .btn.gh{flex:0 0 34%;border-color:#DDE0E5;color:var(--fg);font-weight:700}
 .hist{display:flex;flex-direction:column;gap:0}
 .hist .h{display:flex;gap:10px;padding:10px 0}
 .hist .h .rail{width:8px;flex:none;display:flex;flex-direction:column;align-items:center;padding-top:5px}

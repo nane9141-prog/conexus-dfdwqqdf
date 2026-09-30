@@ -86,17 +86,17 @@
 
   function drawChips() {
     var c = $('#chips');
-    var html = '<button class="chip" data-act="detail" type="button"><i class="ph ph-sliders-horizontal"></i>상세</button>'
-      + '<button class="chip' + (F.bookOnly ? ' sel' : '') + '" data-act="book" type="button">'
-      + (F.bookOnly ? '<i class="ph-fill ph-bookmark-simple"></i>' : '') + '관심 주주'
-      + (F.bookOnly ? '<i class="ph ph-x"></i>' : '') + '</button>';
+    var x = '<span class="x"><i class="ph ph-x"></i></span>';
+    var html = '<button class="chip act" data-act="detail" type="button"><i class="ph ph-sliders-horizontal"></i>상세</button>'
+      + '<button class="chip" data-act="book" type="button">관심 주주'
+      + (F.bookOnly ? x : '') + '</button>';
     ADV.co.forEach(function (n) {
-      html += '<button class="chip sel" data-co="' + esc(n) + '" type="button">' + esc(n) + '<i class="ph ph-x"></i></button>';
+      html += '<button class="chip" data-co="' + esc(n) + '" type="button">' + esc(n) + x + '</button>';
     });
-    APP.STATE_ORDER.forEach(function (k) {
-      var on = F.st.indexOf(k) >= 0;
-      html += '<button class="chip' + (on ? ' sel' : '') + '" data-st="' + k + '" type="button">' + ST[k].nm
-        + (on ? '<i class="ph ph-x"></i>' : '') + '</button>';
+    /* 적용된 진행상태만 지울 수 있는 칩으로 — 조건 추가는 '상세'에서 */
+    ST_FILTER.forEach(function (k) {
+      if (F.st.indexOf(k) < 0) return;
+      html += '<button class="chip" data-st="' + k + '" type="button">' + ST[k].nm + x + '</button>';
     });
     c.innerHTML = html;
     c.querySelectorAll('[data-st]').forEach(function (b) {
