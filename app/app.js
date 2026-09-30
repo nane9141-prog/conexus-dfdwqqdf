@@ -175,13 +175,14 @@
     });
   }
 
-  function chipRow(key, all, items, multi) {
+  function chipRow(key, all, items, multi, label) {
     var cur = DRAFT[key];
     var on = multi ? !cur.length : !cur;
     var h = '<button class="opt2' + (on ? ' on' : '') + '" type="button" data-fk="' + key + '" data-fv="">' + all + '</button>';
     items.forEach(function (v) {
       var sel = multi ? cur.indexOf(v) >= 0 : cur === v;
-      h += '<button class="opt2' + (sel ? ' on' : '') + '" type="button" data-fk="' + key + '" data-fv="' + esc(v) + '">' + esc(v) + '</button>';
+      h += '<button class="opt2' + (sel ? ' on' : '') + '" type="button" data-fk="' + key + '" data-fv="' + esc(v) + '">'
+        + esc(label ? label(v) : v) + '</button>';
     });
     return '<div class="opts">' + h + '</div>';
   }
@@ -195,7 +196,7 @@
           + (DRAFT.co.length ? esc(DRAFT.co.join(', ')) : '기업을 선택해 주세요') + '</button>' },
       { k: 'st', t: '방문 진행상태', d: '방문할 대상의 진행상태를 선택해주세요.',
         sum: DRAFT.st.map(function (v) { return ST[v].nm; }).join(', '),
-        body: chipRow('st', '전체', ST_FILTER, true) },
+        body: chipRow('st', '전체', ST_FILTER, true, function (v) { return ST[v].nm; }) },
       { k: 'area', t: '주주 거주 지역', d: '조회할 지역을 선택해 주세요.',
         sum: [DRAFT.si, DRAFT.gu].filter(Boolean).join(' '),
         body: '<div class="f2">'
