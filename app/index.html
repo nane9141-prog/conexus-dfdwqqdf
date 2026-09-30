@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=22">
+<link rel="stylesheet" href="app.css?v=30">
 </head>
 <body>
 <div id="phone">
@@ -85,6 +85,20 @@
     </div>
   </section>
 
+  <!-- ══ 상세 조건 설정 ══ -->
+  <section class="scr" id="scrFilter">
+    <div class="tb line">
+      <button class="ic bk" id="flBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1 style="text-align:center">상세 조건 설정</h1>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="bd plain"><div class="acc" id="flAcc"></div></div>
+    <div class="dt-ft">
+      <button class="btn gh" id="flReset" type="button" style="flex:0 0 38%">초기화</button>
+      <button class="btn" id="flApply" type="button">조건 적용하기</button>
+    </div>
+  </section>
+
   <!-- ══ 주주 상세정보 ══ -->
   <section class="scr" id="scrDetail">
     <div class="tb line">
@@ -137,7 +151,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../cx-data.js?v=1"></script>
 <script src="../cx-roster.js?v=r9"></script>
-<script src="app-data.js?v=7"></script>
-<script src="app.js?v=23"></script>
+<script src="app-data.js?v=8"></script>
+<script src="app.js?v=30"></script>
 </body>
 </html>

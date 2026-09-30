@@ -90,6 +90,9 @@
       + '<button class="chip' + (F.bookOnly ? ' sel' : '') + '" data-act="book" type="button">'
       + (F.bookOnly ? '<i class="ph-fill ph-bookmark-simple"></i>' : '') + '관심 주주'
       + (F.bookOnly ? '<i class="ph ph-x"></i>' : '') + '</button>';
+    ADV.co.forEach(function (n) {
+      html += '<button class="chip sel" data-co="' + esc(n) + '" type="button">' + esc(n) + '<i class="ph ph-x"></i></button>';
+    });
     APP.STATE_ORDER.forEach(function (k) {
       var on = F.st.indexOf(k) >= 0;
       html += '<button class="chip' + (on ? ' sel' : '') + '" data-st="' + k + '" type="button">' + ST[k].nm
@@ -100,11 +103,210 @@
       b.addEventListener('click', function () {
         var k = b.dataset.st, i = F.st.indexOf(k);
         if (i >= 0) F.st.splice(i, 1); else F.st.push(k);
+        ADV.st = F.st.slice();
         refresh();
       });
     });
     c.querySelector('[data-act="book"]').addEventListener('click', function () { F.bookOnly = !F.bookOnly; refresh(); });
-    c.querySelector('[data-act="detail"]').addEventListener('click', openDetailFilter);
+    c.querySelectorAll('[data-co]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = ADV.co.indexOf(b.dataset.co);
+        if (i >= 0) ADV.co.splice(i, 1);
+        refresh();
+      });
+    });
+    c.querySelector('[data-act="detail"]').addEventListener('click', openAdvFilter);
+  }
+
+  /* ══ 상세 조건 설정 ══════════════════════════ */
+  var MAXSH = 0;
+  function maxSh() {
+    if (!MAXSH) APP.list().forEach(function (x) { if (x.sh > MAXSH) MAXSH = x.sh; });
+    return MAXSH;
+  }
+  /* 화면에서 만지는 값 — '조건 적용하기'를 눌러야 F 로 옮겨 간다 */
+  function blankAdv() {
+    return { co: [], st: [], si: '', gu: '', live: [], shFrom: 0, shTo: 0, shMode: 'sh',
+      gbs: [], sex: [], ageFrom: '', ageTo: '', bld: [] };
+  }
+  var ADV = blankAdv(), DRAFT = null, OPEN = {};
+
+  var SI_LIST = ['서울특별시'];
+  function guList() {
+    var m = {};
+    APP.list().forEach(function (x) { m[x.area.split(' ')[1]] = 1; });
+    return Object.keys(m).sort();
+  }
+
+  function chipRow(key, all, items, multi) {
+    var cur = DRAFT[key];
+    var on = multi ? !cur.length : !cur;
+    var h = '<button class="opt2' + (on ? ' on' : '') + '" type="button" data-fk="' + key + '" data-fv="">' + all + '</button>';
+    items.forEach(function (v) {
+      var sel = multi ? cur.indexOf(v) >= 0 : cur === v;
+      h += '<button class="opt2' + (sel ? ' on' : '') + '" type="button" data-fk="' + key + '" data-fv="' + esc(v) + '">' + esc(v) + '</button>';
+    });
+    return '<div class="opts">' + h + '</div>';
+  }
+
+  function FSECS() {
+    var mx = maxSh();
+    return [
+      { k: 'co', t: '기업 선택', d: '조회할 대상 기업을 선택해 주세요.',
+        sum: DRAFT.co.length ? DRAFT.co.join(', ') : '',
+        body: '<button class="fsel" id="fCo" type="button" style="text-align:left">'
+          + (DRAFT.co.length ? esc(DRAFT.co.join(', ')) : '기업을 선택해 주세요') + '</button>' },
+      { k: 'st', t: '방문 진행상태', d: '방문할 대상의 진행상태를 선택해주세요.',
+        sum: DRAFT.st.map(function (v) { return ST[v].nm; }).join(', '),
+        body: chipRow('st', '전체', APP.STATE_ORDER, true) },
+      { k: 'area', t: '주주 거주 지역', d: '1지역 지역을 선택해 주세요.',
+        sum: [DRAFT.si, DRAFT.gu].filter(Boolean).join(' '),
+        body: '<div class="f2">'
+          + '<select class="fsel' + (DRAFT.si ? '' : ' ph') + '" id="fSi"><option value="">지역 선택</option>'
+          + SI_LIST.map(function (v) { return '<option' + (DRAFT.si === v ? ' selected' : '') + '>' + v + '</option>'; }).join('')
+          + '</select>'
+          + '<select class="fsel' + (DRAFT.gu ? '' : ' ph') + '" id="fGu"><option value="">시/군/구 선택</option>'
+          + guList().map(function (v) { return '<option' + (DRAFT.gu === v ? ' selected' : '') + '>' + v + '</option>'; }).join('')
+          + '</select></div>' },
+      { k: 'live', t: '실거주 가능성', d: '실거주 가능성을 선택해 주세요. \'높음\'은 집으로 방문해 주세요.',
+        sum: DRAFT.live.join(', '),
+        body: chipRow('live', '전체', ['높음', '보통', '낮음'], true) },
+      { k: 'sh', t: '보유 주식', d: '주주가 보유한 주식 수의 범위를 지정해 주세요.',
+        sum: (DRAFT.shFrom || DRAFT.shTo) ? (cm(DRAFT.shFrom) + ' ~ ' + cm(DRAFT.shTo || mx) + '주') : '',
+        body: '<div class="seg2"><button type="button" class="on">보유주식수</button>'
+          + '<button type="button" data-help="지분율 조건">지분율</button></div>'
+          + '<div class="rng"><input type="range" id="fShR" min="0" max="' + mx + '" step="1000" value="' + (DRAFT.shTo || mx) + '">'
+          + '<div class="lb"><span>0</span><span>' + cm(mx) + '</span></div></div>'
+          + '<div class="f2"><input class="finp" id="fShA" inputmode="numeric" placeholder="0" value="' + (DRAFT.shFrom || '') + '">'
+          + '<input class="finp" id="fShB" inputmode="numeric" placeholder="N (Max)" value="' + (DRAFT.shTo || '') + '"></div>' },
+      { k: 'gb', t: '주주 유형', d: '개인 및 법인 주주를 구분하여 검색할 수 있습니다.',
+        sum: DRAFT.gbs.join(', '),
+        body: chipRow('gbs', '전체', ['개인', '법인'], true) },
+      { k: 'sex', t: '성별 및 연령대', d: '주주의 성별과 연령대를 설정해 주세요.',
+        sum: DRAFT.sex.concat([DRAFT.ageFrom, DRAFT.ageTo].filter(Boolean).join('~')).filter(Boolean).join(', '),
+        body: chipRow('sex', '전체', ['남성', '여성'], true)
+          + '<div class="f2" style="margin-top:2px">'
+          + '<select class="fsel' + (DRAFT.ageFrom ? '' : ' ph') + '" id="fAgeA"><option value="">나이 선택</option>'
+          + ageOpts(DRAFT.ageFrom) + '</select>'
+          + '<select class="fsel' + (DRAFT.ageTo ? '' : ' ph') + '" id="fAgeB"><option value="">나이 선택</option>'
+          + ageOpts(DRAFT.ageTo) + '</select></div>' },
+      { k: 'bld', t: '건물 유형', d: '단독주택 또는 아파트 등 거주 중인 건물 형태를 선택해 주세요.',
+        sum: DRAFT.bld.join(', '),
+        body: chipRow('bld', '전체', ['집합건물', '단독건물'], true) }
+    ];
+  }
+  function ageOpts(cur) {
+    var h = '';
+    for (var a = 20; a <= 90; a += 10) h += '<option' + (String(cur) === String(a) ? ' selected' : '') + '>' + a + '대</option>';
+    return h;
+  }
+
+  function drawFilter() {
+    var el = $('#flAcc');
+    el.innerHTML = FSECS().map(function (s) {
+      return '<div class="sec' + (OPEN[s.k] ? ' open' : '') + '" data-sec="' + s.k + '">'
+        + '<div class="hd" role="button" tabindex="0"><div class="c">'
+        + '<div class="t">' + s.t + '</div>'
+        + '<div class="s' + (s.sum ? ' on' : '') + '">' + esc(s.sum || s.d) + '</div></div>'
+        + '<span class="cv"><i class="ph ph-caret-down"></i></span></div>'
+        + '<div class="bdy">' + s.body + '</div></div>';
+    }).join('');
+
+    el.querySelectorAll('.hd').forEach(function (h) {
+      h.addEventListener('click', function () {
+        var k = h.closest('.sec').dataset.sec;
+        OPEN[k] = !OPEN[k]; drawFilter();
+      });
+    });
+    el.querySelectorAll('[data-fk]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = b.dataset.fk, v = b.dataset.fv;
+        if (!v) DRAFT[k] = [];
+        else {
+          var i = DRAFT[k].indexOf(v);
+          if (i >= 0) DRAFT[k].splice(i, 1); else DRAFT[k].push(v);
+        }
+        drawFilter();
+      });
+    });
+    bind('#fSi', 'change', function () { DRAFT.si = this.value; drawFilter(); });
+    bind('#fGu', 'change', function () { DRAFT.gu = this.value; drawFilter(); });
+    bind('#fAgeA', 'change', function () { DRAFT.ageFrom = parseInt(this.value, 10) || ''; drawFilter(); });
+    bind('#fAgeB', 'change', function () { DRAFT.ageTo = parseInt(this.value, 10) || ''; drawFilter(); });
+    bind('#fShR', 'input', function () { DRAFT.shTo = +this.value; $('#fShB').value = this.value; });
+    bind('#fShA', 'input', function () { DRAFT.shFrom = parseInt(this.value.replace(/\D/g, ''), 10) || 0; });
+    bind('#fShB', 'input', function () { DRAFT.shTo = parseInt(this.value.replace(/\D/g, ''), 10) || 0; });
+    bind('#fCo', 'click', openCoSheet);
+    function bind(sel, ev, fn) { var e = el.querySelector(sel); if (e) e.addEventListener(ev, fn); }
+  }
+
+  function openCoSheet() {
+    var pick = DRAFT.co.slice(), q = '';
+    function body() {
+      var L = APP.COMPANIES.filter(function (n) { return !q || n.indexOf(q) >= 0; });
+      return '<div class="srch" style="padding:0 0 12px"><div class="wrap">'
+        + '<i class="ph ph-magnifying-glass"></i><input id="coQ" placeholder="기업명 검색" value="' + esc(q) + '"></div></div>'
+        + '<div class="colist">' + L.map(function (n) {
+          return '<div class="corow" role="button" tabindex="0" data-co="' + esc(n) + '">'
+            + '<span class="cb rd' + (pick.indexOf(n) >= 0 ? ' on' : '') + '"></span>' + esc(n) + '</div>';
+        }).join('') + '</div>'
+        + '<button class="coclr" type="button" id="coClr"><i class="ph ph-arrow-counter-clockwise"></i>선택 초기화</button>';
+    }
+    function paint(bx) {
+      bx.querySelector('.bb').innerHTML = body();
+      bx.querySelectorAll('[data-co]').forEach(function (r) {
+        r.addEventListener('click', function () {
+          var n = r.dataset.co, i = pick.indexOf(n);
+          if (i >= 0) pick.splice(i, 1); else pick.push(n);
+          r.querySelector('.cb').classList.toggle('on', pick.indexOf(n) >= 0);
+        });
+      });
+      var qi = bx.querySelector('#coQ');
+      qi.addEventListener('input', function () { q = this.value; paint(bx); bx.querySelector('#coQ').focus(); });
+      bx.querySelector('#coClr').addEventListener('click', function () { pick = []; paint(bx); });
+    }
+    sheet({
+      title: '기업 선택', body: '',
+      foot: '<button class="btn gh" type="button" id="coAll">전체 선택</button>'
+        + '<button class="btn" type="button" id="coOk">선택 완료</button>',
+      after: function (bx) {
+        paint(bx);
+        bx.querySelector('#coAll').addEventListener('click', function () { pick = APP.COMPANIES.slice(); paint(bx); });
+        bx.querySelector('#coOk').addEventListener('click', function () {
+          DRAFT.co = pick; closeSheet(); drawFilter();
+        });
+      }
+    });
+  }
+
+  function openAdvFilter() {
+    DRAFT = JSON.parse(JSON.stringify(ADV));
+    drawFilter();
+    show('#scrFilter'); $('#tabbar').hidden = true;
+  }
+  $('#flBack').addEventListener('click', function () { goTab('list'); });
+  $('#flReset').addEventListener('click', function () { DRAFT = blankAdv(); drawFilter(); });
+  $('#flApply').addEventListener('click', function () {
+    ADV = JSON.parse(JSON.stringify(DRAFT));
+    F.st = ADV.st.slice();                 /* 상태는 상단 칩과 같이 움직인다 */
+    goTab('list'); refresh();
+    toast('조건을 적용했습니다 — ' + cm(filtered().length) + '건');
+  });
+
+  /* 상세 조건이 실제로 목록을 거르는 곳 */
+  function advPass(x) {
+    var a = ADV;
+    if (a.co.length && a.co.indexOf(x.org) < 0) return false;
+    if (a.gu && x.area.indexOf(a.gu) < 0) return false;
+    if (a.live.length && a.live.indexOf(x.live.nm.replace('거주 가능성 ', '')) < 0) return false;
+    if (a.shFrom && x.sh < a.shFrom) return false;
+    if (a.shTo && x.sh > a.shTo) return false;
+    if (a.gbs.length && a.gbs.indexOf(x.gb) < 0) return false;
+    if (a.sex.length && a.sex.indexOf(x.sex) < 0) return false;
+    if (a.ageFrom && x.age < a.ageFrom) return false;
+    if (a.ageTo && x.age > a.ageTo + 9) return false;
+    if (a.bld.length && a.bld.indexOf(x.bld) < 0) return false;
+    return true;
   }
 
   function openDetailFilter() {
@@ -146,6 +348,7 @@
       if (F.st.length && F.st.indexOf(x.st) < 0) return false;
       if (F.bookOnly && BOOK.indexOf(x.i) < 0) return false;
       if (q && (x.name + ' ' + x.addr + ' ' + x.zip + ' ' + x.born).toLowerCase().indexOf(q) < 0) return false;
+      if (!advPass(x)) return false;
       return true;
     });
     if (F.sort === 'sh') L.sort(function (a, b) { return b.sh - a.sh; });
@@ -185,31 +388,49 @@
     return '<span class="bg ' + m[x.live.k] + '">' + x.live.nm + '</span>';
   }
   function cardHtml(x) {
-    var s = ST[x.st];
-    return '<button class="card" type="button" data-open="' + x.i + '">'
+    var s = ST[x.st], bk = BOOK.indexOf(x.i) >= 0;
+    return '<div class="card" role="button" tabindex="0" data-open="' + x.i + '">'
+      + '<div class="c-top">'
       + '<div class="l1"><span class="nm">' + esc(x.name) + '</span>'
-      + (BOOK.indexOf(x.i) >= 0 ? '<i class="ph-fill ph-bookmark-simple" style="color:#0071F3;font-size:15px"></i>' : '')
-      + '<span class="sp"></span><span class="sh">' + cm(x.sh) + '주</span></div>'
-      + '<div class="mt"><span>' + esc(x.org) + '</span><span class="d"></span><span>' + x.age + '세 ' + x.sex + '</span>'
-      + '<span class="d"></span><span>' + esc(x.area) + '</span></div>'
-      + '<div class="bgs"><span class="bg ' + s.cls + '">' + s.nm + '</span>' + liveBg(x) + '</div>'
-      + '<div class="ad"><div class="zp"><span>' + x.zip + '</span>'
-      + '<span class="cp" data-zip="' + x.zip + '"><i class="ph ph-copy"></i></span></div>'
+      + '<span class="bkm' + (bk ? ' on' : '') + '" data-book="' + x.i + '" role="button" aria-label="관심 주주">'
+      + '<i class="' + (bk ? 'ph-fill' : 'ph') + ' ph-bookmark-simple"></i></span>'
+      + '<span class="sp"></span><span class="stb ' + s.cls + '">' + s.nm + '</span></div>'
+      + '<div class="sh">' + cm(x.sh) + '주</div>'
+      + '<div class="tags"><span class="tg">' + esc(x.org) + '</span>'
+      + '<span class="tg">' + x.age + '세 ' + x.sex + '</span></div>'
+      + '</div>'
+      + '<div class="c-ad">'
+      + '<div class="zp"><span class="z">' + x.zip + '</span>'
+      + '<span class="cp" data-copy="' + esc(x.zip + ' ' + x.addr) + '" role="button" aria-label="주소 복사"><i class="ph ph-copy"></i></span>'
+      + '<span class="sp"></span>'
+      + '<span class="lv ' + x.live.k + '">' + x.live.nm
+      + (x.more ? ' · 대표주소 외 ' + x.more + '개' : '') + '</span></div>'
       + '<div class="tx">' + esc(x.addr) + '</div></div>'
-      + '</button>';
+      + '</div>';
   }
   function bindCards(root) {
     root.querySelectorAll('[data-open]').forEach(function (b) {
       b.addEventListener('click', function (e) {
-        var cp = e.target.closest('[data-zip]');
-        if (cp) { e.stopPropagation(); copy(cp.dataset.zip); return; }
+        var cp = e.target.closest('[data-copy]');
+        if (cp) { e.stopPropagation(); copy(cp.dataset.copy); return; }
+        var bm = e.target.closest('[data-book]');
+        if (bm) {
+          e.stopPropagation();
+          var id = +bm.dataset.book, k = BOOK.indexOf(id);
+          if (k >= 0) { BOOK.splice(k, 1); toast('관심 주주에서 해제했습니다'); }
+          else { BOOK.push(id); toast('관심 주주로 등록했습니다'); }
+          saveBook();
+          bm.classList.toggle('on', BOOK.indexOf(id) >= 0);
+          bm.querySelector('i').className = (BOOK.indexOf(id) >= 0 ? 'ph-fill' : 'ph') + ' ph-bookmark-simple';
+          return;
+        }
         openDetail(b.dataset.open);
       });
     });
   }
   function copy(t) {
     try { navigator.clipboard.writeText(t); } catch (e) {}
-    toast('복사했습니다 — ' + t);
+    toast('주소를 복사했습니다');
   }
   function drawList() {
     drawChips();
