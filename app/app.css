@@ -165,7 +165,9 @@ a{color:inherit;text-decoration:none}
 .srch .clr[hidden]{display:none}
 .srch .clr{color:#C9CBD1;display:flex;align-items:center}
 .srch .clr i{font-size:18px}
-.lsmeta{display:flex;align-items:center;justify-content:space-between;padding:2px 16px 10px;
+/* 수집 탭 목록 — 배경 흰색, 정렬·건수 줄은 검색과 카드 사이에 여백을 둔다 */
+#listBd{background:#fff}
+.lsmeta{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 12px;
   font-size:13px;color:var(--mut)}
 .lsmeta .srt{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:var(--fg)}
 .lsmeta b{color:var(--fg);font-weight:700}
