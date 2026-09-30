@@ -221,6 +221,8 @@
     return R.map(function (r, i) {
       var ad = addrOf(r.i), bn = bornOf(r), lv = liveOf(r.i);
       var st = SAVED.st[r.i] || baseState(r.i);
+      /* 위임을 받았다는 건 그 자리에서 본인을 만났다는 뜻이라 거주가 확인된 것으로 본다 */
+      if (st === 'done') lv = { k: 'high', nm: '거주 가능성 높음' };
       return {
         i: r.i, name: r.nm, sh: r.sh, rt: r.rt,
         org: APP.CAMPAIGNS[0].org, camp: 'c1',
@@ -270,6 +272,10 @@
   APP.setState = function (i, st) {
     var x = APP.find(i); if (!x) return;
     x.st = st; SAVED.st[x.i] = st;
+    if (st === 'done') {
+      x.live = { k: 'high', nm: '거주 가능성 높음' };
+      if (x.addrs && x.addrs[0]) x.addrs[0].live = x.live;
+    }
     x.at = new Date().toISOString().slice(0, 16).replace('T', ' ');
     SAVED.at[x.i] = x.at;
     save();
