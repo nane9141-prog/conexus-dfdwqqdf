@@ -29,15 +29,34 @@
   APP.STATE_ORDER = ['plan', 'replan', 'no', 'done', 'fix'];
 
   /* ── 주소 표본 ────────────────────────────────────────────────────────
-     시연용 좌표는 실제 행정동 근처 값으로 흩뿌린다(파주 운정 · 고양 일산 · 서울 여의도). */
+     시연 구역은 여의도 일대. 실제 단지·도로명과 좌표를 쓰되 동·호는 임의로 만든다. */
   var AREAS = [
-    { zip: '10881', si: '경기도 파주시', dong: '와동동',   road: '소리천로',     lat: 37.7250, lng: 126.7660, apt: ['해솔마을 6단지', '가람마을 3단지', '한빛마을 1단지'] },
-    { zip: '10390', si: '경기도 고양시 일산동구', dong: '백석동', road: '중앙로', lat: 37.6440, lng: 126.7880, apt: ['백송마을 3단지', '흰돌마을 5단지', '강선마을 2단지'] },
-    { zip: '07330', si: '서울특별시 영등포구', dong: '여의도동', road: '국제금융로8길', lat: 37.5250, lng: 126.9250, apt: ['서울아파트', '시범아파트', '광장아파트'] },
-    { zip: '06243', si: '서울특별시 강남구', dong: '역삼동',  road: '테헤란로',     lat: 37.5000, lng: 127.0360, apt: ['역삼래미안', '개나리래미안', '진달래아파트'] },
-    { zip: '13561', si: '경기도 성남시 분당구', dong: '정자동', road: '불정로',    lat: 37.3670, lng: 127.1080, apt: ['정든마을 신화', '한솔마을 5단지', '느티마을 3단지'] },
-    { zip: '22382', si: '인천광역시 중구', dong: '운서동',   road: '공항로',       lat: 37.4930, lng: 126.4930, apt: ['하늘도시 유승한내들', '영종자이', '풍림아이원'] }
+    { zip: '07325', dong: '여의도동', road: '여의대방로', lat: 37.5205, lng: 126.9268,
+      apt: ['브라이튼 여의도', '여의도자이', '리첸시아'] },
+    { zip: '07327', dong: '여의도동', road: '여의나루로', lat: 37.5268, lng: 126.9330,
+      apt: ['시범아파트', '삼부아파트', '목화아파트'] },
+    { zip: '07330', dong: '여의도동', road: '국제금융로', lat: 37.5250, lng: 126.9250,
+      apt: ['서울아파트', '광장아파트', '수정아파트'] },
+    { zip: '07333', dong: '여의도동', road: '의사당대로', lat: 37.5288, lng: 126.9192,
+      apt: ['공작아파트', '진주아파트', '미성아파트'] },
+    { zip: '07335', dong: '여의도동', road: '은행로', lat: 37.5222, lng: 126.9310,
+      apt: ['한양아파트', '대교아파트', '장미아파트'] },
+    /* 여의도 밖 인접 생활권 — 다리 하나 건너는 거리 */
+    { zip: '07236', dong: '영등포동', road: '영중로', lat: 37.5185, lng: 126.9075,
+      apt: ['영등포푸르지오', '아크로타워스퀘어', '포레나영등포'] },
+    { zip: '07004', dong: '당산동', road: '당산로', lat: 37.5340, lng: 126.9020,
+      apt: ['당산삼성래미안', '유원제일', '상아현대'] },
+    { zip: '06958', gu: '동작구', dong: '노량진동', road: '노량진로', lat: 37.5130, lng: 126.9420,
+      apt: ['신동아리버파크', '쌍용예가', '삼익아파트'] }
   ];
+  /* 시연 타겟 — 박성용(큐더스전자 1,200주)은 여의도 브라이튼 거주로 고정한다 */
+  var TARGET = 894;
+  var TARGET_ADDR = {
+    zip: '07325',
+    full: '서울특별시 영등포구 여의대방로 379 브라이튼 여의도 101동 2304호',
+    short: '서울특별시 영등포구 여의도동',
+    lat: 37.52051, lng: 126.92683
+  };
 
   /* 순번에서 뽑는 난수 — 같은 순번이면 늘 같은 값 */
   function rnd(i, salt) {
@@ -47,16 +66,22 @@
   function pick(arr, i, salt) { return arr[Math.floor(rnd(i, salt) * arr.length) % arr.length]; }
 
   function addrOf(i) {
-    var a = AREAS[i % AREAS.length];
+    if (i === TARGET) return TARGET_ADDR;
+    /* 여의도 안쪽(0~4번 구역)에 3/4, 인접 생활권에 1/4 */
+    var inside = rnd(i, 8) < 0.76;
+    var pool = inside ? AREAS.slice(0, 5) : AREAS.slice(5);
+    var a = pool[Math.floor(rnd(i, 9) * pool.length) % pool.length];
     var no = 10 + Math.floor(rnd(i, 3) * 180);
     var dong = 101 + Math.floor(rnd(i, 4) * 12);
     var ho = 101 + Math.floor(rnd(i, 5) * 20) * 10 + Math.floor(rnd(i, 6) * 4);
+    /* 여의도는 섬이라 좁게, 바깥은 조금 넓게 흩뿌린다 */
+    var s = inside ? 0.0075 : 0.014;
     return {
       zip: a.zip,
-      full: a.si + ' ' + a.road + ' ' + no + ' ' + pick(a.apt, i, 7) + ' ' + dong + '동 ' + ho + '호',
-      short: a.si + ' ' + a.dong,
-      lat: a.lat + (rnd(i, 1) - 0.5) * 0.045,
-      lng: a.lng + (rnd(i, 2) - 0.5) * 0.055
+      full: '서울특별시 ' + (a.gu || '영등포구') + ' ' + a.road + ' ' + no + ' ' + pick(a.apt, i, 7) + ' ' + dong + '동 ' + ho + '호',
+      short: '서울특별시 ' + (a.gu || '영등포구') + ' ' + a.dong,
+      lat: a.lat + (rnd(i, 1) - 0.5) * s,
+      lng: a.lng + (rnd(i, 2) - 0.5) * s * 1.3
     };
   }
 
@@ -71,6 +96,7 @@
 
   /* 거주 가능성 — 명부 주소와 최근 우편물 반송 여부를 섞은 값(시연용) */
   function liveOf(i) {
+    if (i === TARGET) return { k: 'high', nm: '거주 가능성 높음' };
     var v = rnd(i, 21);
     if (v > 0.72) return { k: 'high', nm: '거주 가능성 높음' };
     if (v > 0.30) return { k: 'mid',  nm: '거주 가능성 보통' };
@@ -94,6 +120,7 @@
   var SAVED = load();
 
   function baseState(i) {
+    if (i === TARGET) return 'plan';   /* 시연은 이 주주를 처음 찾아가는 데서 시작한다 */
     var v = rnd(i, 31);
     if (v > 0.86) return 'done';
     if (v > 0.74) return 'fix';
@@ -115,8 +142,13 @@
     var R = (CX.roster || []).filter(function (r) { return r.gb === '개인' && /[가-힣]/.test(r.nm || ''); });
     if (!R.length) R = (CX.roster || []).filter(function (r) { return r.gb === '개인'; });
     if (!R.length) R = (CX.roster || []).slice();
-    /* 현장에서 찾아갈 만한 규모 — 보유주식이 큰 개인부터 200명 */
-    R = R.slice().sort(function (a, b) { return b.sh - a.sh; }).slice(0, 200);
+    /* 여의도 구역에 배정된 명부 — 보유주식이 큰 개인부터 149명 */
+    R = R.slice().sort(function (a, b) { return b.sh - a.sh; }).slice(0, 149);
+    /* 시연 타겟(박성용 1,200주)은 보유 규모와 무관하게 반드시 포함해 150명을 맞춘다 */
+    if (!R.some(function (r) { return r.i === TARGET; })) {
+      var t = (CX.roster || []).filter(function (r) { return r.i === TARGET; })[0];
+      if (t) R.push(t); else R = R.slice(0, 150);
+    }
     return R.map(function (r, i) {
       var ad = addrOf(r.i), bn = bornOf(r.i), lv = liveOf(r.i);
       var st = SAVED.st[r.i] || baseState(r.i);
