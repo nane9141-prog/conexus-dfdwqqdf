@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>현장투표 · 주주총회</title>
+<link rel="icon" href="../kudos-favicon.png">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="vote.css?v=1">
+</head>
+<body>
+<div id="phone">
+
+  <!-- ══ 1. NFC 태깅 ══ -->
+  <section class="scr on" id="scrNfc">
+    <div class="nfc">
+      <div class="nfc-top">
+        <div class="lgo"><span class="dot"><i class="ph-fill ph-gavel"></i></span>CONEXUS</div>
+        <h1>현장투표</h1>
+        <p>주주총회장 입구의 NFC 태그에<br>휴대폰 뒷면을 대 주세요.</p>
+      </div>
+      <button class="nfc-target" id="nfcGo" type="button" aria-label="태그에 대기">
+        <span class="w w1"></span><span class="w w2"></span><span class="w w3"></span>
+        <span class="core"><i class="ph ph-wifi-high"></i></span>
+      </button>
+      <div class="nfc-hint" id="nfcHint">태그를 기다리는 중…</div>
+      <div class="nfc-foot">화면을 누르면 태깅된 것으로 진행됩니다 (시연용)</div>
+    </div>
+  </section>
+
+  <!-- ══ 2. 출입증 리스트 ══ -->
+  <section class="scr" id="scrPass">
+    <div class="tb">
+      <h1>출입증</h1>
+      <span class="sp"></span>
+      <button class="ic" id="pvOut" type="button" aria-label="처음으로"><i class="ph ph-sign-out"></i></button>
+    </div>
+    <div class="bd" id="passBd"></div>
+  </section>
+
+  <!-- ══ 3·4. 투표 ══ -->
+  <section class="scr" id="scrVote">
+    <div class="tb line">
+      <button class="ic bk" id="vBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1 id="vTitle">현장투표</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="vhead" id="vHead"></div>
+    <div class="bd" id="voteBd"></div>
+  </section>
+
+  <!-- Face ID -->
+  <div class="faceov" id="faceOv">
+    <div class="facebox">
+      <div class="fic" id="faceIc"><i class="ph ph-scan"></i></div>
+      <div class="ft" id="faceT">Face ID</div>
+      <div class="fd" id="faceD">얼굴을 화면에 맞춰 주세요</div>
+    </div>
+  </div>
+
+  <div class="ov" id="ov"><div class="bx" id="ovBx"></div></div>
+  <div id="toast"><div class="t" id="toastT"></div></div>
+  <div class="alertbar" id="alertBar"><i class="ph-fill ph-bell-ringing"></i><span id="alertTx"></span></div>
+</div>
+
+<script src="../cx-data.js?v=1"></script>
+<script src="vote.js?v=1"></script>
+</body>
+</html>
