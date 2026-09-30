@@ -345,23 +345,29 @@
     // 목표 및 현황 — 기업 예상 확보 의결권만 고쳐 가며 본다
     (function(){
       var IRK=118000000, GOAL=160000000, co=24800000;
+      /* 현장 파트너 앱(의결권 수집 앱)이 올린 위임 완료분 — 같은 오리진의 cx.collect 를 읽는다 */
+      function appShares(){
+        try{ var v=JSON.parse(localStorage.getItem('cx.collect')||'{}'); return +v.doneShares||0; }catch(e){ return 0; }
+      }
+      var APPSH=appShares();
       function cm(n){ return Math.round(n).toLocaleString('en-US'); }
-      function set(id,v){ var e=document.getElementById(id); if(e) e.textContent=v; }
+      function set(id,v){ var e=document.getElementById(id); if(e){ if(/<span/.test(v)) e.innerHTML=v; else e.textContent=v; } }
       function draw(){
-        var got=IRK+co, left=Math.max(0,GOAL-got);
-        var p1=Math.min(100,got/GOAL*100), p2=Math.min(100,IRK/GOAL*100);
+        var irkAll=IRK+APPSH, got=irkAll+co, left=Math.max(0,GOAL-got);
+        var p1=Math.min(100,got/GOAL*100), p2=Math.min(100,irkAll/GOAL*100);
         set('gHold',cm(got)); set('gGoal1',cm(GOAL)); set('gHoldP',p1.toFixed(1)+'%');
-        set('gVote',cm(IRK)); set('gGoal2',cm(GOAL)); set('gVoteP',p2.toFixed(1)+'%');   /* 의결정족수 = 목표와 같은 값(데모) */
+        set('gVote',cm(irkAll)); set('gGoal2',cm(GOAL)); set('gVoteP',p2.toFixed(1)+'%');   /* 의결정족수 = 목표와 같은 값(데모) */
         document.getElementById('gHoldB').style.width=p1+'%';
         document.getElementById('gVoteB').style.width=p2+'%';
         set('gSumA',cm(got)); set('gSumB',cm(GOAL));
-        set('gLegIrk',cm(IRK)+'주'); set('gLegCo',cm(co)+'주'); set('gLegLeft',cm(left)+'주');
+        set('gLegIrk',cm(irkAll)+'주'+(APPSH?' <span class="appmark">앱 +'+cm(APPSH)+'</span>':'')); set('gLegCo',cm(co)+'주'); set('gLegLeft',cm(left)+'주');
         set('gPieV',p1.toFixed(1)+'%');
         /* 12시부터 기업 예상 확보(회색→검정) → IRK 확보(연파랑→파랑) → 잔여 */
-        var a=Math.min(co/GOAL*100,100), b=Math.min(IRK/GOAL*100,100-a);
+        var a=Math.min(co/GOAL*100,100), b=Math.min(irkAll/GOAL*100,100-a);
         document.getElementById('gPie').style.background=
           'conic-gradient(#737373 0,#171717 '+a+'%,#82bbff '+a+'%,#0071f3 '+(a+b)+'%,#e5e5e5 '+(a+b)+'% 100%)';
       }
+      window.addEventListener('storage',function(e){ if(e.key==='cx.collect'){ APPSH=appShares(); draw(); } });
       var btn=document.getElementById('gEdit'), inp=document.getElementById('gCoIn'), out=document.getElementById('gLegCo');
       if(btn&&inp&&out){
         var row=document.getElementById('gCoRow');
@@ -417,6 +423,12 @@
 <script src="cx-data.js?v=6"></script>
 <script src="ag-exercise.js?v=1"></script>
 <link rel="stylesheet" href="cx-checkbox.css?v=2">
+<style>
+  /* 현장 파트너 앱에서 올라온 건 표시 */
+  .appmark{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:1000px;
+    background:#EBF4FF;border:1px solid #B2D5FF;color:#0071F3;font-size:11px;font-weight:700;
+    vertical-align:middle;margin-right:2px}
+</style>
 </head>
 <body>
 <div class="app" id="app">
@@ -743,9 +755,32 @@
     host.innerHTML=AGX.table('vrAgBody'); AGX.render(document.getElementById('vrAgBody'), {});
   })();
 
-  /* 실시간 주주 확보 현황 — 회사 권고와 다르게 표기한 칸을 주황으로, 하단에 총 주주수·주식수 */
+  /* 실시간 주주 확보 현황 — 회사 권고와 다르게 표기한 칸을 주황으로, 하단에 총 주주수·주식수
+     현장 파트너 앱이 올린 위임 완료 건은 맨 위에 '앱 수집' 으로 꽂는다. */
   (function(){
     var t=document.getElementById('vrHolderTbl'); if(!t) return;
+    (function(){
+      var v={}; try{ v=JSON.parse(localStorage.getItem('cx.collect')||'{}'); }catch(e){}
+      var R=(v.rows||[]); if(!R.length) return;
+      var ncol=t.tHead.rows[0].cells.length;
+      var pro='<span class="opb for"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>찬성</span>';
+      R.slice().reverse().forEach(function(r,ri){
+        var tr=t.tBodies[0].insertRow(0);
+        var born=19500000+((r.i*7919)%500000);
+        var cells=['<span class="appmark">앱 수집</span> '+(r.at||'').slice(5),
+                   mask(r.nm), '<span class="num">'+(+r.sh).toLocaleString('en-US')+'</span>',
+                   String(born).slice(0,8), (2026-+String(born).slice(0,4))+'세',
+                   pro,pro,pro,pro,
+                   (+r.sh*2).toLocaleString('en-US'), (+r.sh*2).toLocaleString('en-US')];
+        for(var i=0;i<ncol;i++){
+          var td=tr.insertCell(i);
+          td.className=(i===2||i>=9)?'num':(i===0?'mut':(i>=5&&i<=8)||i===3?'c':'');
+          if(i===3) td.className='mut c';
+          td.innerHTML=cells[i]==null?'':String(cells[i]).replace(/^<span class="num">|<\/span>$/g,'');
+        }
+      });
+      function mask(n){ n=String(n||''); return n.length<3?n:n[0]+'*'+n.slice(2); }
+    })();
     var REC={'1':'찬성','2-1':'찬성','2-2':'찬성','3':'찬성'};   /* 회사 권고(데모: 회사 의안은 모두 찬성 권고) — 주주제안 의안이 생기면 '반대'로 */
     var hd=Array.prototype.map.call(t.tHead.rows[0].cells,function(c){return c.textContent.trim();});
     var sh=hd.indexOf('보유주식수'), sum=0, rows=t.tBodies[0].rows;

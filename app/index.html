@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>의결권 위임 플랫폼 · 현장 파트너</title>
+<link rel="icon" href="../kudos-favicon.png">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="app.css?v=1">
+</head>
+<body>
+<div id="phone">
+
+  <!-- ══ 로그인 ══ -->
+  <section class="scr on" id="scrLogin">
+    <div class="lg">
+      <div class="top">
+        <div class="lgo"><span class="dot"><i class="ph-fill ph-gavel"></i></span>CONEXUS</div>
+        <h2>의결권 위임 플랫폼</h2>
+        <div class="sub">현장 파트너용</div>
+      </div>
+      <div class="fld"><input id="lgId" type="text" placeholder="아이디" autocomplete="username"></div>
+      <div class="fld"><input id="lgPw" type="password" placeholder="비밀번호" autocomplete="current-password"></div>
+      <div class="row">
+        <button class="sv" id="lgSave" type="button"><span class="cb" id="lgSaveCb"></span>아이디 저장</button>
+        <span class="lk"><button type="button" data-help="아이디찾기">아이디찾기</button><span class="sp">·</span><button type="button" data-help="비밀번호 변경">비밀번호 변경</button></span>
+      </div>
+      <div class="btns">
+        <button class="btn" id="lgGo" type="button" disabled>로그인</button>
+      </div>
+      <div class="hint">시연용입니다 — 아이디 <b>partner</b> / 비밀번호 <b>1234</b> 로 들어오거나, 아무 값이나 넣어도 로그인됩니다.</div>
+      <div class="join">계정이 없으신가요?<button type="button" data-help="회원가입"><b>회원가입</b></button></div>
+    </div>
+  </section>
+
+  <!-- ══ 수집 — 주주 목록 ══ -->
+  <section class="scr" id="scrList">
+    <div class="tb">
+      <h1>주주 목록</h1>
+      <button class="ic" id="btnBook" type="button" aria-label="북마크"><i class="ph ph-bookmark-simple"></i></button>
+      <button class="ic" id="btnMap" type="button" aria-label="지도 보기"><i class="ph ph-map-trifold"></i></button>
+    </div>
+    <div class="bd" id="listBd">
+      <div class="chips" id="chips"></div>
+      <div class="srch">
+        <div class="wrap"><i class="ph ph-magnifying-glass"></i>
+          <input id="q" type="search" placeholder="이름, 주소, 생년월일 검색" enterkeyhint="search"></div>
+      </div>
+      <div class="lsmeta">
+        <button class="srt" id="btnSort" type="button"><span>권유일 입력 순</span><i class="ph ph-caret-up-down"></i></button>
+        <span><b id="lsCnt">0</b>건</span>
+      </div>
+      <div class="cards" id="cards"></div>
+    </div>
+  </section>
+
+  <!-- ══ 지도 뷰 ══ -->
+  <section class="scr" id="scrMap">
+    <div class="tb line">
+      <button class="ic bk" id="mapBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>지도 뷰</h1>
+      <button class="ic" id="mapList" type="button" aria-label="목록 보기"><i class="ph ph-list-bullets"></i></button>
+    </div>
+    <div class="mapwrap">
+      <div id="map"></div>
+      <div class="mapctl">
+        <button id="mapMe" type="button" aria-label="내 위치"><i class="ph ph-crosshair"></i></button>
+        <div class="zm">
+          <button id="mapIn" type="button" aria-label="확대"><i class="ph ph-plus"></i></button>
+          <button id="mapOut" type="button" aria-label="축소"><i class="ph ph-minus"></i></button>
+        </div>
+      </div>
+      <div class="mapnear"><button class="btn" id="mapNear" type="button"><i class="ph ph-users-three"></i>주변 주주 보기</button></div>
+      <div class="sheetup" id="nearSheet">
+        <div class="sh-h"><b id="nearTt">주변 주주</b>
+          <button class="ic" id="nearX" type="button" aria-label="닫기"><i class="ph ph-x"></i></button></div>
+        <div class="sh-b"><div class="cards" id="nearCards" style="padding-top:2px"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 주주 상세정보 ══ -->
+  <section class="scr" id="scrDetail">
+    <div class="tb line">
+      <button class="ic bk" id="dtBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>주주 상세정보</h1>
+      <button class="ic" id="dtHist" type="button" aria-label="히스토리"><i class="ph ph-clock-counter-clockwise"></i></button>
+    </div>
+    <div class="bd" id="dtBd"></div>
+    <div class="dt-ft">
+      <button class="btn gh" id="dtState" type="button">방문 상태 변경</button>
+      <button class="btn" id="dtStart" type="button">위임 시작</button>
+    </div>
+  </section>
+
+  <!-- ══ 수집현황 ══ -->
+  <section class="scr" id="scrStat">
+    <div class="tb"><h1>수집현황</h1></div>
+    <div class="bd"><div class="pad" id="statBd"></div></div>
+  </section>
+
+  <!-- ══ 소식 ══ -->
+  <section class="scr" id="scrNews">
+    <div class="tb"><h1>소식</h1></div>
+    <div class="segs" id="newsSeg">
+      <button class="on" data-seg="noti" type="button">알림</button>
+      <button data-seg="promo" type="button">프로모션</button>
+    </div>
+    <div class="bd plain"><div class="news" id="newsBd"></div></div>
+  </section>
+
+  <!-- ══ 설정 ══ -->
+  <section class="scr" id="scrSet">
+    <div class="tb"><h1>설정</h1></div>
+    <div class="bd" id="setBd"></div>
+  </section>
+
+  <!-- 하단 탭바 -->
+  <nav class="tabbar" id="tabbar" hidden>
+    <button data-tab="list" type="button"><i class="ph ph-users-three"></i>수집</button>
+    <button data-tab="stat" type="button"><i class="ph ph-chart-donut"></i>수집현황</button>
+    <button data-tab="news" type="button"><i class="ph ph-bell"></i>소식</button>
+    <button data-tab="set"  type="button"><i class="ph ph-gear-six"></i>설정</button>
+  </nav>
+
+  <!-- 공통 오버레이 -->
+  <div class="ov" id="ov"><div class="bx" id="ovBx"></div></div>
+  <div id="toast"><div class="t" id="toastT"></div></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="../cx-data.js?v=1"></script>
+<script src="../cx-roster.js?v=r9"></script>
+<script src="app-data.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>
