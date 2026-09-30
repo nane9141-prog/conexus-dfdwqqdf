@@ -126,8 +126,15 @@
   }
   /* 화면에서 만지는 값 — '조건 적용하기'를 눌러야 F 로 옮겨 간다 */
   function blankAdv() {
-    return { co: [], st: [], si: '', gu: '', live: [], shFrom: 0, shTo: 0, shMode: 'sh',
+    return { co: [], st: [], si: '', gu: '', live: [],
+      shMode: 'sh', shFrom: 0, shTo: 0,     /* 보유주식수 */
+      rtFrom: 0, rtTo: 0,                   /* 지분율 % */
       gbs: [], sex: [], ageFrom: '', ageTo: '', bld: [] };
+  }
+  var MAXRT = 0;
+  function maxRt() {
+    if (!MAXRT) APP.list().forEach(function (x) { if (x.rt > MAXRT) MAXRT = x.rt; });
+    return Math.ceil(MAXRT * 1000) / 1000;
   }
   var ADV = blankAdv(), DRAFT = null, OPEN = {};
 
@@ -171,14 +178,8 @@
       { k: 'live', t: '실거주 가능성', d: '실거주 가능성을 선택해 주세요. \'높음\'은 집으로 방문해 주세요.',
         sum: DRAFT.live.join(', '),
         body: chipRow('live', '전체', ['높음', '보통', '낮음'], true) },
-      { k: 'sh', t: '보유 주식', d: '주주가 보유한 주식 수의 범위를 지정해 주세요.',
-        sum: (DRAFT.shFrom || DRAFT.shTo) ? (cm(DRAFT.shFrom) + ' ~ ' + cm(DRAFT.shTo || mx) + '주') : '',
-        body: '<div class="seg2"><button type="button" class="on">보유주식수</button>'
-          + '<button type="button" data-help="지분율 조건">지분율</button></div>'
-          + '<div class="rng"><input type="range" id="fShR" min="0" max="' + mx + '" step="1000" value="' + (DRAFT.shTo || mx) + '">'
-          + '<div class="lb"><span>0</span><span>' + cm(mx) + '</span></div></div>'
-          + '<div class="f2"><input class="finp" id="fShA" inputmode="numeric" placeholder="0" value="' + (DRAFT.shFrom || '') + '">'
-          + '<input class="finp" id="fShB" inputmode="numeric" placeholder="N (Max)" value="' + (DRAFT.shTo || '') + '"></div>' },
+      { k: 'sh', t: '보유 주식', d: '주주가 보유한 주식 수 또는 지분율의 범위를 지정해 주세요.',
+        sum: shSum(mx), body: shBody(mx) },
       { k: 'gb', t: '주주 유형', d: '개인 및 법인 주주를 구분하여 검색할 수 있습니다.',
         sum: DRAFT.gbs.join(', '),
         body: chipRow('gbs', '전체', ['개인', '법인'], true) },
@@ -195,6 +196,35 @@
         body: chipRow('bld', '전체', ['집합건물', '단독건물'], true) }
     ];
   }
+  /* 보유 주식 — 보유주식수 · 지분율 두 방식을 같은 모양으로 쓴다 */
+  function pc(v) { return (Math.round(v * 10000) / 10000) + ''; }
+  function shSum(mx) {
+    if (DRAFT.shMode === 'rt') {
+      if (!DRAFT.rtFrom && !DRAFT.rtTo) return '';
+      return pc(DRAFT.rtFrom) + '% ~ ' + pc(DRAFT.rtTo || maxRt()) + '%';
+    }
+    if (!DRAFT.shFrom && !DRAFT.shTo) return '';
+    return cm(DRAFT.shFrom) + ' ~ ' + cm(DRAFT.shTo || mx) + '주';
+  }
+  function shBody(mx) {
+    var rt = DRAFT.shMode === 'rt', mr = maxRt();
+    var seg = '<div class="seg2">'
+      + '<button type="button" data-shm="sh"' + (rt ? '' : ' class="on"') + '>보유주식수</button>'
+      + '<button type="button" data-shm="rt"' + (rt ? ' class="on"' : '') + '>지분율</button></div>';
+    if (rt) {
+      return seg
+        + '<div class="rng"><input type="range" id="fRtR" min="0" max="' + mr + '" step="0.0001" value="' + (DRAFT.rtTo || mr) + '">'
+        + '<div class="lb"><span>0%</span><span>' + pc(mr) + '%</span></div></div>'
+        + '<div class="f2"><div class="unit"><input class="finp" id="fRtA" inputmode="decimal" placeholder="0" value="' + (DRAFT.rtFrom || '') + '"><span>%</span></div>'
+        + '<div class="unit"><input class="finp" id="fRtB" inputmode="decimal" placeholder="N (Max)" value="' + (DRAFT.rtTo || '') + '"><span>%</span></div></div>';
+    }
+    return seg
+      + '<div class="rng"><input type="range" id="fShR" min="0" max="' + mx + '" step="1000" value="' + (DRAFT.shTo || mx) + '">'
+      + '<div class="lb"><span>0</span><span>' + cm(mx) + '</span></div></div>'
+      + '<div class="f2"><div class="unit"><input class="finp" id="fShA" inputmode="numeric" placeholder="0" value="' + (DRAFT.shFrom || '') + '"><span>주</span></div>'
+      + '<div class="unit"><input class="finp" id="fShB" inputmode="numeric" placeholder="N (Max)" value="' + (DRAFT.shTo || '') + '"><span>주</span></div></div>';
+  }
+
   function ageOpts(cur) {
     var h = '';
     for (var a = 20; a <= 90; a += 10) h += '<option' + (String(cur) === String(a) ? ' selected' : '') + '>' + a + '대</option>';
@@ -233,9 +263,22 @@
     bind('#fGu', 'change', function () { DRAFT.gu = this.value; drawFilter(); });
     bind('#fAgeA', 'change', function () { DRAFT.ageFrom = parseInt(this.value, 10) || ''; drawFilter(); });
     bind('#fAgeB', 'change', function () { DRAFT.ageTo = parseInt(this.value, 10) || ''; drawFilter(); });
-    bind('#fShR', 'input', function () { DRAFT.shTo = +this.value; $('#fShB').value = this.value; });
+    bind('#fShR', 'input', function () { DRAFT.shTo = +this.value; el.querySelector('#fShB').value = this.value; });
     bind('#fShA', 'input', function () { DRAFT.shFrom = parseInt(this.value.replace(/\D/g, ''), 10) || 0; });
     bind('#fShB', 'input', function () { DRAFT.shTo = parseInt(this.value.replace(/\D/g, ''), 10) || 0; });
+    bind('#fRtR', 'input', function () { DRAFT.rtTo = +this.value; el.querySelector('#fRtB').value = this.value; });
+    bind('#fRtA', 'input', function () { DRAFT.rtFrom = parseFloat(this.value.replace(/[^0-9.]/g, '')) || 0; });
+    bind('#fRtB', 'input', function () { DRAFT.rtTo = parseFloat(this.value.replace(/[^0-9.]/g, '')) || 0; });
+    el.querySelectorAll('[data-shm]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        if (DRAFT.shMode === b.dataset.shm) return;
+        DRAFT.shMode = b.dataset.shm;
+        /* 방식을 바꾸면 반대쪽 조건은 비운다 — 두 조건이 겹치지 않게 */
+        if (DRAFT.shMode === 'rt') { DRAFT.shFrom = DRAFT.shTo = 0; }
+        else { DRAFT.rtFrom = DRAFT.rtTo = 0; }
+        drawFilter();
+      });
+    });
     bind('#fCo', 'click', openCoSheet);
     function bind(sel, ev, fn) { var e = el.querySelector(sel); if (e) e.addEventListener(ev, fn); }
   }
@@ -299,8 +342,13 @@
     if (a.co.length && a.co.indexOf(x.org) < 0) return false;
     if (a.gu && x.area.indexOf(a.gu) < 0) return false;
     if (a.live.length && a.live.indexOf(x.live.nm.replace('거주 가능성 ', '')) < 0) return false;
-    if (a.shFrom && x.sh < a.shFrom) return false;
-    if (a.shTo && x.sh > a.shTo) return false;
+    if (a.shMode === 'rt') {
+      if (a.rtFrom && x.rt < a.rtFrom) return false;
+      if (a.rtTo && x.rt > a.rtTo) return false;
+    } else {
+      if (a.shFrom && x.sh < a.shFrom) return false;
+      if (a.shTo && x.sh > a.shTo) return false;
+    }
     if (a.gbs.length && a.gbs.indexOf(x.gb) < 0) return false;
     if (a.sex.length && a.sex.indexOf(x.sex) < 0) return false;
     if (a.ageFrom && x.age < a.ageFrom) return false;
