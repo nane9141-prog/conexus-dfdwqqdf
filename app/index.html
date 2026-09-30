@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=41">
+<link rel="stylesheet" href="app.css?v=42">
 </head>
 <body>
 <div id="phone">
@@ -146,7 +146,7 @@
       <div class="telmid">
         <div class="tellead">주주총회 진행 현황을 알림톡으로 보내드립니다.</div>
         <div class="telfld">
-          <input id="telIn" inputmode="tel" placeholder="010-0000-0000" maxlength="13">
+          <input id="telIn" inputmode="none" readonly placeholder="010-0000-0000" maxlength="13">
           <button class="clr" id="telClr" type="button" hidden aria-label="지우기"><i class="ph-fill ph-x-circle"></i></button>
         </div>
         <button class="telagree" id="telAgree" type="button">
@@ -157,6 +157,21 @@
       </div>
     </div>
     <button class="telok" id="telOk" type="button" disabled>등록 완료</button>
+    <!-- iOS 숫자 키패드 -->
+    <div class="kpad" id="kpad">
+      <div class="kp"><button type="button" data-k="1"><b>1</b></button>
+        <button type="button" data-k="2"><b>2</b><s>ABC</s></button>
+        <button type="button" data-k="3"><b>3</b><s>DEF</s></button></div>
+      <div class="kp"><button type="button" data-k="4"><b>4</b><s>GHI</s></button>
+        <button type="button" data-k="5"><b>5</b><s>JKL</s></button>
+        <button type="button" data-k="6"><b>6</b><s>MNO</s></button></div>
+      <div class="kp"><button type="button" data-k="7"><b>7</b><s>PQRS</s></button>
+        <button type="button" data-k="8"><b>8</b><s>TUV</s></button>
+        <button type="button" data-k="9"><b>9</b><s>WXYZ</s></button></div>
+      <div class="kp"><span class="gap"></span>
+        <button type="button" data-k="0"><b>0</b></button>
+        <button type="button" class="bs" data-k="bs" aria-label="지우기"><i class="ph ph-backspace"></i></button></div>
+    </div>
   </section>
 
   <!-- ══ 내 프로필 ══ -->
@@ -209,6 +224,6 @@
 <script src="../cx-data.js?v=1"></script>
 <script src="../cx-roster.js?v=r9"></script>
 <script src="app-data.js?v=10"></script>
-<script src="app.js?v=41"></script>
+<script src="app.js?v=42"></script>
 </body>
 </html>

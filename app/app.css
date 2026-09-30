@@ -567,7 +567,7 @@ a{color:inherit;text-decoration:none}
 
 /* ═══ 연락처 등록 화면 ═══════════════════════════════════════ */
 .telbd{display:flex;align-items:center;justify-content:center}
-.telmid{width:100%;padding:0 16px;margin-top:-80px}
+.telmid{width:100%;padding:0 32px;margin-top:-40px}
 .tellead{text-align:center;font-size:15px;font-weight:700;color:var(--blue);margin-bottom:16px}
 .telfld{position:relative}
 .telfld input{width:100%;height:56px;padding:0 44px 0 16px;border:1px solid #DDE0E5;border-radius:12px;
@@ -580,9 +580,24 @@ a{color:inherit;text-decoration:none}
 .telagree{display:flex;align-items:center;gap:8px;width:100%;margin-top:14px;text-align:left}
 .telagree .t{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--fg)}
 .telagree .more{font-size:12px;color:#9AA0A8;text-decoration:underline;flex:none}
-.telok{flex:none;height:56px;background:var(--blue);color:#fff;font-size:16px;font-weight:700;
-  padding-bottom:0;margin-bottom:var(--sa-bot)}
+.telok{flex:none;height:56px;background:var(--blue);color:#fff;font-size:16px;font-weight:700}
 .telok:disabled{background:#BFDBFE}
+
+/* iOS 숫자 키패드 — 시연용이라 화면 안에 직접 그린다 */
+.kpad{flex:none;background:#D1D5DB;padding:8px 6px calc(8px + var(--sa-bot));
+  display:flex;flex-direction:column;gap:11px}
+.kpad .kp{display:flex;gap:6px}
+.kpad .kp>*{flex:1}
+.kpad .gap{visibility:hidden}
+.kpad button{height:46px;border-radius:6px;background:#fff;box-shadow:0 1px 0 rgba(0,0,0,.28);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;line-height:1}
+.kpad button:active{background:#B7BCC4;box-shadow:none}
+.kpad button b{font-size:25px;font-weight:400;color:#000;letter-spacing:.02em;
+  font-family:-apple-system,'SF Pro Text','Helvetica Neue',Pretendard,sans-serif}
+.kpad button s{margin-top:1px;font-size:10px;font-weight:600;letter-spacing:.09em;color:#000;text-decoration:none}
+.kpad button.bs{background:none;box-shadow:none;color:#000}
+.kpad button.bs:active{background:#B7BCC4}
+.kpad button.bs i{font-size:24px}
 
 /* ═══ 전체 주소 ═════════════════════════════════════════════ */
 .admeta{flex:none;display:flex;align-items:center;justify-content:space-between;padding:4px 16px 12px;

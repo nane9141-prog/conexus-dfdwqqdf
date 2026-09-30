@@ -1086,7 +1086,6 @@
     $('#telCb').classList.add('on');
     telChk();
     show('#scrTel'); $('#tabbar').hidden = true;
-    setTimeout(function () { i.focus(); }, 60);
   }
   function telFmt(v) {
     v = v.replace(/[^0-9]/g, '').slice(0, 11);
@@ -1104,7 +1103,16 @@
     telChk();
   });
   $('#telClr').addEventListener('click', function () {
-    $('#telIn').value = ''; this.hidden = true; telChk(); $('#telIn').focus();
+    $('#telIn').value = ''; this.hidden = true; telChk();
+  });
+  /* 화면에 그린 iOS 키패드 — 기기 키보드 대신 이걸로 입력한다 */
+  $('#kpad').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-k]'); if (!b) return;
+    var el = $('#telIn'), v = el.value.replace(/[^0-9]/g, '');
+    v = (b.dataset.k === 'bs') ? v.slice(0, -1) : (v + b.dataset.k).slice(0, 11);
+    el.value = telFmt(v);
+    $('#telClr').hidden = !el.value;
+    telChk();
   });
   $('#telAgree').addEventListener('click', function (e) {
     if (e.target.closest('[data-help]')) return;
