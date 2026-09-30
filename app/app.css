@@ -764,3 +764,30 @@ a{color:inherit;text-decoration:none}
 .cmp2 .r.term{padding-top:7px;border-top:1px solid #E6E8EC;margin-top:1px}
 .cmp2 .r.term .pr{flex:1;color:#5B6070;font-weight:600;font-variant-numeric:tabular-nums}
 .cmp2 .r.term .left{flex:none;font-weight:800;color:var(--blue)}
+
+/* 수집 기간 라벨은 줄바꿈 없이 */
+.cmp2 .r.term .k{width:56px;white-space:nowrap}
+
+/* ═══ 방문상태 히스토리 (Figma 5148:25648) ═══════════════════ */
+.hslist{padding:6px 16px 24px}
+.hsday{text-align:center;font-size:13px;color:#8A8F99;font-weight:600;padding:14px 0 10px}
+.hscard{background:#fff;border-radius:14px;padding:16px}
+.hscard .t{display:flex;align-items:center;gap:8px}
+.hscard .t b{font-size:15px;font-weight:800;flex:1}
+.hscard .t .stb{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:1000px;
+  font-size:12px;font-weight:700}
+.hscard .t .stb.blue{background:#EBF4FF;color:#0071F3}
+.hscard .t .stb.orange{background:#FFF4E8;color:#F97316}
+.hscard .t .stb.red{background:#FFEFF1;color:#E9081B}
+.hscard .t .stb.green{background:#E9FBF3;color:#059669}
+.hscard .t .stb.purple{background:#F3EFFE;color:#7C3AED}
+.hscard .x{margin-top:10px;font-size:14px;color:#4B5058;line-height:1.6}
+/* 방문 상태 변경 시트 — 사유 */
+.strsn{margin-top:14px}
+.strsn .lb{font-size:13px;font-weight:700;color:var(--fg);margin-bottom:8px}
+.strsn .chips2{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.strsn .chips2 button{height:32px;padding:0 12px;border:1px solid #E6E8EC;border-radius:1000px;background:#fff;
+  font-size:13px;font-weight:600;color:#5B6070}
+.strsn .chips2 button.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.strsn input{width:100%;height:44px;padding:0 12px;border:1px solid var(--bd);border-radius:10px;outline:none}
+.strsn input:focus{border-color:var(--ink)}

@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=52">
+<link rel="stylesheet" href="app.css?v=53">
 </head>
 <body>
 <div id="phone">
@@ -118,6 +118,17 @@
       <button class="btn gh" id="dtState" type="button">방문 상태 변경</button>
       <button class="btn" id="dtStart" type="button">위임 시작</button>
     </div>
+  </section>
+
+  <!-- ══ 방문상태 히스토리 ══ -->
+  <section class="scr" id="scrHist">
+    <div class="tb">
+      <button class="ic bk" id="hsBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>방문상태 히스토리</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="bd"><div class="hslist" id="hsList"></div></div>
   </section>
 
   <!-- ══ 전체 주소 (대표 주소 설정) ══ -->
@@ -237,6 +248,6 @@
 <script src="../cx-data.js?v=1"></script>
 <script src="../cx-roster.js?v=r9"></script>
 <script src="app-data.js?v=13"></script>
-<script src="app.js?v=52"></script>
+<script src="app.js?v=53"></script>
 </body>
 </html>

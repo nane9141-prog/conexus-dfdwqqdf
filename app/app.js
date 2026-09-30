@@ -966,12 +966,9 @@
           + '</div><div class="tx">' + esc(a0.full) + '</div></div>')
       + '</div></div>'
 
-      + '<div class="dsec"><div class="h"><b>메모</b>'
+      + '<div class="dsec" style="margin-bottom:12px"><div class="h"><b>메모</b>'
       + '<button class="mbtn" type="button" id="dtMemo"><i class="ph ph-pencil-simple"></i>메모하기</button></div>'
-      + memoList(x) + '</div>'
-
-      + '<div class="dsec" style="margin-bottom:12px"><div class="h"><b>권유 이력</b></div>'
-      + '<div class="hist">' + histHtml(x) + '</div></div>';
+      + memoList(x) + '</div>';
 
     $('#dtBook').addEventListener('click', function () {
       var k = BOOK.indexOf(x.i);
@@ -1042,21 +1039,54 @@
   }
   function kv(k, v) { return '<div class="kv"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>'; }
 
-  function histHtml(x) {
-    var H = [];
-    if (x.at) H.push({ t: ST[x.st].nm + ' 처리', s: x.at + ' · 현장 파트너' });
-    H.push({ t: '주주명부 배정', s: '2026-09-14 09:00 · ' + x.org + ' 캠페인' });
-    if (x.st === 'done') H.push({ t: '위임장 수령 · 검증 완료', s: (x.at || '2026-09-26 15:20') + ' · 전자 서명' });
-    if (x.st === 'fix') H.push({ t: '보완 요청 — 서명 누락', s: '2026-09-25 11:05 · 검증팀' });
-    if (x.st === 'no') H.push({ t: '수집 불가 — 부재 3회', s: '2026-09-24 19:40 · 현장 파트너' });
-    return H.map(function (h) {
-      return '<div class="h"><div class="rail"><div class="d"></div><div class="l"></div></div>'
-        + '<div class="c"><div class="t">' + esc(h.t) + '</div><div class="s">' + esc(h.s) + '</div></div></div>';
-    }).join('');
+  /* ── 방문상태 히스토리 (Figma 5148:25648) ────────────────── */
+  var HKEY = 'cx.app.hist';
+  function histAll() {
+    try { return JSON.parse(localStorage.getItem(HKEY) || '{}'); } catch (e) { return {}; }
   }
-  $('#dtHist').addEventListener('click', function () {
-    sheet({ title: '권유 이력', body: '<div class="hist" style="padding:4px 0 8px">' + histHtml(CUR) + '</div>' });
-  });
+  function histSave(all) { try { localStorage.setItem(HKEY, JSON.stringify(all)); } catch (e) {} }
+  /* 저장된 게 없으면 배정 이후 기록을 순번에서 만들어 둔다 */
+  var SEED_RSN = { plan: ['첫 방문 예정 등록'], replan: ['부재중', '보완 서류 필요', '재방문 요청'],
+    no: ['타인 거주', '연락 두절', '수집 거부'], done: ['위임장 수령 완료'], fix: ['서명 누락'] };
+  function seedHist(x) {
+    function r(k) { var v = Math.sin((x.i + 1) * 9301 + k * 49297) * 233280; return v - Math.floor(v); }
+    var n = 1 + Math.floor(r(71) * 3), out = [];
+    for (var i = 0; i < n; i++) {
+      var st = ['replan', 'plan', 'replan'][i % 3];
+      var L = SEED_RSN[st], d = 16 + Math.floor(r(72 + i) * 12);
+      function p2(v) { return (v < 10 ? '0' : '') + v; }
+      out.push({ at: '2026-09-' + p2(d) + ' ' + p2(9 + Math.floor(r(75 + i) * 10)) + ':' + p2(Math.floor(r(78 + i) * 60)),
+        st: st, why: L[Math.floor(r(80 + i) * L.length)] });
+    }
+    if (x.at) out.push({ at: x.at, st: x.st, why: '' });
+    out.sort(function (a, b) { return a.at < b.at ? 1 : -1; });
+    return out;
+  }
+  function histOf(x) {
+    var all = histAll();
+    if (!all[x.i]) { all[x.i] = seedHist(x); histSave(all); }
+    return all[x.i];
+  }
+  function histAdd(x, st, why) {
+    var all = histAll();
+    if (!all[x.i]) all[x.i] = seedHist(x);
+    all[x.i].unshift({ at: nowStamp(), st: st, why: why || '' });
+    histSave(all);
+  }
+  function openHist() {
+    var L = histOf(CUR);
+    $('#hsList').innerHTML = L.length ? L.map(function (h) {
+      var st = ST[h.st] || ST.plan;
+      return '<div class="hsday">' + esc(h.at.replace(/-/g, '.')) + '</div>'
+        + '<div class="hscard"><div class="t"><b>방문상태 변경</b>'
+        + '<span class="stb ' + st.cls + '">' + st.nm + '</span></div>'
+        + (h.why ? '<div class="x">' + esc(h.why) + '</div>' : '') + '</div>';
+    }).join('') : '<div class="empty" style="padding:60px 0"><i class="ph ph-clock-counter-clockwise"></i>기록이 없습니다</div>';
+    show('#scrHist'); $('#tabbar').hidden = true;
+    $('#hsList').parentNode.scrollTop = 0;
+  }
+  $('#dtHist').addEventListener('click', openHist);
+  $('#hsBack').addEventListener('click', function () { show('#scrDetail'); $('#tabbar').hidden = true; });
 
   function editMemo(idx) {
     var L = memos(CUR), cur = (idx == null) ? '' : L[idx].tx;
@@ -1175,19 +1205,43 @@
 
   /* 방문 상태 변경 */
   /* 방문 상태 변경 */
+  var RSN = {
+    plan:   ['방문 예정 등록', '연락 후 재방문', '주소 확인 완료'],
+    replan: ['부재중', '보완 서류 필요', '재방문 요청'],
+    no:     ['타인 거주', '연락 두절', '수집 거부']
+  };
   $('#dtState').addEventListener('click', function () {
+    var pick = CUR.st, why = '';
     sheet({
       title: '방문 상태 변경',
-      body: '<div class="stlist">' + ['plan', 'replan', 'no'].map(function (k) {
-        return '<button class="strow' + (CUR.st === k ? ' on' : '') + '" type="button" data-sst="' + k + '">'
-          + ST[k].nm + '</button>';
-      }).join('') + '</div>',
+      body: '<div class="stlist" id="stL"></div><div class="strsn" id="stR"></div>',
+      foot: '<button class="btn gh" type="button" data-ovx>취소</button>'
+        + '<button class="btn" type="button" id="stOk">변경하기</button>',
       after: function (bx) {
-        bx.querySelectorAll('[data-sst]').forEach(function (b) {
-          b.addEventListener('click', function () {
-            APP.setState(CUR.i, b.dataset.sst); closeSheet(); drawDetail();
-            toast(CUR.name + ' — ' + ST[CUR.st].nm + '으로 변경했습니다');
+        function paint() {
+          bx.querySelector('#stL').innerHTML = ['plan', 'replan', 'no'].map(function (k) {
+            return '<button class="strow' + (pick === k ? ' on' : '') + '" type="button" data-sst="' + k + '">'
+              + ST[k].nm + '</button>';
+          }).join('');
+          bx.querySelector('#stR').innerHTML = '<div class="lb">사유 (선택)</div>'
+            + '<div class="chips2">' + (RSN[pick] || []).map(function (r) {
+                return '<button type="button" data-rsn="' + esc(r) + '"' + (why === r ? ' class="on"' : '') + '>' + esc(r) + '</button>';
+              }).join('') + '</div>'
+            + '<input id="stWhy" placeholder="직접 입력" value="' + esc(why) + '">';
+          bx.querySelectorAll('[data-sst]').forEach(function (b) {
+            b.addEventListener('click', function () { pick = b.dataset.sst; why = ''; paint(); });
           });
+          bx.querySelectorAll('[data-rsn]').forEach(function (b) {
+            b.addEventListener('click', function () { why = (why === b.dataset.rsn) ? '' : b.dataset.rsn; paint(); });
+          });
+          bx.querySelector('#stWhy').addEventListener('input', function () { why = this.value; });
+        }
+        paint();
+        bx.querySelector('#stOk').addEventListener('click', function () {
+          APP.setState(CUR.i, pick);
+          histAdd(CUR, pick, why);
+          closeSheet(); drawDetail(); refresh();
+          toast(CUR.name + ' — ' + ST[pick].nm + '으로 변경했습니다', true);
         });
       }
     });
@@ -1442,6 +1496,7 @@
     camStop();
     APP.setState(CUR.i, 'done');
     APP.setProxy(CUR.i, { votes: PX.votes, sign: PX.sign, idImg: PX.idImg, at: CUR.at });
+    histAdd(CUR, 'done', '위임장 수령 · 전송 완료');
     PX.step = 4; pxDraw();
   }
   function pxDone() {
@@ -1634,7 +1689,7 @@
           bx.querySelector('#rsOk').addEventListener('click', function () {
             /* 지도 키는 설정값이라 초기화 대상이 아니다.
                위임장(서명·신분증 사진)은 여기서 같이 지운다. */
-            ['cx.collect', 'cx.app.book', 'cx.app.noti', 'cx.app.px'].forEach(function (k) {
+            ['cx.collect', 'cx.app.book', 'cx.app.noti', 'cx.app.px', 'cx.app.hist'].forEach(function (k) {
               try { localStorage.removeItem(k); } catch (e) {}
             });
             location.reload();
