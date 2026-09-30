@@ -469,9 +469,11 @@
   }
 
   /* ── 추천 주주 바텀 시트 ───────────────────── */
+  /* 추천 주주 — 지도 중심에서 가까운 순 30건 */
+  var REC_N = 30;
   function recommended() {
     var c = center();
-    return filtered().slice().sort(function (a, b) { return distTo(a, c) - distTo(b, c); }).slice(0, 20);
+    return filtered().slice().sort(function (a, b) { return distTo(a, c) - distTo(b, c); }).slice(0, REC_N);
   }
   function center() {
     if (!MAP) return { lat: ME.lat, lng: ME.lng };
