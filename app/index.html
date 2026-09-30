@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=8">
+<link rel="stylesheet" href="app.css?v=20">
 </head>
 <body>
 <div id="phone">
@@ -19,53 +19,51 @@
   <section class="scr on" id="scrLogin">
     <div class="lg">
       <div class="top">
-        <div class="lgo"><span class="dot"><i class="ph-fill ph-gavel"></i></span>CONEXUS</div>
+        <img class="appic" src="assets/app-icon.png" alt="주주PASS">
         <h2>의결권 위임 플랫폼</h2>
         <div class="sub">현장 파트너용</div>
       </div>
-      <div class="fld"><input id="lgId" type="text" placeholder="아이디" autocomplete="username"></div>
-      <div class="fld"><input id="lgPw" type="password" placeholder="비밀번호" autocomplete="current-password"></div>
+      <button class="btn" id="lgJoin" type="button" data-help="회원가입">회원가입</button>
+      <div class="sep"><span>계정이 있으신가요?</span></div>
+      <div class="fld"><label for="lgId">아이디</label>
+        <input id="lgId" type="text" placeholder="아이디를 입력해주세요" autocomplete="username"></div>
+      <div class="fld"><label for="lgPw">비밀번호</label>
+        <div class="pw"><input id="lgPw" type="password" placeholder="비밀번호를 입력해주세요" autocomplete="current-password">
+          <button class="eye" id="lgEye" type="button" aria-label="비밀번호 보기"><i class="ph ph-eye-slash"></i></button></div></div>
       <div class="row">
         <button class="sv" id="lgSave" type="button"><span class="cb" id="lgSaveCb"></span>아이디 저장</button>
-        <span class="lk"><button type="button" data-help="아이디찾기">아이디찾기</button><span class="sp">·</span><button type="button" data-help="비밀번호 변경">비밀번호 변경</button></span>
+        <span class="lk"><button type="button" data-help="아이디찾기">아이디찾기</button><span class="sp">|</span><button type="button" data-help="비밀번호 변경">비밀번호 변경</button></span>
       </div>
-      <div class="btns">
-        <button class="btn" id="lgGo" type="button" disabled>로그인</button>
-      </div>
+      <button class="btn" id="lgGo" type="button" disabled>로그인</button>
       <div class="hint">시연용입니다 — 아이디 <b>partner</b> / 비밀번호 <b>1234</b> 로 들어오거나, 아무 값이나 넣어도 로그인됩니다.</div>
-      <div class="join">계정이 없으신가요?<button type="button" data-help="회원가입"><b>회원가입</b></button></div>
     </div>
   </section>
 
-  <!-- ══ 수집 — 주주 목록 ══ -->
+  <!-- ══ 수집 — 주주 목록 · 지도 ══ -->
   <section class="scr" id="scrList">
     <div class="tb">
       <h1>주주 목록</h1>
-      <button class="ic" id="btnBook" type="button" aria-label="북마크"><i class="ph ph-bookmark-simple"></i></button>
+      <button class="ic" id="btnBook" type="button" aria-label="관심 주주"><i class="ph ph-bookmark-simple"></i></button>
       <button class="ic" id="btnMap" type="button" aria-label="지도 보기"><i class="ph ph-map-trifold"></i></button>
     </div>
+    <div class="chips" id="chips"></div>
+    <div class="srch">
+      <div class="wrap"><i class="ph ph-magnifying-glass"></i>
+        <input id="q" type="search" placeholder="이름, 주소, 생년월일 검색" enterkeyhint="search">
+        <button class="clr" id="qClr" type="button" hidden aria-label="지우기"><i class="ph-fill ph-x-circle"></i></button></div>
+    </div>
+
+    <!-- 목록 모드 -->
     <div class="bd" id="listBd">
-      <div class="chips" id="chips"></div>
-      <div class="srch">
-        <div class="wrap"><i class="ph ph-magnifying-glass"></i>
-          <input id="q" type="search" placeholder="이름, 주소, 생년월일 검색" enterkeyhint="search"></div>
-      </div>
       <div class="lsmeta">
         <button class="srt" id="btnSort" type="button"><span>권유일 입력 순</span><i class="ph ph-caret-up-down"></i></button>
         <span><b id="lsCnt">0</b>건</span>
       </div>
       <div class="cards" id="cards"></div>
     </div>
-  </section>
 
-  <!-- ══ 지도 뷰 ══ -->
-  <section class="scr" id="scrMap">
-    <div class="tb line">
-      <button class="ic bk" id="mapBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
-      <h1>지도 뷰</h1>
-      <button class="ic" id="mapList" type="button" aria-label="목록 보기"><i class="ph ph-list-bullets"></i></button>
-    </div>
-    <div class="mapwrap">
+    <!-- 지도 모드 -->
+    <div class="mapwrap" id="mapwrap" hidden>
       <div id="map"></div>
       <div class="mapctl">
         <button id="mapMe" type="button" aria-label="내 위치"><i class="ph ph-crosshair"></i></button>
@@ -74,9 +72,13 @@
           <button id="mapOut" type="button" aria-label="축소"><i class="ph ph-minus"></i></button>
         </div>
       </div>
-      <div class="mapnear"><button class="btn" id="mapNear" type="button"><i class="ph ph-users-three"></i>주변 주주 보기</button></div>
+      <div class="mapnear"><button class="fbtn" id="mapNear" type="button">추천 주주 보기</button></div>
+      <div class="hereWrap"><button class="herebtn" id="mapHere" type="button" hidden>
+        <i class="ph ph-arrows-clockwise"></i>현재 지도에서 다시 찾기</button></div>
+
       <div class="sheetup" id="nearSheet">
-        <div class="sh-h"><b id="nearTt">주변 주주</b>
+        <div class="sh-grab" id="nearGrab"><span class="bar"></span></div>
+        <div class="sh-h"><b id="nearTt">추천 주주</b>
           <button class="ic" id="nearX" type="button" aria-label="닫기"><i class="ph ph-x"></i></button></div>
         <div class="sh-b"><div class="cards" id="nearCards" style="padding-top:2px"></div></div>
       </div>
@@ -136,6 +138,6 @@
 <script src="../cx-data.js?v=1"></script>
 <script src="../cx-roster.js?v=r9"></script>
 <script src="app-data.js?v=5"></script>
-<script src="app.js?v=12"></script>
+<script src="app.js?v=20"></script>
 </body>
 </html>

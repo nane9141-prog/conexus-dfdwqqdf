@@ -32,7 +32,7 @@
   }
   function goTab(k) {
     curTab = k; show(TABS[k]);
-    if (k === 'list') drawList();
+    if (k === 'list') { MAPMODE ? (show(TABS.list), drawChips(), setTimeout(function(){ resize(); paintMarkers(); }, 60)) : drawList(); }
     if (k === 'stat') drawStat();
     if (k === 'news') drawNews();
     if (k === 'set') drawSet();
@@ -66,6 +66,11 @@
     function chk() { go.disabled = !(id.value.trim() && pw.value.trim()); }
     id.addEventListener('input', chk); pw.addEventListener('input', chk); chk();
     $('#lgSave').addEventListener('click', function () { cb.classList.toggle('on'); });
+    $('#lgEye').addEventListener('click', function () {
+      var on = pw.type === 'password';
+      pw.type = on ? 'text' : 'password';
+      this.querySelector('i').className = on ? 'ph ph-eye' : 'ph ph-eye-slash';
+    });
     pw.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !go.disabled) go.click(); });
     go.addEventListener('click', function () {
       APP.auth.set(id.value.trim(), cb.classList.contains('on'));
@@ -95,10 +100,10 @@
       b.addEventListener('click', function () {
         var k = b.dataset.st, i = F.st.indexOf(k);
         if (i >= 0) F.st.splice(i, 1); else F.st.push(k);
-        drawList();
+        refresh();
       });
     });
-    c.querySelector('[data-act="book"]').addEventListener('click', function () { F.bookOnly = !F.bookOnly; drawList(); });
+    c.querySelector('[data-act="book"]').addEventListener('click', function () { F.bookOnly = !F.bookOnly; refresh(); });
     c.querySelector('[data-act="detail"]').addEventListener('click', openDetailFilter);
   }
 
@@ -120,15 +125,15 @@
           b.addEventListener('click', function () {
             var k = b.dataset.fst, i = F.st.indexOf(k);
             if (i >= 0) F.st.splice(i, 1); else F.st.push(k);
-            b.querySelector('.cb').classList.toggle('on', F.st.indexOf(k) >= 0); drawList();
+            b.querySelector('.cb').classList.toggle('on', F.st.indexOf(k) >= 0); refresh();
           });
         });
         bx.querySelector('[data-fbook]').addEventListener('click', function (e) {
           F.bookOnly = !F.bookOnly;
-          e.currentTarget.querySelector('.cb').classList.toggle('on', F.bookOnly); drawList();
+          e.currentTarget.querySelector('.cb').classList.toggle('on', F.bookOnly); refresh();
         });
         bx.querySelector('[data-clr]').addEventListener('click', function () {
-          F.st = []; F.bookOnly = false; F.q = ''; $('#q').value = ''; drawList(); closeSheet();
+          F.st = []; F.bookOnly = false; F.q = ''; $('#q').value = ''; $('#qClr').hidden = true; refresh(); closeSheet();
         });
       }
     });
@@ -157,13 +162,23 @@
       }).join('') + '</div>',
       after: function (bx) {
         bx.querySelectorAll('[data-srt]').forEach(function (b) {
-          b.addEventListener('click', function () { F.sort = b.dataset.srt; closeSheet(); drawList(); });
+          b.addEventListener('click', function () { F.sort = b.dataset.srt; closeSheet(); refresh(); });
         });
       }
     });
   });
-  $('#q').addEventListener('input', function () { F.q = this.value; drawList(); });
-  $('#btnBook').addEventListener('click', function () { F.bookOnly = !F.bookOnly; drawList(); toast(F.bookOnly ? '관심 주주만 보고 있습니다' : '전체 주주를 보고 있습니다'); });
+  $('#q').addEventListener('input', function () {
+    F.q = this.value; $('#qClr').hidden = !this.value; refresh();
+  });
+  $('#qClr').addEventListener('click', function () {
+    $('#q').value = ''; F.q = ''; this.hidden = true; refresh();
+  });
+  /* 목록·지도 어느 쪽을 보고 있든 필터 결과를 같이 갱신한다 */
+  function refresh() { MAPMODE ? (drawChips(), paintMarkers()) : drawList(); }
+  $('#btnBook').addEventListener('click', function () {
+    F.bookOnly = !F.bookOnly; refresh();
+    toast(F.bookOnly ? '관심 주주만 보고 있습니다' : '전체 주주를 보고 있습니다');
+  });
 
   function liveBg(x) {
     var m = { high: 'green', mid: 'gray', low: 'red' };
@@ -208,7 +223,18 @@
     bindCards(c);
     show(TABS.list);
   }
-  $('#btnMap').addEventListener('click', openMap);
+
+  /* 목록 ↔ 지도 — 같은 수집 탭 안에서 본문만 바꾼다 */
+  var MAPMODE = false;
+  $('#btnMap').addEventListener('click', function () { setMapMode(!MAPMODE); });
+  function setMapMode(on) {
+    MAPMODE = on;
+    $('#listBd').hidden = on;
+    $('#mapwrap').hidden = !on;
+    $('#btnMap').querySelector('i').className = on ? 'ph ph-list-bullets' : 'ph ph-map-trifold';
+    $('#btnMap').setAttribute('aria-label', on ? '목록 보기' : '지도 보기');
+    if (on) openMap(); else { nearClose(); drawList(); }
+  }
 
   /* ══ 지도 ════════════════════════════════════ */
   var MAP = null, LAYER = null, ME = { lat: 37.5250, lng: 126.9250 }, MEMK = null;
@@ -284,8 +310,7 @@
   function flushNv(ok) { var w = nvWait; nvWait = []; w.forEach(function (f) { f(ok); }); }
 
   function openMap() {
-    show('#scrMap'); $('#tabbar').hidden = true;
-    if (MAP) { setTimeout(resize, 60); return; }
+    if (MAP) { setTimeout(function () { resize(); paintMarkers(); }, 60); return; }
     loadNaver(function (ok) {
       ENGINE = ok ? 'naver' : 'osm';
       ok ? initNaver() : initOsm();
@@ -310,13 +335,14 @@
       center: new naver.maps.LatLng(ME.lat, ME.lng), zoom: 11,
       zoomControl: false, mapDataControl: false, scaleControl: false, logoControlOptions: { position: 3 }
     });
-    naver.maps.Event.addListener(MAP, 'idle', paintMarkers);
+    naver.maps.Event.addListener(MAP, 'idle', onIdle);
   }
   function initOsm() {
     MAP = L.map('map', { zoomControl: false, attributionControl: true }).setView([ME.lat, ME.lng], 11);
     tiles();
-    MAP.on('moveend zoomend', paintMarkers);
+    MAP.on('moveend zoomend', onIdle);
   }
+  function onIdle() { paintMarkers(); checkHere(); }
 
   /* 네이버 인증이 늦게 거절되면 지도를 통째로 기본 지도로 바꿔 끼운다 */
   function downgrade() {
@@ -385,8 +411,6 @@
       + 'box-shadow:0 0 0 6px rgba(0,113,243,.2),0 2px 8px rgba(0,0,0,.3)"></div>', 22, null);
   }
 
-  $('#mapBack').addEventListener('click', function () { goTab('list'); });
-  $('#mapList').addEventListener('click', function () { goTab('list'); });
   $('#mapIn').addEventListener('click', function () { if (MAP) MAP.setZoom(zoomOf() + 1, true); });
   $('#mapOut').addEventListener('click', function () { if (MAP) MAP.setZoom(zoomOf() - 1, true); });
   $('#mapMe').addEventListener('click', function () {
@@ -407,8 +431,11 @@
     var L0 = filtered(), z, vis;
     try { z = zoomOf(); vis = L0.filter(inView); } catch (e) { return; }
     if (z >= 14) {
-      vis.slice(0, 300).forEach(function (x) {
-        MKS.push(mark(x.lat, x.lng, '<div class="pin ' + x.st + '"></div>', 30,
+      /* 개별 핀 — 주주 아이콘 아래 이름 (Figma 5411:27558) */
+      vis.slice(0, 150).forEach(function (x) {
+        MKS.push(mark(x.lat, x.lng,
+          '<div class="upin ' + x.st + '"><div class="ic"></div><div class="dot"></div>'
+          + '<div class="nm">' + esc(x.name) + '</div></div>', 36,
           function () { openDetail(x.i); }));
       });
       return;
@@ -427,24 +454,103 @@
       MKS.push(mark(lat, lng,
         '<div class="cls" style="width:' + d + 'px;height:' + d + 'px;font-size:' + (n >= 100 ? 15 : 14) + 'px">' + lbl + '</div>',
         d, function () {
-          if (z >= 12) nearSheet(g, g.length + '명');
-          else setView(lat, lng, z + 2);
+          /* 클러스터를 누르면 그 중심으로 부드럽게 옮기면서 풀어 준다 */
+          panTo(lat, lng, Math.min(15, z + 3));
         }));
     });
   }
-  function nearSheet(list, tt) {
-    $('#nearTt').textContent = tt || '주변 주주';
-    var c = $('#nearCards');
-    c.innerHTML = list.slice(0, 30).map(cardHtml).join('');
-    bindCards(c);
-    $('#nearSheet').classList.add('on');
-    $('.mapwrap').classList.add('sheeton');
+  /* 부드럽게 이동 */
+  function panTo(lat, lng, z) {
+    if (isNv()) {
+      MAP.morph(new naver.maps.LatLng(lat, lng), z, { duration: 450, easing: 'easeOutCubic' });
+    } else {
+      MAP.flyTo([lat, lng], z, { duration: 0.5 });
+    }
   }
-  function nearClose() { $('#nearSheet').classList.remove('on'); $('.mapwrap').classList.remove('sheeton'); }
+
+  /* ── 추천 주주 바텀 시트 ───────────────────── */
+  function recommended() {
+    var c = center();
+    return filtered().slice().sort(function (a, b) { return distTo(a, c) - distTo(b, c); }).slice(0, 20);
+  }
+  function center() {
+    if (!MAP) return { lat: ME.lat, lng: ME.lng };
+    var c = MAP.getCenter();
+    return isNv() ? { lat: c.lat(), lng: c.lng() } : { lat: c.lat, lng: c.lng };
+  }
+  function distTo(x, c) {
+    var dy = (x.lat - c.lat) * 111, dx = (x.lng - c.lng) * 88;
+    return Math.sqrt(dy * dy + dx * dx);
+  }
+  function fillSheet(list, tt) {
+    $('#nearTt').textContent = tt;
+    var c = $('#nearCards');
+    c.innerHTML = list.length ? list.map(cardHtml).join('')
+      : '<div class="empty"><i class="ph ph-map-pin"></i>이 근처에는 대상 주주가 없습니다</div>';
+    bindCards(c);
+  }
+  function nearOpen() {
+    var L0 = recommended();
+    fillSheet(L0, '추천 주주 ' + L0.length + '명');
+    $('#nearSheet').classList.add('on');
+    $('#mapwrap').classList.add('sheeton');
+    HERE.base = center();                 /* 이 자리를 기준으로 삼는다 */
+    $('#mapHere').hidden = true;
+  }
+  function nearClose() {
+    var s = $('#nearSheet');
+    s.classList.remove('on', 'full');
+    $('#mapwrap').classList.remove('sheeton');
+    $('#mapHere').hidden = true;          /* 시트를 닫으면 조건과 무관하게 사라진다 */
+  }
   $('#nearX').addEventListener('click', nearClose);
-  $('#mapNear').addEventListener('click', function () {
-    var L0 = filtered().slice().sort(function (a, b) { return dist(a) - dist(b); }).slice(0, 20);
-    nearSheet(L0, '주변 주주 ' + L0.length + '명');
+  $('#mapNear').addEventListener('click', nearOpen);
+
+  /* 시트 손잡이 드래그 — 위로 끌면 최대 확장, 아래로 끌면 닫힘 */
+  (function () {
+    var s = $('#nearSheet'), y0 = 0, h0 = 0, moved = 0, on = false;
+    function wrapH() { return $('#mapwrap').getBoundingClientRect().height || 1; }
+    function down(e) {
+      if (!s.classList.contains('on')) return;
+      on = true; moved = 0; y0 = e.clientY; h0 = s.getBoundingClientRect().height;
+      s.classList.add('drag'); s.setPointerCapture && s.setPointerCapture(e.pointerId);
+    }
+    function move(e) {
+      if (!on) return;
+      moved = y0 - e.clientY;
+      var h = Math.max(80, Math.min(wrapH(), h0 + moved));
+      s.style.height = h + 'px';
+    }
+    function up() {
+      if (!on) return;
+      on = false; s.classList.remove('drag'); s.style.height = '';
+      if (moved < -90) { nearClose(); return; }
+      s.classList.toggle('full', moved > 60 || (s.classList.contains('full') && moved > -60));
+    }
+    ['#nearGrab', '.sheetup .sh-h'].forEach(function (sel) {
+      var el = document.querySelector(sel); if (!el) return;
+      el.addEventListener('pointerdown', down);
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', up);
+      el.addEventListener('pointercancel', up);
+    });
+  })();
+
+  /* ── 현재 지도에서 다시 찾기 ───────────────── */
+  var HERE = { base: null };
+  function checkHere() {
+    var btn = $('#mapHere'); if (!btn) return;
+    var open = $('#nearSheet').classList.contains('on');
+    if (!open || !HERE.base) { btn.hidden = true; return; }
+    /* 시트를 연 자리에서 충분히 벗어났을 때만 */
+    btn.hidden = distTo({ lat: HERE.base.lat, lng: HERE.base.lng }, center()) < 1.2;
+  }
+  $('#mapHere').addEventListener('click', function () {
+    var L0 = recommended();
+    fillSheet(L0, '이 지역 추천 주주 ' + L0.length + '명');
+    HERE.base = center();
+    this.hidden = true;
+    $('#nearSheet').querySelector('.sh-b').scrollTop = 0;
   });
 
   /* ══ 주주 상세정보 ═══════════════════════════ */
@@ -452,13 +558,14 @@
   function openDetail(i) {
     var x = APP.find(i); if (!x) return;
     CUR = x;
-    backTo = $('#scrMap').classList.contains('on') ? 'map' : curTab;
+    backTo = curTab;
+    /* 지도에서 들어왔으면 돌아올 때도 지도로 */
     nearClose();
     drawDetail();
     show('#scrDetail'); $('#tabbar').hidden = true;
     $('#dtBd').scrollTop = 0;
   }
-  $('#dtBack').addEventListener('click', function () { backTo === 'map' ? openMap() : goTab(backTo || 'list'); });
+  $('#dtBack').addEventListener('click', function () { goTab(backTo || 'list'); });
 
   function drawDetail() {
     var x = CUR, s = ST[x.st], mk = APP.mapLinks(x), bk = BOOK.indexOf(x.i) >= 0;

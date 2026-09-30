@@ -84,25 +84,31 @@ a{color:inherit;text-decoration:none}
 /* ── 로그인 ───────────────────────────────────── */
 #scrLogin{background:#fff}
 .lg{flex:1;display:flex;flex-direction:column;padding:0 24px 28px;overflow-y:auto}
-.lg .top{padding:48px 0 32px;text-align:left}
-.lg .lgo{display:inline-flex;align-items:center;gap:8px;font-size:22px;font-weight:800;letter-spacing:-.03em}
-.lg .lgo .dot{width:28px;height:28px;border-radius:9px;background:var(--blue);color:#fff;
-  display:inline-flex;align-items:center;justify-content:center;font-size:16px}
-.lg h2{margin-top:20px;font-size:26px;font-weight:800;line-height:1.3;letter-spacing:-.03em}
-.lg .sub{margin-top:8px;color:var(--mut);font-size:14px}
-.lg .fld{margin-top:10px}
+.lg .top{padding:56px 0 28px;text-align:center}
+.lg .appic{width:88px;height:88px;border-radius:22px;display:block;margin:0 auto}
+.lg h2{margin-top:22px;font-size:22px;font-weight:800;line-height:1.3;letter-spacing:-.03em}
+.lg .sub{margin-top:6px;color:var(--blue);font-size:15px;font-weight:600}
+.lg #lgJoin{height:52px;font-size:16px}
+/* 계정이 있으신가요? — 가운데 글자, 양쪽 선 */
+.lg .sep{display:flex;align-items:center;gap:12px;margin:34px 0 18px;color:var(--mut2);font-size:13px;font-weight:600}
+.lg .sep::before,.lg .sep::after{content:"";flex:1;height:1px;background:var(--bd)}
+.lg .fld{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+.lg .fld label{font-size:14px;font-weight:700;color:var(--fg)}
 .lg input{width:100%;height:52px;padding:0 14px;border:1px solid var(--bd);border-radius:12px;background:#fff;outline:none}
 .lg input:focus{border-color:var(--ink)}
 .lg input::placeholder{color:var(--mut2)}
-.lg .row{display:flex;align-items:center;justify-content:space-between;margin-top:14px;font-size:13px;color:var(--mut)}
-.lg .row .lk{display:flex;gap:6px;align-items:center}
+.lg .pw{position:relative}
+.lg .pw input{padding-right:48px}
+.lg .pw .eye{position:absolute;right:6px;top:0;height:52px;width:42px;display:flex;align-items:center;
+  justify-content:center;color:var(--mut2)}
+.lg .pw .eye i{font-size:20px}
+.lg .row{display:flex;align-items:center;justify-content:space-between;margin-top:18px;font-size:13px;color:var(--mut)}
+.lg .row .lk{display:flex;gap:8px;align-items:center}
 .lg .row .lk button{color:var(--mut);font-size:13px}
 .lg .row .lk .sp{color:#D4D4D4}
-.lg .sv{display:flex;align-items:center;gap:6px;color:var(--fg);font-weight:500}
-.lg .btns{margin-top:24px;display:flex;flex-direction:column;gap:10px}
-.lg .join{margin-top:auto;padding-top:28px;text-align:center;font-size:13px;color:var(--mut)}
-.lg .join b{color:var(--blue);font-weight:700;margin-left:4px}
-.lg .hint{margin-top:12px;padding:12px 14px;border-radius:12px;background:#F7F8FA;color:var(--mut);font-size:12px;line-height:1.6}
+.lg .sv{display:flex;align-items:center;gap:8px;color:var(--fg);font-weight:500}
+.lg #lgGo{margin-top:22px;height:52px;font-size:16px}
+.lg .hint{margin-top:auto;padding:12px 14px;border-radius:12px;background:#F7F8FA;color:var(--mut);font-size:12px;line-height:1.6}
 
 /* 체크박스 */
 .cb{width:20px;height:20px;flex:none;border:1px solid var(--bd);border-radius:6px;background:#fff;
@@ -127,7 +133,10 @@ a{color:inherit;text-decoration:none}
 .srch .wrap:focus-within{border-color:var(--ink)}
 .srch i{font-size:18px;color:var(--mut2);flex:none}
 .srch input{flex:1;min-width:0;border:none;outline:none;background:none}
+.srch input::-webkit-search-cancel-button{display:none}
 .srch input::placeholder{color:var(--mut2)}
+.srch .clr{color:#C9CBD1;display:flex;align-items:center}
+.srch .clr i{font-size:18px}
 .lsmeta{display:flex;align-items:center;justify-content:space-between;padding:2px 16px 10px;
   font-size:13px;color:var(--mut)}
 .lsmeta .srt{display:inline-flex;align-items:center;gap:4px;font-weight:600;color:var(--fg)}
@@ -163,7 +172,8 @@ a{color:inherit;text-decoration:none}
   linear-gradient(90deg,rgba(0,0,0,.035) 1px,transparent 1px) 0 0/48px 48px,
   radial-gradient(circle at 30% 25%,#DCE8F5 0,#EDF1F5 55%)}
 .mapwrap{position:relative;flex:1;min-height:0;overflow:hidden}
-.mapctl{position:absolute;right:12px;bottom:82px;display:flex;flex-direction:column;gap:8px;z-index:500}
+.mapwrap[hidden]{display:none}
+.mapctl{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:8px;z-index:500}
 .mapctl button{width:42px;height:42px;border-radius:12px;background:#fff;border:1px solid var(--bd);
   box-shadow:0 2px 8px rgba(0,0,0,.08);display:flex;align-items:center;justify-content:center;color:var(--fg)}
 .mapctl button i{font-size:20px}
@@ -171,22 +181,48 @@ a{color:inherit;text-decoration:none}
   overflow:hidden;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .mapctl .zm button{border:none;border-radius:0;box-shadow:none;height:40px}
 .mapctl .zm button+button{border-top:1px solid var(--bd)}
-.mapnear{position:absolute;left:16px;right:16px;bottom:20px;z-index:500}
-.mapnear .btn{box-shadow:0 8px 24px rgba(0,113,243,.35)}
+/* 추천 주주 보기 — 하단 가운데 흰색 플로팅 버튼 */
+.mapnear{position:absolute;left:0;right:0;bottom:20px;z-index:500;display:flex;justify-content:center;
+  pointer-events:none;transition:opacity .18s}
+.mapnear .fbtn{pointer-events:auto;height:44px;padding:0 22px;border-radius:1000px;background:#fff;
+  border:1px solid #E8EAEE;box-shadow:0 6px 20px rgba(0,0,0,.16);font-size:15px;font-weight:700;color:var(--fg)}
+.mapnear .fbtn:active{background:#F5F5F5}
+.mapwrap.sheeton .mapnear{opacity:0;pointer-events:none}
+
+/* 현재 지도에서 다시 찾기 — 시트가 열린 채 지도를 옮겼을 때만 */
+.hereWrap{position:absolute;left:0;right:0;top:12px;z-index:510;display:flex;justify-content:center;pointer-events:none}
+.herebtn{pointer-events:auto;display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 16px;
+  border-radius:1000px;background:var(--blue);color:#fff;font-size:13px;font-weight:700;
+  box-shadow:0 6px 18px rgba(0,113,243,.4)}
+.herebtn[hidden]{display:none}
+.herebtn i{font-size:15px}
+
+/* 마커 */
 .cls{display:flex;align-items:center;justify-content:center;border-radius:1000px;font-weight:800;color:#fff;
   background:rgba(0,113,243,.86);border:3px solid rgba(255,255,255,.9);box-shadow:0 4px 12px rgba(0,0,0,.2)}
-.pin{width:30px;height:30px;border-radius:1000px;border:3px solid #fff;background:var(--blue);
-  box-shadow:0 3px 10px rgba(0,0,0,.25)}
-.pin.done{background:var(--grn)} .pin.no{background:var(--red)}
-.pin.replan{background:var(--org)} .pin.fix{background:var(--pur)}
+/* 개별 핀 — 아이콘 + 아래 주주명 */
+.upin{position:relative;display:flex;flex-direction:column;align-items:center;gap:1px;width:74px;margin-left:-19px}
+.upin .ic{width:36px;height:36px;background:url("assets/user-pin.svg") no-repeat center/36px 36px}
+.upin .nm{font-size:12px;font-weight:700;color:#171717;white-space:nowrap;
+  text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 4px #fff,0 1px 2px rgba(255,255,255,.9)}
+.upin .dot{position:absolute;top:4px;right:16px;width:9px;height:9px;border-radius:9px;border:2px solid #fff}
+.upin.plan .dot{background:var(--blue)} .upin.replan .dot{background:var(--org)}
+.upin.no .dot{background:var(--red)} .upin.done .dot{background:var(--grn)}
+.upin.fix .dot{background:var(--pur)}
+
+/* 바텀 시트 — 딤 없이, 지도를 가리지 않는 높이 */
 .sheetup{position:absolute;left:0;right:0;bottom:0;z-index:600;background:#fff;border-radius:18px 18px 0 0;
-  box-shadow:0 -8px 30px rgba(0,0,0,.16);transform:translateY(105%);transition:transform .24s ease;
-  max-height:66%;display:flex;flex-direction:column}
+  box-shadow:0 -8px 30px rgba(0,0,0,.16);height:46%;transform:translateY(100%);
+  transition:transform .26s cubic-bezier(.22,1,.36,1),height .26s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column}
 .sheetup.on{transform:none}
-.sheetup .sh-h{flex:none;display:flex;align-items:center;gap:8px;padding:14px 16px 10px}
+.sheetup.full{height:100%}
+.sheetup.drag{transition:none}
+.sheetup .sh-grab{flex:none;display:flex;justify-content:center;padding:8px 0 2px;cursor:grab;touch-action:none}
+.sheetup .sh-grab .bar{width:40px;height:4px;border-radius:4px;background:#DEE0E5}
+.sheetup .sh-h{flex:none;display:flex;align-items:center;gap:8px;padding:8px 16px 10px;touch-action:none}
 .sheetup .sh-h b{font-size:16px;flex:1}
-.sheetup .sh-b{overflow-y:auto;overscroll-behavior:contain;padding:0 0 16px;max-height:340px}
-.mapwrap.sheeton .mapnear{display:none}
+.sheetup .sh-b{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 0 16px}
 .leaflet-container{font-family:inherit}
 /* 네이버 지도 마커는 아이콘 컨테이너에 스타일이 없으므로 여기서 맞춘다 */
 #map .cls,#map .pin{box-sizing:border-box}
