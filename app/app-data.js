@@ -97,6 +97,14 @@
     return 'plan';
   }
 
+  /* 권유 기간(9/15~9/29) 안의 처리 일시 */
+  function atOf(i) {
+    function p(v) { return (v < 10 ? '0' : '') + v; }
+    var d = 15 + Math.floor(rnd(i, 41) * 15);
+    var h = 9 + Math.floor(rnd(i, 42) * 11), m = Math.floor(rnd(i, 43) * 60);
+    return '2026-09-' + p(d) + ' ' + p(h) + ':' + p(m);
+  }
+
   function build() {
     /* 현장 방문 대상이라 국내 거주 개인 주주만 본다 */
     var R = (CX.roster || []).filter(function (r) { return r.gb === '개인' && /[가-힣]/.test(r.nm || ''); });
@@ -115,7 +123,8 @@
         zip: ad.zip, addr: ad.full, area: ad.short, lat: ad.lat, lng: ad.lng,
         live: lv, st: st,
         memo: SAVED.memo[r.i] || '',
-        at: SAVED.at[r.i] || ''
+        /* 앱에서 처리한 적이 없는 건은 배정 이후 아무 날짜나 하나 붙여 둔다 */
+        at: SAVED.at[r.i] || (st === 'plan' ? '' : atOf(r.i))
       };
     });
   }
