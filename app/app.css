@@ -614,10 +614,11 @@ a{color:inherit;text-decoration:none}
 .admeta .srt{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--fg)}
 .admeta .srt i{font-size:15px;color:#8A8F99}
 .admeta b{color:var(--fg);font-weight:700}
-.adlist{display:flex;flex-direction:column;gap:10px;padding:0 16px 20px}
+/* 선택 테두리가 스크롤 영역 위쪽에서 잘리지 않게 여백을 둔다 */
+.adlist{display:flex;flex-direction:column;gap:10px;padding:8px 16px 20px}
 .adrow{display:flex;gap:10px;align-items:flex-start;background:#F5F6F8;border-radius:12px;padding:14px;
   text-align:left;width:100%}
-.adrow.on{background:#EBF4FF;outline:1px solid #B2D5FF}
+.adrow.on{background:#EBF4FF;box-shadow:inset 0 0 0 1px #B2D5FF}
 .adrow .cb{margin-top:2px}
 .adrow .c{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px}
 .adrow .z{display:flex;align-items:center;gap:6px}
