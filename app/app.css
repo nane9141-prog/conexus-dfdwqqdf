@@ -10,11 +10,16 @@
   --grn:#059669; --grn-l:#ECFDF5; --grn-b:#A7F3D0;
   --pur:#7C3AED; --pur-l:#F5F3FF; --pur-b:#DDD6FE;
   --tab-h:60px;
-  /* 화면 위아래 여백 — 상태바·홈 인디케이터와 폰 프레임 라운드를 피한다 */
-  --sa-top:20px; --sa-bot:16px;
+  /* 화면 위아래 여백 — 기본은 최소로 두고, 노치·홈 인디케이터가 있는 기기에서만
+     그만큼 벌린다. 브라우저 주소창 아래에서는 env() 가 0 이라 여백이 남지 않는다. */
+  --sa-top:6px; --sa-bot:8px;
 }
 @supports (padding:env(safe-area-inset-top)){
-  :root{ --sa-top:max(20px,env(safe-area-inset-top)); --sa-bot:max(16px,env(safe-area-inset-bottom)); }
+  :root{ --sa-top:max(6px,env(safe-area-inset-top)); --sa-bot:max(8px,env(safe-area-inset-bottom)); }
+}
+/* 데스크톱 폰 프레임에서는 라운드에 닿지 않게 조금 더 준다 */
+@media (min-width:640px){
+  :root{ --sa-top:14px; --sa-bot:12px; }
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
@@ -103,7 +108,7 @@ a{color:inherit;text-decoration:none}
 /* ── 로그인 ───────────────────────────────────── */
 #scrLogin{background:#fff}
 .lg{flex:1;display:flex;flex-direction:column;padding:0 24px calc(28px + var(--sa-bot));overflow-y:auto}
-.lg .top{padding:calc(40px + var(--sa-top)) 0 28px;text-align:center}
+.lg .top{padding:calc(32px + var(--sa-top)) 0 24px;text-align:center}
 .lg .appic{width:88px;height:88px;border-radius:22px;display:block;margin:0 auto}
 .lg h2{margin-top:22px;font-size:22px;font-weight:800;line-height:1.3;letter-spacing:-.03em}
 .lg .sub{margin-top:6px;color:var(--blue);font-size:15px;font-weight:600}
