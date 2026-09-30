@@ -1533,14 +1533,43 @@
     var len = R * (f1 - f0);
     var f = Math.max(0, Math.min(1, pct / 100));
     var k = pt(f), col = live ? '#0071F3' : '#4B5058';
-    return '<div class="arc"><svg viewBox="0 0 ' + W + ' ' + H + '">'
+    var knob = live && f > 0.02 && f < 0.995;
+    /* 진행중 카드는 0 에서 현재 값까지 차오르게 그린다 — animArcs() 가 시작시킨다 */
+    return '<div class="arc"' + (live ? ' data-anim="1"' : '') + '>'
+      + '<svg viewBox="0 0 ' + W + ' ' + H + '">'
       + '<path d="' + d + '" fill="none" stroke="#EDEFF2" stroke-width="14" stroke-linecap="round"/>'
-      + (f > 0 ? '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="14" stroke-linecap="round"'
-          + ' stroke-dasharray="' + (len * f).toFixed(1) + ' ' + (len * 2).toFixed(1) + '"/>' : '')
-      + (live && f > 0.02 && f < 0.99
-          ? '<circle cx="' + k[0].toFixed(1) + '" cy="' + k[1].toFixed(1) + '" r="8" fill="#0071F3"'
-            + ' stroke="#CFE3FF" stroke-width="6"/>' : '')
-      + '</svg><div class="pct">' + pct + '% 달성</div></div>';
+      + (f > 0 ? '<path class="pg" d="' + d + '" fill="none" stroke="' + col + '" stroke-width="14"'
+          + ' stroke-linecap="round" data-f="' + f + '"'
+          + ' stroke-dasharray="' + len.toFixed(1) + '"'
+          + ' stroke-dashoffset="' + (live ? len.toFixed(1) : (len * (1 - f)).toFixed(1)) + '"/>' : '')
+      + (knob ? '<circle class="kb" cx="' + k[0].toFixed(1) + '" cy="' + k[1].toFixed(1) + '" r="8"'
+          + ' fill="#0071F3" stroke="#CFE3FF" stroke-width="6" opacity="0"/>' : '')
+      + '</svg><div class="pct"' + (live ? ' data-cnt="' + pct + '"' : '') + '>' + pct + '% 달성</div></div>';
+  }
+  /* 원호가 차오르고 손잡이가 따라가며, 퍼센트 숫자도 같이 올라간다 */
+  function animArcs() {
+    $$('.arc[data-anim]').forEach(function (a) {
+      var pg = a.querySelector('.pg'); if (!pg) return;
+      var kb = a.querySelector('.kb'), lab = a.querySelector('.pct');
+      var len = pg.getTotalLength(), f = +pg.dataset.f, tgt = +lab.dataset.cnt;
+      var DUR = 1100, t0 = 0;
+      pg.style.strokeDashoffset = len;
+      lab.textContent = '0% 달성';
+      function ease(t) { return 1 - Math.pow(1 - t, 3); }      /* easeOutCubic */
+      function step(ts) {
+        if (!t0) t0 = ts;
+        var t = Math.min(1, (ts - t0) / DUR), e = ease(t), cur = f * e;
+        pg.style.strokeDashoffset = len * (1 - cur);
+        lab.textContent = Math.round(tgt * e) + '% 달성';
+        if (kb) {
+          var p = pg.getPointAtLength(len * cur);
+          kb.setAttribute('cx', p.x); kb.setAttribute('cy', p.y);
+          kb.setAttribute('opacity', t > 0.06 ? 1 : 0);
+        }
+        if (t < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    });
   }
   function dot(d) { return (d || '').replace(/-/g, '.'); }
   function dday(due) {
@@ -1570,6 +1599,7 @@
     }).join('')
       + '<div style="padding:4px 2px 24px;font-size:12px;color:#A3A3A3;line-height:1.6">'
       + '위임 완료로 바꾼 건은 CONEXUS 사전 의결권 현황의 실시간 주주 확보 현황과 권유대행 KPI 에 그대로 반영됩니다.</div>';
+    animArcs();
   }
 
   /* ══ 소식 ════════════════════════════════════ */

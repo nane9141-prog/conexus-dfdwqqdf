@@ -791,3 +791,10 @@ a{color:inherit;text-decoration:none}
 .strsn .chips2 button.on{background:var(--ink);border-color:var(--ink);color:#fff}
 .strsn input{width:100%;height:44px;padding:0 12px;border:1px solid var(--bd);border-radius:10px;outline:none}
 .strsn input:focus{border-color:var(--ink)}
+
+/* 진행중 카드 손잡이 — 다 차오른 뒤 은은하게 숨쉬기 */
+@keyframes kbPulse{0%,100%{stroke-width:6;opacity:1}50%{stroke-width:9;opacity:.85}}
+.cmp2 .arc .kb{animation:kbPulse 2.4s ease-in-out 1.2s infinite}
+@media (prefers-reduced-motion:reduce){
+  .cmp2 .arc .kb{animation:none}
+}
