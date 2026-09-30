@@ -236,55 +236,161 @@
     var dy = (x.lat - ME.lat) * 111, dx = (x.lng - ME.lng) * 88;
     return Math.sqrt(dy * dy + dx * dx);
   }
+
+  /* ── 지도 엔진 ─────────────────────────────────
+     기본은 네이버 지도(Web Dynamic Map). 키가 없거나 인증이 막히면
+     같은 마커·클러스터 로직 그대로 OSM 지도로 내려간다. */
+  var ENGINE = null;               /* 'naver' | 'osm' */
+  var MKS = [];                    /* 지금 떠 있는 마커들 */
+
+  function naverKey() {
+    var q = new URLSearchParams(location.search).get('ncpKeyId');
+    if (q) { try { localStorage.setItem('cx.app.navkey', q); } catch (e) {} return q; }
+    try { return localStorage.getItem('cx.app.navkey') || APP.NAVER_KEY || ''; }
+    catch (e) { return APP.NAVER_KEY || ''; }
+  }
+
+  /* 네이버 지도 스크립트를 한 번만 불러온다 */
+  var nvState = 0;                 /* 0 아직 · 1 불러오는 중 · 2 성공 · 3 실패 */
+  var nvWait = [];
+  function loadNaver(cb) {
+    if (nvState === 2) return cb(true);
+    if (nvState === 3) return cb(false);
+    nvWait.push(cb);
+    if (nvState === 1) return;
+    var key = naverKey();
+    if (!key) { nvState = 3; return flushNv(false); }
+    nvState = 1;
+    /* 키가 잘못됐을 때 네이버가 불러 주는 콜백 */
+    window.navermap_authFailure = function () { nvState = 3; flushNv(false); };
+    var s = document.createElement('script');
+    s.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + encodeURIComponent(key);
+    s.onload = function () {
+      /* 인증 실패는 onload 뒤에 비동기로 오므로 잠시 기다렸다가 판정한다 */
+      setTimeout(function () {
+        if (nvState === 3) return;
+        nvState = window.naver && naver.maps ? 2 : 3;
+        flushNv(nvState === 2);
+      }, 400);
+    };
+    s.onerror = function () { nvState = 3; flushNv(false); };
+    document.head.appendChild(s);
+    setTimeout(function () { if (nvState === 1) { nvState = 3; flushNv(false); } }, 8000);
+  }
+  function flushNv(ok) { var w = nvWait; nvWait = []; w.forEach(function (f) { f(ok); }); }
+
   function openMap() {
     show('#scrMap'); $('#tabbar').hidden = true;
-    if (!MAP) {
-      MAP = L.map('map', { zoomControl: false, attributionControl: true })
-        .setView([ME.lat, ME.lng], 11);
-      tiles();
-      MAP.on('moveend zoomend', paintMarkers);
-      /* 담당 구역 전체가 한눈에 들어오게 */
-      var pts = APP.list().map(function (x) { return [x.lat, x.lng]; });
-      if (pts.length) MAP.fitBounds(L.latLngBounds(pts).pad(0.12));
+    if (MAP) { setTimeout(resize, 60); return; }
+    loadNaver(function (ok) {
+      ENGINE = ok ? 'naver' : 'osm';
+      ok ? initNaver() : initOsm();
       setMe();
-    }
-    setTimeout(function () { MAP.invalidateSize(); paintMarkers(); }, 60);
+      fitAll();
+      setTimeout(function () { resize(); paintMarkers(); }, 60);
+      if (!ok) mapNote();
+    });
   }
+  function mapNote() {
+    var el = document.getElementById('mapNote');
+    if (el) return;
+    el = document.createElement('div');
+    el.id = 'mapNote'; el.className = 'mapnote';
+    el.innerHTML = '<i class="ph ph-info"></i>네이버 지도 키가 없어 기본 지도로 표시합니다';
+    $('.mapwrap').appendChild(el);
+    setTimeout(function () { el.classList.add('off'); }, 4000);
+  }
+
+  function initNaver() {
+    MAP = new naver.maps.Map('map', {
+      center: new naver.maps.LatLng(ME.lat, ME.lng), zoom: 11,
+      zoomControl: false, mapDataControl: false, scaleControl: false, logoControlOptions: { position: 3 }
+    });
+    naver.maps.Event.addListener(MAP, 'idle', paintMarkers);
+  }
+  function initOsm() {
+    MAP = L.map('map', { zoomControl: false, attributionControl: true }).setView([ME.lat, ME.lng], 11);
+    tiles();
+    MAP.on('moveend zoomend', paintMarkers);
+  }
+
+  /* 엔진 차이를 여기서만 흡수한다 */
+  function isNv() { return ENGINE === 'naver'; }
+  function resize() { isNv() ? naver.maps.Event.trigger(MAP, 'resize') : MAP.invalidateSize(); }
+  function zoomOf() { return MAP.getZoom(); }
+  function setView(lat, lng, z) {
+    if (isNv()) { MAP.setCenter(new naver.maps.LatLng(lat, lng)); if (z) MAP.setZoom(z, true); }
+    else MAP.setView([lat, lng], z || MAP.getZoom());
+  }
+  function inView(x) {
+    if (isNv()) return MAP.getBounds().hasLatLng(new naver.maps.LatLng(x.lat, x.lng));
+    return MAP.getBounds().contains([x.lat, x.lng]);
+  }
+  function fitAll() {
+    var P = APP.list(); if (!P.length) return;
+    var la = P.map(function (x) { return x.lat; }), ln = P.map(function (x) { return x.lng; });
+    var s = Math.min.apply(null, la), n = Math.max.apply(null, la);
+    var w = Math.min.apply(null, ln), e = Math.max.apply(null, ln);
+    var py = (n - s) * 0.12, px = (e - w) * 0.12;
+    if (isNv()) {
+      MAP.fitBounds(new naver.maps.LatLngBounds(
+        new naver.maps.LatLng(s - py, w - px), new naver.maps.LatLng(n + py, e + px)));
+    } else {
+      MAP.fitBounds([[s - py, w - px], [n + py, e + px]]);
+    }
+  }
+  /* html 아이콘 마커 하나 */
+  function mark(lat, lng, html, size, onClick) {
+    var m;
+    if (isNv()) {
+      m = new naver.maps.Marker({
+        position: new naver.maps.LatLng(lat, lng), map: MAP,
+        icon: { content: html, size: new naver.maps.Size(size, size),
+          anchor: new naver.maps.Point(size / 2, size / 2) }
+      });
+      if (onClick) naver.maps.Event.addListener(m, 'click', onClick);
+    } else {
+      m = L.marker([lat, lng], {
+        icon: L.divIcon({ className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2], html: html })
+      }).addTo(MAP);
+      if (onClick) m.on('click', onClick);
+    }
+    return m;
+  }
+  function unmark(m) { if (!m) return; isNv() ? m.setMap(null) : MAP.removeLayer(m); }
+
+  function setMe() {
+    unmark(MEMK);
+    MEMK = mark(ME.lat, ME.lng,
+      '<div style="width:22px;height:22px;border-radius:1000px;background:#0071F3;border:3px solid #fff;'
+      + 'box-shadow:0 0 0 6px rgba(0,113,243,.2),0 2px 8px rgba(0,0,0,.3)"></div>', 22, null);
+  }
+
   $('#mapBack').addEventListener('click', function () { goTab('list'); });
   $('#mapList').addEventListener('click', function () { goTab('list'); });
-  $('#mapIn').addEventListener('click', function () { MAP.zoomIn(); });
-  $('#mapOut').addEventListener('click', function () { MAP.zoomOut(); });
+  $('#mapIn').addEventListener('click', function () { if (MAP) MAP.setZoom(zoomOf() + 1, true); });
+  $('#mapOut').addEventListener('click', function () { if (MAP) MAP.setZoom(zoomOf() - 1, true); });
   $('#mapMe').addEventListener('click', function () {
-    if (!navigator.geolocation) { MAP.setView([ME.lat, ME.lng], 14); return; }
+    if (!MAP) return;
+    if (!navigator.geolocation) { setView(ME.lat, ME.lng, 14); return; }
     toast('현재 위치를 확인하고 있습니다');
     navigator.geolocation.getCurrentPosition(function (p) {
       ME = { lat: p.coords.latitude, lng: p.coords.longitude };
-      setMe(); MAP.setView([ME.lat, ME.lng], 14);
-    }, function () { setMe(); MAP.setView([ME.lat, ME.lng], 14); toast('위치 권한이 없어 기본 위치로 이동합니다'); },
+      setMe(); setView(ME.lat, ME.lng, 14);
+    }, function () { setMe(); setView(ME.lat, ME.lng, 14); toast('위치 권한이 없어 기본 위치로 이동합니다'); },
       { timeout: 6000 });
   });
-  function setMe() {
-    if (MEMK) MAP.removeLayer(MEMK);
-    MEMK = L.marker([ME.lat, ME.lng], {
-      icon: L.divIcon({
-        className: '', iconSize: [22, 22], iconAnchor: [11, 11],
-        html: '<div style="width:22px;height:22px;border-radius:1000px;background:#0071F3;border:3px solid #fff;box-shadow:0 0 0 6px rgba(0,113,243,.2),0 2px 8px rgba(0,0,0,.3)"></div>'
-      })
-    }).addTo(MAP);
-  }
 
   /* 화면 안의 주주를 격자로 묶어 클러스터로 보여 준다 */
   function paintMarkers() {
     if (!MAP) return;
-    if (LAYER) MAP.removeLayer(LAYER);
-    LAYER = L.layerGroup().addTo(MAP);
-    var L0 = filtered(), z = MAP.getZoom(), b = MAP.getBounds();
-    var vis = L0.filter(function (x) { return b.contains([x.lat, x.lng]); });
+    MKS.forEach(unmark); MKS = [];
+    var L0 = filtered(), z = zoomOf();
+    var vis = L0.filter(inView);
     if (z >= 14) {
       vis.slice(0, 300).forEach(function (x) {
-        L.marker([x.lat, x.lng], {
-          icon: L.divIcon({ className: '', iconSize: [30, 30], iconAnchor: [15, 15], html: '<div class="pin ' + x.st + '"></div>' })
-        }).addTo(LAYER).on('click', function () { openDetail(x.i); });
+        MKS.push(mark(x.lat, x.lng, '<div class="pin ' + x.st + '"></div>', 30,
+          function () { openDetail(x.i); }));
       });
       return;
     }
@@ -299,15 +405,12 @@
       var lng = g.reduce(function (a, x) { return a + x.lng; }, 0) / n;
       var d = n >= 100 ? 62 : n >= 30 ? 54 : n >= 10 ? 46 : 40;
       var lbl = n > 300 ? '300+' : n;
-      L.marker([lat, lng], {
-        icon: L.divIcon({
-          className: '', iconSize: [d, d], iconAnchor: [d / 2, d / 2],
-          html: '<div class="cls" style="width:' + d + 'px;height:' + d + 'px;font-size:' + (n >= 100 ? 15 : 14) + 'px">' + lbl + '</div>'
-        })
-      }).addTo(LAYER).on('click', function () {
-        if (z >= 12) nearSheet(g, g.length + '명');
-        else MAP.setView([lat, lng], z + 2);
-      });
+      MKS.push(mark(lat, lng,
+        '<div class="cls" style="width:' + d + 'px;height:' + d + 'px;font-size:' + (n >= 100 ? 15 : 14) + 'px">' + lbl + '</div>',
+        d, function () {
+          if (z >= 12) nearSheet(g, g.length + '명');
+          else setView(lat, lng, z + 2);
+        }));
     });
   }
   function nearSheet(list, tt) {
@@ -622,6 +725,12 @@
       + '<div class="li"><i class="ph ph-info"></i><span class="t">버전 정보</span><span class="r">v.2.0.1</span></div>'
       + '</div>'
 
+      + '<div class="grp"><div class="gh">지도</div>'
+      + '<button class="li" type="button" id="setKey"><i class="ph ph-map-pin-line"></i>'
+      + '<span class="t">네이버 지도 Client ID</span>'
+      + '<span class="r' + (naverKey() ? ' hi' : '') + '">' + (naverKey() ? '연결됨' : '미등록') + '</span>'
+      + '<i class="ph ph-caret-right"></i></button></div>'
+
       + '<div class="grp"><button class="li" type="button" id="setReset"><i class="ph ph-arrow-counter-clockwise"></i>'
       + '<span class="t">시연 데이터 초기화</span><i class="ph ph-caret-right"></i></button>'
       + '<button class="li" type="button" id="setOut"><i class="ph ph-sign-out"></i>'
@@ -631,6 +740,26 @@
     $('#setNoti').innerHTML = '<button class="li" type="button" id="setNotiBtn"><i class="ph ph-bell"></i>'
       + '<span class="t">알림 설정</span><span class="r">' + notiOn() + '개 켜짐</span><i class="ph ph-caret-right"></i></button>';
     $('#setNotiBtn').addEventListener('click', openNoti);
+    $('#setKey').addEventListener('click', function () {
+      sheet({
+        title: '네이버 지도 Client ID',
+        body: '<input id="nkIn" placeholder="네이버 클라우드 콘솔에서 발급받은 Client ID" '
+          + 'style="width:100%;height:48px;padding:0 14px;border:1px solid #E5E5E5;border-radius:12px;outline:none" '
+          + 'value="' + esc(naverKey()) + '">'
+          + '<div style="margin-top:12px;font-size:12px;line-height:1.6">'
+          + 'Maps 애플리케이션에 <b style="color:#171717">Dynamic Map</b> 을 켜고, Web 서비스 URL 에 '
+          + '<b style="color:#171717">' + esc(location.origin) + '</b> 을 등록해야 합니다. '
+          + '비워 두면 키가 필요 없는 기본 지도로 표시됩니다.</div>',
+        foot: '<button class="btn gh" type="button" data-ovx>취소</button><button class="btn" type="button" id="nkOk">저장</button>',
+        after: function (bx) {
+          bx.querySelector('#nkOk').addEventListener('click', function () {
+            var v = bx.querySelector('#nkIn').value.trim();
+            try { v ? localStorage.setItem('cx.app.navkey', v) : localStorage.removeItem('cx.app.navkey'); } catch (e) {}
+            location.reload();
+          });
+        }
+      });
+    });
     $('#setReset').addEventListener('click', function () {
       sheet({
         mid: true, title: '시연 데이터 초기화',
@@ -639,6 +768,7 @@
         foot: '<button class="btn gh" type="button" data-ovx>취소</button><button class="btn" type="button" id="rsOk">초기화</button>',
         after: function (bx) {
           bx.querySelector('#rsOk').addEventListener('click', function () {
+            /* 지도 키는 설정값이라 초기화 대상이 아니다 */
             ['cx.collect', 'cx.app.book', 'cx.app.noti'].forEach(function (k) {
               try { localStorage.removeItem(k); } catch (e) {}
             });

@@ -13,6 +13,11 @@
   var CX = global.CX || {};
   var APP = global.APP = {};
 
+  /* 네이버 지도(Web Dynamic Map) Client ID.
+     여기에 적어 두거나, 주소 뒤에 ?ncpKeyId=... 를 붙이거나, 설정 화면에서 넣을 수 있다.
+     비어 있으면 지도는 키가 필요 없는 OSM 지도로 뜬다. */
+  APP.NAVER_KEY = '';
+
   /* ── 상태 ─────────────────────────────────────────────────────────── */
   APP.STATES = {
     plan:  { k: 'plan',  nm: '방문예정',   cls: 'blue'   },
