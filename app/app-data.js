@@ -267,6 +267,25 @@
     SAVED.addr[x.i] = k; save();
   };
   APP.setTel  = function (i, t) { var x = APP.find(i); if (!x) return; x.tel  = t; SAVED.tel[x.i]  = t; save(); };
+  /* 위임장 — 의안별 행사 방향·서명·신분증.
+     이미지는 1024px JPEG 로 줄여 넣지만 그래도 커서 최근 20건만 남긴다. */
+  var PXKEY = 'cx.app.px';
+  function pxAll() {
+    try { return JSON.parse(localStorage.getItem(PXKEY) || '{}'); } catch (e) { return {}; }
+  }
+  APP.setProxy = function (i, v) {
+    var x = APP.find(i); if (!x) return;
+    var all = pxAll();
+    all[x.i] = { votes: v.votes, sign: v.sign, idImg: v.idImg, at: x.at };
+    var keys = Object.keys(all);
+    while (keys.length > 20) { delete all[keys.shift()]; }
+    try { localStorage.setItem(PXKEY, JSON.stringify(all)); }
+    catch (e) {                                   /* 용량이 차면 이미지는 버리고 기록만 남긴다 */
+      all[x.i] = { votes: v.votes, at: x.at };
+      try { localStorage.setItem(PXKEY, JSON.stringify(all)); } catch (e2) {}
+    }
+  };
+  APP.proxyOf = function (i) { return pxAll()[i] || null; };
 
   /* 수집현황 — 캠페인별 확보 주주 수 · 주식수 */
   APP.stat = function (campId) {

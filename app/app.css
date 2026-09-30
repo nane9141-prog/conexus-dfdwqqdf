@@ -680,3 +680,82 @@ a{color:inherit;text-decoration:none}
 .strow.on{background:#F1F2F4;font-weight:800}
 /* 주소 복사 시트 — 지도 앱 바로가기 */
 .maplinks a img{width:22px;height:22px;border-radius:6px;object-fit:cover}
+
+/* ═══ 위임 진행 4단계 ═══════════════════════════════════════ */
+.pxsteps{flex:none;display:flex;gap:6px;padding:0 16px 14px;background:#fff}
+.pxsteps .b{flex:1;height:3px;border-radius:3px;background:#E8EAEE}
+.pxsteps .b.on{background:var(--blue)}
+.pxwrap{padding:18px 16px 24px}
+.pxh{font-size:21px;font-weight:800;letter-spacing:-.03em;line-height:1.35}
+.pxd{margin-top:8px;font-size:14px;color:#6B7280;line-height:1.6}
+
+/* 약관 */
+.agall{display:flex;align-items:center;gap:10px;width:100%;margin-top:20px;padding:16px 14px;
+  border:1px solid #DDE0E5;border-radius:12px;text-align:left}
+.agall.on{border-color:var(--blue);background:#F5FAFF}
+.agall .t{flex:1;font-size:16px;font-weight:800}
+.aglist{margin-top:8px}
+.agrow{display:flex;align-items:center;gap:10px;width:100%;padding:14px 4px;text-align:left}
+.agrow .t{flex:1;min-width:0;font-size:14px;font-weight:600;color:var(--fg)}
+.agrow .t em{font-style:normal;color:var(--blue);font-weight:700;margin-right:4px}
+.agrow .t .opt{color:#9AA0A8;font-weight:600;margin-right:4px}
+.agrow .go{flex:none;color:#B4B8C0;display:inline-flex}
+.agrow .go i{font-size:16px}
+
+/* 의안별 행사 방향 */
+.agitem{padding:14px 0;border-bottom:1px solid #F0F1F3}
+.agitem:last-child{border-bottom:0}
+.agitem .nm{font-size:14px;font-weight:700;color:var(--fg);line-height:1.5}
+.agitem .ch{display:flex;gap:6px;margin-top:10px}
+.agitem .ch button{flex:1;height:40px;border-radius:10px;border:1px solid #E6E8EC;background:#fff;
+  font-size:14px;font-weight:700;color:#5B6070}
+.agitem .ch button.on[data-c="찬성"]{background:#EBF4FF;border-color:#B2D5FF;color:#0071F3}
+.agitem .ch button.on[data-c="반대"]{background:#FDF4F5;border-color:#FECDD3;color:#E9081B}
+.agitem .ch button.on[data-c="기권"]{background:#F3F4F6;border-color:#D7D9DF;color:#151419}
+
+/* 전자서명 */
+.signbox{margin-top:18px;position:relative;border:1px dashed #C9CDD4;border-radius:14px;background:#FBFBFC;
+  height:230px;overflow:hidden;touch-action:none}
+.signbox canvas{display:block;width:100%;height:100%;touch-action:none}
+.signbox .ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#B4B8C0;font-size:14px;pointer-events:none}
+.signbox.has .ph{display:none}
+.signbox .line{position:absolute;left:24px;right:24px;bottom:54px;height:1px;background:#E3E5EA;pointer-events:none}
+.signbar{display:flex;justify-content:flex-end;margin-top:10px}
+.signbar button{display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 12px;border:1px solid #DDE0E5;
+  border-radius:9px;background:#fff;font-size:13px;font-weight:700;color:var(--fg)}
+.signbar button i{font-size:15px}
+
+/* 신분증 촬영 */
+.camwrap{margin-top:18px;position:relative;border-radius:16px;overflow:hidden;background:#111;height:250px}
+.camwrap video,.camwrap img{width:100%;height:100%;object-fit:cover;display:block}
+.camwrap .guide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.camwrap .guide .fr{width:82%;aspect-ratio:1.58/1;border:2px solid rgba(255,255,255,.95);border-radius:12px;
+  box-shadow:0 0 0 2000px rgba(0,0,0,.42)}
+.camwrap .hint{position:absolute;left:0;right:0;bottom:12px;text-align:center;color:#fff;font-size:12px;
+  font-weight:600;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.camwrap .off{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;color:#9AA0A8;background:#F4F5F7;font-size:13px;text-align:center;padding:0 24px}
+.camwrap .off i{font-size:34px;color:#C9CDD4}
+.cambar{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:16px}
+.shutter{width:64px;height:64px;border-radius:1000px;background:#fff;border:3px solid #DDE0E5;
+  display:flex;align-items:center;justify-content:center}
+.shutter::after{content:"";width:48px;height:48px;border-radius:1000px;background:var(--ink)}
+.shutter:active::after{background:#444}
+.cambar .alt{height:40px;padding:0 14px;border:1px solid #DDE0E5;border-radius:10px;background:#fff;
+  font-size:13px;font-weight:700;color:var(--fg)}
+.camdone{display:flex;align-items:center;gap:8px;margin-top:14px;padding:12px 14px;border-radius:12px;
+  background:#E9FBF3;color:#047857;font-size:13px;font-weight:700}
+.camdone i{font-size:17px}
+
+/* 완료 */
+.pxdone{padding:70px 24px 0;text-align:center}
+.pxdone .ic{width:78px;height:78px;border-radius:1000px;background:#E9FBF3;color:#059669;margin:0 auto;
+  display:flex;align-items:center;justify-content:center}
+.pxdone .ic i{font-size:42px}
+.pxdone h3{margin-top:20px;font-size:21px;font-weight:800;letter-spacing:-.03em}
+.pxdone p{margin-top:10px;font-size:14px;color:#6B7280;line-height:1.7}
+.pxsum{margin:26px 16px 0;background:#F5F6F8;border-radius:14px;padding:16px;text-align:left}
+.pxsum .r{display:flex;gap:12px;padding:6px 0;font-size:13px}
+.pxsum .r .k{width:76px;flex:none;color:#8A8F99}
+.pxsum .r .v{flex:1;font-weight:700}

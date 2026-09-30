@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=42">
+<link rel="stylesheet" href="app.css?v=50">
 </head>
 <body>
 <div id="phone">
@@ -185,6 +185,19 @@
     <div class="bd" id="pfBd"></div>
   </section>
 
+  <!-- ══ 위임 진행 (약관 → 행사방향 → 서명 → 신분증) ══ -->
+  <section class="scr" id="scrPx">
+    <div class="tb line">
+      <button class="ic bk" id="pxBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1 id="pxTitle">위임장 작성</h1>
+      <span class="sp"></span>
+      <button class="ic" id="pxX" type="button" aria-label="닫기"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="pxsteps"><span class="b on"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
+    <div class="bd plain" id="pxBd"></div>
+    <div class="dt-ft"><button class="btn" id="pxNext" type="button" disabled>다음</button></div>
+  </section>
+
   <!-- ══ 수집현황 ══ -->
   <section class="scr" id="scrStat">
     <div class="tb"><h1>수집현황</h1></div>
@@ -223,7 +236,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../cx-data.js?v=1"></script>
 <script src="../cx-roster.js?v=r9"></script>
-<script src="app-data.js?v=10"></script>
-<script src="app.js?v=42"></script>
+<script src="app-data.js?v=11"></script>
+<script src="app.js?v=50"></script>
 </body>
 </html>
