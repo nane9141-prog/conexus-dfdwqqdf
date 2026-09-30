@@ -290,8 +290,8 @@
       ENGINE = ok ? 'naver' : 'osm';
       ok ? initNaver() : initOsm();
       setMe();
-      fitAll();
-      setTimeout(function () { resize(); paintMarkers(); }, 60);
+      /* 컨테이너 크기가 잡힌 뒤에 맞춰야 담당 구역 전체가 제대로 들어온다 */
+      setTimeout(function () { resize(); fitAll(); paintMarkers(); }, 80);
       if (!ok) mapNote();
     });
   }
@@ -325,8 +325,8 @@
     /* 네이버 API 가 컨테이너에 남긴 인라인 스타일까지 걷어내야 높이가 살아난다 */
     el.innerHTML = ''; el.className = ''; el.removeAttribute('style');
     delete el._leaflet_id;
-    initOsm(); setMe(); fitAll();
-    setTimeout(function () { resize(); paintMarkers(); }, 60);
+    initOsm(); setMe();
+    setTimeout(function () { resize(); fitAll(); paintMarkers(); }, 80);
     mapNote();
   }
 
