@@ -448,6 +448,15 @@
     });
     Object.keys(G).forEach(function (k) {
       var g = G[k], n = g.length;
+      /* 혼자 있는 주주는 줌 단계와 상관없이 바로 핀으로 보여 준다 */
+      if (n === 1) {
+        var x1 = g[0];
+        MKS.push(mark(x1.lat, x1.lng,
+          '<div class="upin ' + x1.st + '"><div class="ic"></div><div class="dot"></div>'
+          + '<div class="nm">' + esc(x1.name) + '</div></div>', 36,
+          function () { openDetail(x1.i); }));
+        return;
+      }
       var lat = g.reduce(function (a, x) { return a + x.lat; }, 0) / n;
       var lng = g.reduce(function (a, x) { return a + x.lng; }, 0) / n;
       var d = n >= 100 ? 62 : n >= 30 ? 54 : n >= 10 ? 46 : 40;
