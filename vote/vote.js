@@ -1,9 +1,8 @@
 /* 현장투표 앱 — 주주총회장에서 주주가 직접 의결권을 행사한다.
  *
- *  현장 제어(onsite-control.html)가 localStorage 'cx.live' 로 내보내는 신호를 그대로 구독한다.
- *  같은 오리진이라 별도 배선이 없어도 같은 값을 본다 — 주주PASS 시청 페이지와 같은 방식이다.
- *    { ag: '제1호', stage: 0~4, sec: 남은 초, done: {의안:결과} }
- *    stage 2 = 표결 중 · 3 = 집계 중 · 4 = 결과
+ *  의안은 CONEXUS 와 같은 정본(cx-data.js)을 쓰고, 진행 상태는 현장 제어가
+ *  localStorage 'cx.live' 로 내보내는 신호를 그대로 구독한다.
+ *    { ag:'제1호', stage:0~4, sec:남은 초, done:{의안:결과} }   stage 2=표결 중 · 3=집계 · 4=결과
  */
 (function () {
   'use strict';
@@ -13,253 +12,414 @@
   function cm(n) { return (n == null || isNaN(n)) ? '-' : Number(n).toLocaleString('ko-KR'); }
 
   /* ── 주주 · 출입증 ──────────────────────────── */
-  var ME = { nm: '윤대일', no: '8100461', id: '800101-1******', sh: 41847, rt: 0.0089 };
+  var ME = { nm: '윤대일', no: '8100461' };
   var M = (window.CX && CX.meeting) || {};
-  var PASSES = [
+  var CARDS = [
     { key: 'kudos', co: M.org || '큐더스전자', term: M.name || '제10기 정기주주총회',
-      date: '2026년 9월 29일 (화) 오전 10:00', place: '서울 강남구 큐더스전자 본사 대강당',
-      sh: 41847, seat: 'B-24', code: 'KDS-2026-0461', live: true },
+      sh: 41847, seat: 'A129', asof: '2026년 9월 14일 기준', live: true,
+      g: ['#4F6BFF', '#7B5CFF', '#3BA7FF'] },
     { key: 'naver', co: '네이버', term: '제27기 정기주주총회',
-      date: '2026년 9월 29일 (화) 오전 11:00', place: '경기 성남시 분당구 네이버 1784 커넥트홀',
-      sh: 20000, seat: 'A-08', code: 'NVR-2026-1182', live: false },
+      sh: 20000, seat: 'B061', asof: '2026년 9월 14일 기준', live: false,
+      g: ['#12B76A', '#0E9F6E', '#63D39B'] },
     { key: 'kakaobank', co: '카카오뱅크', term: '제10기 정기주주총회',
-      date: '2026년 9월 29일 (화) 오전 10:00', place: '서울 영등포구 카카오뱅크 본사 대강당',
-      sh: 1200, seat: 'C-15', code: 'KKB-2026-0733', live: false }
+      sh: 1200, seat: 'C412', asof: '2026년 9월 14일 기준', live: false,
+      g: ['#FFB020', '#FF8A3D', '#FFD166'] }
   ];
-  var CUR = null;                                  /* 보고 있는 출입증 */
+  var CUR = null, CURAG = null;
 
-  /* 의안 — 선택 가능한 단위만 (상위 묶음 제외) */
+  /* 의안 — CONEXUS 목록 그대로 (상위 묶음 + 하위 항목) */
   function agenda() {
-    var A = ((window.CX && CX.agenda) || []).filter(function (a) { return !a.header; });
+    var A = (window.CX && CX.agenda) || [];
     return A.length ? A : [{ no: '제1호', nm: '재무제표 승인의 건', types: ['보통결의'] }];
   }
-  function agType(a) { return (a.types && a.types[0]) || '보통결의'; }
-
-  /* ── 내가 행사한 표 — 같은 오리진의 cx.onsite 에 쌓는다 ─── */
-  var VKEY = 'cx.onsite';
-  function votes() {
-    try { return JSON.parse(localStorage.getItem(VKEY) || '{}'); } catch (e) { return {}; }
+  /* 실제로 표를 던지는 단위 — 하위가 있으면 하위, 없으면 자기 자신 */
+  function units() {
+    var out = [];
+    agenda().forEach(function (a) {
+      if (a.header) return;
+      out.push(a);
+    });
+    return out;
   }
-  function saveVote(no, pick) {
+  function detail(no) { return ((window.CX && CX.center) || {})[no] || {}; }
+  function kindOf(no) {
+    var d = detail(no);
+    if (d.type === '집중투표') return 'cum';
+    if (d.type === '양립불가') return 'excl';
+    return 'plain';
+  }
+
+  /* ── 내가 던진 표 — cx.onsite ───────────────── */
+  var VKEY = 'cx.onsite';
+  function votes() { try { return JSON.parse(localStorage.getItem(VKEY) || '{}'); } catch (e) { return {}; } }
+  function myVote(no) { var v = votes()[no]; return v || null; }
+  function saveVote(no, data) {
     var v = votes();
-    v[no] = { pick: pick, sh: ME.sh, nm: ME.nm, at: Date.now() };
-    /* 현장 제어가 바로 집계할 수 있게 합계도 같이 적어 둔다 */
+    v[no] = Object.assign({ sh: CUR.sh, nm: ME.nm, co: CUR.co, at: Date.now() }, data);
     v._sum = {};
     Object.keys(v).forEach(function (k) {
-      if (k.charAt(0) === '_') return;
+      if (k.charAt(0) === '_' || !v[k].pick) return;
       var s = (v._sum[k] = v._sum[k] || { 찬성: 0, 반대: 0, 기권: 0 });
       s[v[k].pick] += v[k].sh;
     });
     try { localStorage.setItem(VKEY, JSON.stringify(v)); } catch (e) {}
     try { window.dispatchEvent(new CustomEvent('cx-onsite', { detail: v })); } catch (e) {}
   }
-  function myVote(no) { var v = votes()[no]; return v ? v.pick : null; }
 
-  /* ── 토스트 ─────────────────────────────────── */
+  /* ── 토스트 · 화면 전환 ─────────────────────── */
   var tT = null;
   function toast(t) {
     var el = $('#toastT'); el.textContent = t; el.classList.add('on');
     clearTimeout(tT); tT = setTimeout(function () { el.classList.remove('on'); }, 2400);
   }
-  function show(sel) { $$('.scr').forEach(function (s) { s.classList.toggle('on', '#' + s.id === sel); }); }
+  var TABS = { site: null, hist: '#scrHist', set: '#scrSet' };
+  function show(sel, tab) {
+    $$('.scr').forEach(function (s) { s.classList.toggle('on', '#' + s.id === sel); });
+    $('#tabbar').hidden = !tab;
+    if (tab) $$('#tabbar button').forEach(function (b) { b.classList.toggle('on', b.dataset.tab === tab); });
+  }
+  $$('#tabbar button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var k = b.dataset.tab;
+      if (k === 'site') { tagged ? drawCards() : show('#scrNfc', 'site'); }
+      else if (k === 'hist') { drawHist(); show('#scrHist', 'hist'); }
+      else { drawSet(); show('#scrSet', 'set'); }
+    });
+  });
+  function buzz(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
 
   /* ══ 1. NFC 태깅 ═════════════════════════════ */
   var tagged = false;
+  $('#nfcGo').addEventListener('click', doTag);
   function doTag() {
     if (tagged) return;
-    tagged = true;
-    $('.nfc').classList.add('done');
-    $('#nfcHint').textContent = '태그를 인식했습니다';
-    $('#nfcIcSwap') || ($('#nfcGo').querySelector('.core i').className = 'ph-fill ph-check-circle');
-    buzz([30, 60, 30]);
-    setTimeout(function () { drawPasses(); show('#scrPass'); }, 700);
+    tagged = true; buzz([30, 60, 30]);
+    if (!PIN.set) { openPin('new'); return; }     /* 첫 태깅이면 비밀번호부터 */
+    drawCards();
   }
-  $('#nfcGo').addEventListener('click', doTag);
-  /* 안드로이드 크롬이면 진짜 태그도 읽어 본다 — 안 되면 탭으로 진행 */
   (function () {
     if (!('NDEFReader' in window)) return;
-    try {
-      var r = new window.NDEFReader();
-      r.scan().then(function () { r.onreading = doTag; }).catch(function () {});
-    } catch (e) {}
+    try { var r = new window.NDEFReader(); r.scan().then(function () { r.onreading = doTag; }).catch(function () {}); } catch (e) {}
   })();
   if (/[?&]nfc=1/.test(location.search)) setTimeout(doTag, 200);
 
-  function buzz(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
-
-  /* ══ 2. 출입증 ═══════════════════════════════ */
-  function drawPasses() {
-    $('#passBd').innerHTML =
-      '<div class="who"><div class="nm">' + esc(ME.nm) + ' 님</div>'
-      + '<div class="sub">주주번호 ' + ME.no + ' · ' + esc(ME.id) + '</div>'
-      + '<div class="tags"><span class="tg">본인 확인 완료</span><span class="tg">NFC 태깅 ' + nowHM() + '</span></div></div>'
-      + '<div class="plist"><div class="plb">오늘 참석 가능한 주주총회 ' + PASSES.length + '건</div>'
-      + PASSES.map(function (p) {
-          return '<div class="pcard' + (p.live ? '' : ' off') + '" role="button" tabindex="0" data-pass="' + p.key + '">'
-            + '<div class="top"><div class="l1"><span class="co">' + esc(p.co) + '</span>'
-            + '<span class="st' + (p.live ? ' live' : '') + '">' + (p.live ? '진행 중' : '예정') + '</span></div>'
-            + '<div class="tm">' + esc(p.term) + ' · ' + esc(p.date) + '</div>'
-            + '<div class="rows">'
-            + '<div class="rw"><div class="k">보유 주식</div><div class="v">' + cm(p.sh) + '주</div></div>'
-            + '<div class="rw"><div class="k">좌석</div><div class="v">' + esc(p.seat) + '</div></div>'
-            + '</div></div>'
-            + '<div class="tick"><span class="code">' + esc(p.code) + '</span>'
-            + '<span class="go">' + (p.live ? '투표하기' : '대기 중') + '<i class="ph ph-caret-right"></i></span></div>'
-            + '</div>';
-        }).join('') + '</div>';
-
-    $('#passBd').querySelectorAll('[data-pass]').forEach(function (c) {
-      c.addEventListener('click', function () {
-        var p = PASSES.filter(function (x) { return x.key === c.dataset.pass; })[0];
-        if (!p.live) { toast(p.co + ' 주주총회는 아직 시작 전입니다'); return; }
-        openVote(p);
+  /* ══ 2. 출입증 카드 ══════════════════════════ */
+  function drawCards() {
+    $('#deck').innerHTML = CARDS.map(function (c) {
+      return '<div class="pcard' + (c.live ? '' : ' off') + '" role="button" tabindex="0" data-card="' + c.key + '"'
+        + ' style="background:linear-gradient(150deg,' + c.g[0] + ' 0%,' + c.g[1] + ' 48%,' + c.g[2] + ' 100%)">'
+        + (c.live ? '<span class="st">진행 중</span>' : '<span class="st">예정</span>')
+        + '<i class="ph-fill ph-cell-signal-full nfcic"></i>'
+        + '<div class="nm">' + esc(ME.nm) + '</div>'
+        + '<div class="mid"><div class="co">' + esc(c.co) + '</div>'
+        + '<div class="term">' + esc(c.term) + '</div>'
+        + '<div class="hr"></div>'
+        + '<div class="rows"><div class="rw"><div class="k">주식 수</div><div class="v">' + cm(c.sh) + '주</div></div>'
+        + '<div class="rw"><div class="k">참석번호</div><div class="v">' + esc(c.seat) + '</div></div></div>'
+        + '<div class="asof">' + esc(c.asof) + '</div></div>'
+        + '<div class="warn"><div>' + warnRun() + warnRun() + '</div></div>'
+        + '</div>';
+    }).join('');
+    $('#dots').innerHTML = CARDS.map(function (c, i) { return '<span class="' + (i ? '' : 'on') + '"></span>'; }).join('');
+    $('#deck').querySelectorAll('[data-card]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var c = CARDS.filter(function (x) { return x.key === el.dataset.card; })[0];
+        if (!c.live) { toast(c.co + ' 주주총회는 아직 시작 전입니다'); return; }
+        CUR = c; drawList(); show('#scrList');
       });
     });
+    tint(0);
+    show('#scrCards', 'site');
+    autoSlide();
   }
-  function nowHM() {
-    var d = new Date();
-    function p(v) { return (v < 10 ? '0' : '') + v; }
-    return p(d.getHours()) + ':' + p(d.getMinutes());
+  function warnRun() {
+    var s = '';
+    for (var i = 0; i < 3; i++) s += '<span><i class="ph-fill ph-warning"></i>캡처 화면으로는 입장할 수 없습니다</span>';
+    return s;
   }
-  $('#pvOut').addEventListener('click', function () {
-    tagged = false;
-    $('.nfc').classList.remove('done');
-    $('#nfcHint').textContent = '태그를 기다리는 중…';
-    $('#nfcGo').querySelector('.core i').className = 'ph ph-wifi-high';
-    show('#scrNfc');
-  });
+  /* 뒤 배경을 지금 보는 카드 색으로 천천히 바꾼다 */
+  function tint(i) {
+    var c = CARDS[i] || CARDS[0];
+    $('#cardStage').style.setProperty('--g1', c.g[0]);
+    $$('#dots span').forEach(function (d, n) { d.classList.toggle('on', n === i); });
+  }
+  var slideT = null, slideIdx = 0;
+  function autoSlide() {
+    var deck = $('#deck');
+    deck.addEventListener('scroll', function () {
+      var w = deck.clientWidth, i = Math.round(deck.scrollLeft / (w - 34));
+      i = Math.max(0, Math.min(CARDS.length - 1, i));
+      if (i !== slideIdx) { slideIdx = i; tint(i); }
+    });
+    clearInterval(slideT);
+    slideT = setInterval(function () {
+      if (!$('#scrCards').classList.contains('on')) return;
+      slideIdx = (slideIdx + 1) % CARDS.length;
+      var w = deck.clientWidth;
+      deck.scrollTo({ left: slideIdx * (w - 34), behavior: 'smooth' });
+      tint(slideIdx);
+    }, 4200);
+  }
 
-  /* ══ 3·4. 투표 ═══════════════════════════════ */
+  /* ══ 3. 의안 목록 ════════════════════════════ */
   var LIVE = { ag: null, stage: 0, sec: null, done: null, ts: 0 };
-  var lastOpen = null;                             /* 알림을 한 번만 띄우기 위한 표시 */
+  $('#lsBack').addEventListener('click', function () { show('#scrCards', 'site'); });
 
-  function openVote(p) {
-    CUR = p;
-    $('#vTitle').textContent = p.co;
-    passkeyWarmup();                               /* Face ID 가 바로 뜨도록 미리 등록해 둔다 */
+  function drawList() {
+    $('#lsTitle').textContent = CUR.co + ' ' + CUR.term;
+    var A = agenda();
+    $('#agList').innerHTML = A.map(function (a) {
+      var kids = a.children || [];
+      var h = agRow(a, false);
+      kids.forEach(function (k) { h += agRow(k, true, a); });
+      return h;
+    }).join('');
+    $('#agList').querySelectorAll('[data-ag]').forEach(function (r) {
+      r.addEventListener('click', function () { openVote(r.dataset.ag); });
+    });
+    show('#scrList');
+  }
+  function agRow(a, sub, parent) {
+    var no = a.no, live = LIVE.ag === no, res = LIVE.done && LIVE.done[no];
+    var mv = myVote(no), k = kindOf(no);
+    /* 집중투표·양립불가의 하위는 상위에서 한 번에 고르므로 따로 누르지 않는다 */
+    var pick = !a.header && !sub;
+    var cls = 'agrow' + (sub ? ' sub' : '') + (live ? ' cur' : '') + (res ? ' done' : '')
+      + (res === '폐기' || res === '철회' ? ' mute' : '');
+    var bg = res ? '<span class="bg ' + (res === '가결' ? 'pass' : res === '부결' ? 'fail' : 'gray') + '">' + res + '</span>'
+      : live && LIVE.stage === 2 ? '<span class="bg live">진행중</span>'
+      : live && LIVE.stage === 3 ? '<span class="bg cnt">집계중</span>' : '';
+    return '<div class="' + cls + '"' + (pick ? ' role="button" tabindex="0" data-ag="' + no + '"' : '') + '>'
+      + (sub ? '' : '<div class="rail"><div class="d"></div></div>')
+      + '<div class="c"><div class="top"><span class="no">' + (sub ? '↳ ' : '') + esc(no) + '</span>' + bg + '</div>'
+      + '<div class="nm">' + esc(a.nm) + '</div>'
+      + (mv && !sub ? '<span class="mv ' + (mv.pick || '행사') + '">' + (mv.pick || '행사 완료') + '</span>' : '')
+      + '</div></div>';
+  }
+
+  /* ══ 4. 의안 투표 ════════════════════════════ */
+  var PICK = {};                                  /* 일반·양립불가 선택 */
+  var CUMV = {};                                  /* 집중투표 후보별 주식 수 */
+  $('#vBack').addEventListener('click', function () { drawList(); show('#scrList'); });
+
+  function openVote(no) {
+    CURAG = no; PICK = {}; CUMV = {};
+    var saved = myVote(no);
+    if (saved) { PICK = saved.picks || (saved.pick ? { _: saved.pick } : {}); CUMV = saved.cum || {}; }
     drawVote();
     show('#scrVote');
   }
-  $('#vBack').addEventListener('click', function () { show('#scrPass'); });
-
+  function agOf(no) {
+    var f = null;
+    agenda().forEach(function (a) {
+      if (a.no === no) f = a;
+      (a.children || []).forEach(function (k) { if (k.no === no) f = k; });
+    });
+    return f || { no: no, nm: '' };
+  }
   function drawVote() {
-    if (!CUR) return;
-    var A = agenda(), cur = LIVE.ag, i = idx(A, cur);
-    /* 머리말 — 의안 진행 막대 */
-    $('#vHead').innerHTML = '<div class="co">' + esc(CUR.co) + ' ' + esc(CUR.term) + '</div>'
-      + '<div class="mt">좌석 ' + esc(CUR.seat) + ' · 행사 가능 ' + cm(ME.sh) + '주</div>'
-      + '<div class="bar">' + A.map(function (a, n) {
-          var st = doneOf(a.no) ? 'done' : (n === i ? 'cur' : '');
-          return '<span class="' + st + '"></span>';
-        }).join('') + '</div>';
+    var no = CURAG, a = agOf(no), k = kindOf(no), d = detail(no);
+    $('#vTitle').textContent = no.replace('제', '제 ') + ' 의안';
 
-    var body;
-    if (!cur || LIVE.stage < 1) body = waitHtml('총회 시작을 기다리고 있습니다', '의장이 의안을 상정하면 투표가 열립니다.');
-    else if (LIVE.stage === 1) body = waitHtml('의안 상정 중', esc(cur) + ' 안건을 상정하고 있습니다. 잠시만 기다려 주세요.');
-    else if (LIVE.stage >= 2) body = voteHtml(A, i);
-
-    $('#voteBd').innerHTML = '<div class="vbody">' + body + histHtml(A) + '</div>';
-    bindVote();
-  }
-  function idx(A, no) { for (var i = 0; i < A.length; i++) if (A[i].no === no) return i; return -1; }
-  function doneOf(no) { return LIVE.done && LIVE.done[no]; }
-
-  function waitHtml(h, p) {
-    return '<div class="wait"><div class="ic"><i class="ph ph-hourglass-medium"></i></div>'
-      + '<h3>' + esc(h) + '</h3><p>' + p + '</p>'
-      + '<div class="now"><div class="k">현재 진행</div><div class="v">'
-      + (LIVE.ag ? esc(LIVE.ag) + ' · ' + esc(nameOf(LIVE.ag)) : '개회 전') + '</div></div></div>';
-  }
-  function nameOf(no) {
-    var a = agenda().filter(function (x) { return x.no === no; })[0];
-    return a ? a.nm : '';
-  }
-
-  function voteHtml(A, i) {
-    var a = A[i]; if (!a) return waitHtml('대기 중', '진행 중인 의안이 없습니다.');
-    var mine = myVote(a.no), res = doneOf(a.no);
-    var h = '<div class="vcard"><div class="cat"><span class="no">' + esc(a.no) + '</span>'
-      + (LIVE.stage === 2 && LIVE.sec ? '<span class="left" id="vLeft">남은 시간 ' + mmss(LIVE.sec) + '</span>' : '')
+    var top = '<div class="vtop"><div class="nm">' + esc(a.nm) + '</div>'
+      + (k === 'cum' ? '<div class="vtip"><div class="k">집중투표</div>'
+          + '<div class="t">보유 주식 1주마다 ' + (d.directors || 2) + '개의 의결권이 부여됩니다.</div>'
+          + '<div class="d">원하는 후보자에게 집중 또는 분산하여 자유롭게 의결권을 행사할 수 있습니다.</div></div>' : '')
+      + (k === 'excl' ? '<div class="vtip"><div class="k">양립불가</div>'
+          + '<div class="t">함께 가결될 수 없는 의안입니다.</div>'
+          + '<div class="d">각 안건에 대해 따로 의견을 선택해 주세요.</div></div>' : '')
+      + '<div class="vinfo">'
+      + '<div class="vrow"><span class="k">행사 가능 주식 수</span><span class="v">'
+      + cm(k === 'cum' ? CUR.sh * (d.directors || 2) : CUR.sh) + ' 주</span></div>'
+      + '<div class="vrow" id="vLim"><span class="k"><i class="ph-fill ph-info"></i>의결권 제한</span>'
+      + '<span class="sel">' + esc(limitName()) + '<i class="ph ph-caret-down"></i></span></div>'
       + '</div>'
-      + '<div class="nm">' + esc(a.nm) + '</div>'
-      + '<div class="base">' + esc(agType(a)) + ' · 행사 주식 ' + cm(ME.sh) + '주</div>'
-      + '<div class="mine"><span class="k">내 의결권</span><span class="v">' + cm(ME.sh) + '주</span>'
-      + '<span class="k" style="margin-left:auto">지분율</span><span class="v">' + ME.rt + '%</span></div>';
+      + '<div class="vlimit" id="vLimTx">' + esc(limitDesc()) + '</div></div>';
 
-    if (res) {
-      h += '<div class="vres ' + (res === '가결' ? 'pass' : 'fail') + '">' + esc(res) + '</div>';
-      if (mine) h += '<div class="vdone"><i class="ph-fill ph-check-circle"></i>' + esc(mine) + ' 행사 완료</div>';
-    } else if (mine) {
-      h += '<div class="vdone"><i class="ph-fill ph-check-circle"></i>' + esc(mine) + ' 행사가 완료되었습니다</div>';
-      if (LIVE.stage === 3) h += '<div class="vres pass" style="background:#F1F2F4;color:#5B6070">집계 중입니다</div>';
-    } else if (LIVE.stage === 2) {
-      h += '<div class="choices" id="vCh">'
-        + ['찬성', '반대', '기권'].map(function (c) {
-            return '<button class="choice" type="button" data-c="' + c + '">'
-              + '<i class="ph-fill ph-check-circle ck"></i>' + c + '</button>';
-          }).join('') + '</div>'
-        + '<button class="vgo" id="vGo" type="button" disabled>의결권 행사하기</button>';
-    } else {
-      h += '<div class="vres pass" style="background:#F1F2F4;color:#5B6070">표결이 마감되었습니다</div>';
-    }
-    return h + '</div>';
+    var pick;
+    if (k === 'cum') pick = cumHtml(no, d);
+    else if (k === 'excl') pick = exclHtml(no, d);
+    else pick = '<div class="pbox">' + ch3('_') + '</div>';
+
+    $('#voteBd').innerHTML = top + '<div class="vpick">' + pick + '</div>';
+    bindPick(k);
+    syncGo(k);
+    $('#voteBd').scrollTop = 0;
+
+    $('#vLim').addEventListener('click', function () { $('#vLimTx').classList.toggle('on'); });
   }
-  function mmss(n) { n = Math.max(0, n | 0); return Math.floor(n / 60) + ':' + (n % 60 < 10 ? '0' : '') + (n % 60); }
-
-  function histHtml(A) {
-    var rows = A.filter(function (a) { return doneOf(a.no) || myVote(a.no); });
-    if (!rows.length) return '';
-    return '<div class="hlist">' + rows.map(function (a) {
-      var mv = myVote(a.no) || '미행사';
-      return '<div class="hrow"><span class="no">' + esc(a.no) + '</span>'
-        + '<span class="nm">' + esc(a.nm) + '</span>'
-        + '<span class="mv ' + mv + '">' + mv + '</span></div>';
-    }).join('') + '</div>';
+  function limitName() { return '최대주주'; }
+  function limitDesc() {
+    return '최대주주 및 특수관계인은 감사·감사위원 선임 의안에서 의결권 있는 주식의 3%까지만 행사할 수 있습니다.';
   }
-
-  function bindVote() {
-    var pick = null, go = $('#vGo');
-    $$('#vCh .choice').forEach(function (b) {
-      b.addEventListener('click', function () {
-        $$('#vCh .choice').forEach(function (o) { o.classList.remove('sel'); });
-        b.classList.add('sel'); pick = b.dataset.c;
-        if (go) go.disabled = false;
+  function ch3(key) {
+    var cur = PICK[key];
+    var I = { 찬성: 'ph-circle', 반대: 'ph-x', 기권: 'ph-minus' };
+    return '<div class="ch3" data-k="' + key + '">'
+      + ['찬성', '반대', '기권'].map(function (c) {
+          return '<button type="button" data-c="' + c + '"' + (cur === c ? ' class="on"' : '') + '>'
+            + '<i class="ph-bold ' + I[c] + '"></i>' + c + '</button>';
+        }).join('') + '</div>';
+  }
+  function exclHtml(no, d) {
+    var opts = d.options || (agOf(no).children || []);
+    if (!opts.length) return '<div class="pbox">' + ch3('_') + '</div>';
+    return opts.map(function (o, i) {
+      return '<div class="pbox"><span class="sno">' + esc(o.no || ('n-' + (i + 1))) + '</span>'
+        + '<div class="snm">' + esc(o.name || o.nm || '') + '</div>' + ch3(o.no || ('o' + i)) + '</div>';
+    }).join('');
+  }
+  function cumHtml(no, d) {
+    var C = d.cands || (agOf(no).children || []).map(function (c) { return { no: c.no, name: c.nm }; });
+    var pool = CUR.sh * (d.directors || 2);
+    var used = Object.keys(CUMV).reduce(function (s, k) { return s + (+CUMV[k] || 0); }, 0);
+    return C.map(function (c) {
+      return '<div class="cand"><div class="c"><span class="sno">' + esc(c.no) + '</span>'
+        + '<div class="snm">' + esc(c.name || c.nm || '') + '</div></div>'
+        + '<input inputmode="numeric" data-cd="' + esc(c.no) + '" placeholder="주식 수" value="'
+        + (CUMV[c.no] || '') + '"></div>';
+    }).join('')
+      + '<div class="cumsum' + (used > pool ? ' over' : '') + '" id="cumSum"><span class="k">배분한 의결권</span>'
+      + '<span class="v">' + cm(used) + ' / ' + cm(pool) + '</span></div>';
+  }
+  function bindPick(k) {
+    $$('#voteBd .ch3').forEach(function (row) {
+      row.querySelectorAll('[data-c]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          var key = row.dataset.k, c = b.dataset.c;
+          /* 같은 버튼을 다시 누르면 선택 해제 */
+          if (PICK[key] === c) delete PICK[key]; else PICK[key] = c;
+          row.querySelectorAll('[data-c]').forEach(function (o) {
+            o.classList.toggle('on', PICK[key] === o.dataset.c);
+          });
+          syncGo(k);
+        });
       });
     });
-    if (go) go.addEventListener('click', function () {
-      if (!pick) return;
-      var a = agenda()[idx(agenda(), LIVE.ag)];
-      faceAuth(function () {
-        saveVote(a.no, pick);
-        drawVote();
-        toast(a.no + ' · ' + pick + ' 행사가 완료되었습니다');
-        buzz(40);
-      });
-    });
-  }
-
-  /* ── Face ID — 기기 인증을 부르되 결과와 무관하게 진행한다 ─ */
-  function passkeyWarmup() {
-    /* 등록된 패스키가 없으면 인증 창이 바로 닫히므로 조용히 하나 만들어 둔다 */
-    if (!window.PublicKeyCredential || sessionStorage.getItem('cx.pk')) return;
-    hasBio(function (yes) { if (yes) mk(); });
-    function mk() {
-    try {
-      navigator.credentials.create({
-        publicKey: {
-          challenge: rand(32),
-          rp: { name: '현장투표' },
-          user: { id: rand(16), name: ME.nm, displayName: ME.nm },
-          pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
-          authenticatorSelection: { userVerification: 'preferred' },
-          timeout: 15000
+    $$('#voteBd [data-cd]').forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        var v = this.value.replace(/[^0-9]/g, '');
+        this.value = v ? cm(+v) : '';
+        if (v) CUMV[this.dataset.cd] = +v; else delete CUMV[this.dataset.cd];
+        var d = detail(CURAG), pool = CUR.sh * (d.directors || 2);
+        var used = Object.keys(CUMV).reduce(function (s, x) { return s + (+CUMV[x] || 0); }, 0);
+        var el = $('#cumSum');
+        if (el) {
+          el.classList.toggle('over', used > pool);
+          el.querySelector('.v').textContent = cm(used) + ' / ' + cm(pool);
         }
-      }).then(function () { sessionStorage.setItem('cx.pk', '1'); }).catch(function () {});
-    } catch (e) {}
-    }
+        syncGo('cum');
+      });
+    });
   }
-  function rand(n) { var a = new Uint8Array(n); (crypto.getRandomValues || function () {})(a); return a; }
-  /* 기기에 Face ID · 지문 같은 인증기가 있는지 먼저 물어본다 (1.2초 안에 답이 없으면 없는 것으로) */
+  /* 투표하기 버튼 — 고르기 전 비활성, 이미 낸 표와 같으면 비활성 */
+  function syncGo(k) {
+    var go = $('#vGo'), saved = myVote(CURAG);
+    var ok, same = false;
+    if (k === 'cum') {
+      var d = detail(CURAG), pool = CUR.sh * (d.directors || 2);
+      var used = Object.keys(CUMV).reduce(function (s, x) { return s + (+CUMV[x] || 0); }, 0);
+      ok = used > 0 && used <= pool;
+      same = saved && JSON.stringify(saved.cum || {}) === JSON.stringify(CUMV);
+    } else {
+      var need = (k === 'excl') ? $$('#voteBd .ch3').length : 1;
+      ok = Object.keys(PICK).length >= need;
+      same = saved && JSON.stringify(saved.picks || {}) === JSON.stringify(PICK);
+    }
+    go.textContent = saved ? '투표 변경하기' : '투표하기';
+    go.disabled = !ok || !!same;
+    var f = $('.vfoot'), old = f.querySelector('.vdone');
+    if (old) old.remove();
+    if (saved) f.insertAdjacentHTML('afterbegin',
+      '<div class="vdone"><i class="ph-fill ph-check-circle"></i>투표가 완료되었습니다</div>');
+  }
+  $('#vGo').addEventListener('click', function () {
+    var k = kindOf(CURAG);
+    auth(function () {
+      var data = (k === 'cum') ? { cum: Object.assign({}, CUMV) }
+        : { picks: Object.assign({}, PICK), pick: PICK._ || PICK[Object.keys(PICK)[0]] };
+      saveVote(CURAG, data);
+      drawVote();
+      toast(CURAG + ' 투표가 완료되었습니다');
+      buzz(40);
+    });
+  });
+
+  /* ══ 본인인증 — 생체인증을 쓰면 Face ID, 아니면 비밀번호 ══ */
+  function auth(done) {
+    if (SET.bio) faceAuth(done);
+    else openPin('check', done);
+  }
+
+  /* ── 비밀번호 ───────────────────────────────── */
+  var PIN = { set: false, val: '', tmp: '' };
+  try { PIN.val = localStorage.getItem('cx.vote.pin') || ''; PIN.set = !!PIN.val; } catch (e) {}
+  var pinMode = 'new', pinBuf = '', pinDone = null;
+  function openPin(mode, cb) {
+    pinMode = mode; pinBuf = ''; pinDone = cb || null;
+    $('#pinT').textContent = '비밀번호 입력';
+    $('#pinD').innerHTML = mode === 'new'
+      ? '안전한 투표를 위해 비밀번호 설정이 필요합니다.<br>비밀번호를 입력해주세요.'
+      : mode === 'again' ? '확인을 위해 한 번 더 입력해 주세요.'
+      : '투표를 위해 비밀번호를 입력해 주세요.';
+    padDraw(); dotsDraw();
+    show('#scrPin');
+  }
+  $('#pinX').addEventListener('click', function () {
+    if (pinMode === 'check') { show('#scrVote'); return; }
+    tagged = false; show('#scrNfc', 'site');
+  });
+  function dotsDraw() {
+    $('#pinDots').innerHTML = [0, 1, 2, 3, 4, 5].map(function (i) {
+      return '<span class="' + (i < pinBuf.length ? 'on' : '') + '"></span>';
+    }).join('');
+  }
+  function padDraw() {
+    /* 숫자 자리를 섞어 어깨너머로 보이지 않게 한다 */
+    var n = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].sort(function () { return Math.random() - .5; });
+    var keys = n.slice(0, 9).concat(['재배열', n[9], 'back']);
+    $('#pinPad').innerHTML = keys.map(function (k) {
+      if (k === '재배열') return '<button type="button" class="sm" data-p="mix">재배열</button>';
+      if (k === 'back') return '<button type="button" data-p="back"><i class="ph ph-arrow-left"></i></button>';
+      return '<button type="button" data-p="' + k + '">' + k + '</button>';
+    }).join('');
+    $('#pinPad').querySelectorAll('[data-p]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var p = b.dataset.p;
+        if (p === 'mix') { padDraw(); return; }
+        if (p === 'back') { pinBuf = pinBuf.slice(0, -1); dotsDraw(); return; }
+        if (pinBuf.length >= 6) return;
+        pinBuf += p; dotsDraw(); buzz(8);
+        if (pinBuf.length === 6) setTimeout(pinSubmit, 160);
+      });
+    });
+  }
+  function pinSubmit() {
+    if (pinMode === 'new') { PIN.tmp = pinBuf; openPin('again'); return; }
+    if (pinMode === 'again') {
+      if (pinBuf !== PIN.tmp) { toast('비밀번호가 일치하지 않습니다'); openPin('new'); return; }
+      PIN.val = pinBuf; PIN.set = true;
+      try { localStorage.setItem('cx.vote.pin', PIN.val); } catch (e) {}
+      $('#bioOv').classList.add('on');            /* 생체인증 사용 안내 */
+      return;
+    }
+    if (pinBuf !== PIN.val) { toast('비밀번호가 맞지 않습니다'); pinBuf = ''; dotsDraw(); return; }
+    show('#scrVote');
+    if (pinDone) { var f = pinDone; pinDone = null; f(); }
+  }
+  $('#bioYes').addEventListener('click', function () {
+    $('#bioOv').classList.remove('on');
+    SET.bio = true; saveSet();
+    passkeyWarmup();
+    drawCards();
+  });
+  $('#bioNo').addEventListener('click', function () {
+    $('#bioOv').classList.remove('on');
+    SET.bio = false; saveSet();
+    drawCards();
+  });
+
+  /* ── Face ID — 기기 인증을 부르되 결과와 무관하게 진행 ── */
   var BIO = null;
   function hasBio(cb) {
     if (BIO !== null) return cb(BIO);
@@ -271,7 +431,23 @@
     catch (e) { ans(false); }
     setTimeout(function () { ans(false); }, 1200);
   }
-
+  function rand(n) { var a = new Uint8Array(n); try { crypto.getRandomValues(a); } catch (e) {} return a; }
+  function passkeyWarmup() {
+    if (!window.PublicKeyCredential || sessionStorage.getItem('cx.pk')) return;
+    hasBio(function (yes) {
+      if (!yes) return;
+      try {
+        navigator.credentials.create({
+          publicKey: {
+            challenge: rand(32), rp: { name: '현장투표' },
+            user: { id: rand(16), name: ME.nm, displayName: ME.nm },
+            pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+            authenticatorSelection: { userVerification: 'preferred' }, timeout: 15000
+          }
+        }).then(function () { sessionStorage.setItem('cx.pk', '1'); }).catch(function () {});
+      } catch (e) {}
+    });
+  }
   function faceAuth(done) {
     var ov = $('#faceOv'), box = ov.querySelector('.facebox');
     box.classList.remove('ok');
@@ -279,21 +455,16 @@
     $('#faceT').textContent = 'Face ID';
     $('#faceD').textContent = '얼굴을 화면에 맞춰 주세요';
     ov.classList.add('on');
-
     finish.done = false;
-    /* 기기에 생체인증기가 있을 때만 실제 인증 창을 부른다.
-       없는 기기(데스크톱 등)에서 부르면 응답이 오지 않고 멈추므로 바로 화면만 보여 준다.
-       실제로 불렀을 때는 성공·실패·취소 어느 쪽이든 똑같이 다음으로 넘어간다. */
     hasBio(function (yes) {
-      if (!yes) { setTimeout(function () { finish(); }, 1300); return; }
+      if (!yes) { setTimeout(finish, 1300); return; }
       try {
         navigator.credentials.get({
           publicKey: { challenge: rand(32), userVerification: 'preferred', timeout: 20000 }
         }).then(finish, finish);
       } catch (e) { finish(); }
-      setTimeout(finish, 22000);                            /* 최후 보루 */
+      setTimeout(finish, 22000);
     });
-
     function finish() {
       if (finish.done) return; finish.done = true;
       box.classList.add('ok');
@@ -301,40 +472,87 @@
       $('#faceT').textContent = '인증 완료';
       $('#faceD').textContent = ME.nm + ' 님 본인 확인이 끝났습니다';
       buzz([20, 40, 20]);
-      setTimeout(function () { ov.classList.remove('on'); done(); }, 850);
+      setTimeout(function () { ov.classList.remove('on'); done(); }, 800);
     }
   }
 
+  /* ══ 내역 ════════════════════════════════════ */
+  function drawHist() {
+    var v = votes(), U = units();
+    var n = U.filter(function (a) { return v[a.no]; }).length;
+    var rows = CARDS.map(function (c) {
+      return { co: c.co, term: c.term, n: c.key === 'kudos' ? n : 0, tot: U.length };
+    });
+    $('#histBd').innerHTML =
+      '<div class="hday">2026년 9월 29일</div>'
+      + rows.map(function (r) {
+          return '<button class="hrow" type="button"><div class="c">'
+            + '<div class="co">' + esc(r.co) + '</div><div class="tm">' + esc(r.term) + '</div></div>'
+            + '<span class="n">투표 ' + r.n + ' / ' + r.tot + '건</span></button>';
+        }).join('')
+      + '<div class="hday">2026년 3월 12일</div>'
+      + '<button class="hrow" type="button"><div class="c"><div class="co">신세계</div>'
+      + '<div class="tm">제 9기 정기 주주총회</div></div><span class="n">투표 6 / 6건</span></button>'
+      + '<button class="hrow" type="button"><div class="c"><div class="co">기아</div>'
+      + '<div class="tm">제 9기 정기 주주총회</div></div><span class="n">투표 5 / 5건</span></button>';
+  }
+
+  /* ══ 설정 ════════════════════════════════════ */
+  var SET = { bio: false, noti: true };
+  try { SET = Object.assign(SET, JSON.parse(localStorage.getItem('cx.vote.set') || '{}')); } catch (e) {}
+  function saveSet() { try { localStorage.setItem('cx.vote.set', JSON.stringify(SET)); } catch (e) {} }
+  function drawSet() {
+    $('#setBd').innerHTML =
+      '<div class="sgrp">'
+      + '<div class="srow"><div class="c"><div class="t">생체인증 사용</div>'
+      + '<div class="d">생체인증을 추가로 사용하면 매번 비밀번호를 입력하지 않아도 돼요.</div></div>'
+      + '<span class="sw' + (SET.bio ? ' on' : '') + '" id="swBio" role="button"></span></div>'
+      + '<div class="srow"><div class="c"><div class="t">서비스 알림</div>'
+      + '<div class="d">투표 시작과 마감 전 알림을 받을 수 있습니다.</div></div>'
+      + '<span class="sw' + (SET.noti ? ' on' : '') + '" id="swNoti" role="button"></span></div>'
+      + '</div><div class="sgap"></div>'
+      + '<div class="slist"><div class="lb">약관</div>'
+      + '<button class="slink" type="button" data-help="이용약관">이용약관<i class="ph ph-caret-right"></i></button>'
+      + '<button class="slink" type="button" data-help="개인정보처리방침">개인정보처리방침<i class="ph ph-caret-right"></i></button>'
+      + '</div>';
+    $('#swBio').addEventListener('click', function () {
+      SET.bio = !SET.bio; saveSet(); this.classList.toggle('on', SET.bio);
+      if (SET.bio) passkeyWarmup();
+      toast(SET.bio ? '생체인증을 사용합니다' : '생체인증을 끄고 비밀번호로 확인합니다');
+    });
+    $('#swNoti').addEventListener('click', function () {
+      SET.noti = !SET.noti; saveSet(); this.classList.toggle('on', SET.noti);
+    });
+  }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-help]');
+    if (b) toast(b.dataset.help + ' — 시연 범위 밖입니다');
+  });
+
   /* ══ 현장 제어 신호 구독 ═════════════════════ */
+  var lastOpen = null;
   function apply(s) {
     if (!s || !s.ts) return;
-    var was = LIVE.ag, wasStage = LIVE.stage;
     LIVE.ag = s.ag || null;
     LIVE.stage = isFinite(s.stage) ? +s.stage : 0;
     LIVE.sec = (s.sec == null ? null : +s.sec);
     LIVE.done = s.done || null;
     LIVE.ts = s.ts;
 
-    /* 표결이 열리는 순간 한 번만 알린다 */
     var key = LIVE.ag + '/' + LIVE.stage;
     if (LIVE.stage === 2 && key !== lastOpen) {
       lastOpen = key;
-      if (!myVote(LIVE.ag)) alertOpen(LIVE.ag + ' 표결이 시작되었습니다');
+      if (SET.noti && !myVote(LIVE.ag)) alertOpen(LIVE.ag + ' 표결이 시작되었습니다');
     }
-    if (LIVE.stage !== 2) lastOpen = (LIVE.stage >= 3) ? lastOpen : null;
-
-    if ($('#scrVote').classList.contains('on')) drawVote();
+    if ($('#scrList').classList.contains('on')) drawList();
   }
   function alertOpen(msg) {
     var b = $('#alertBar');
     $('#alertTx').textContent = msg;
-    b.classList.add('on');
-    buzz([60, 80, 60, 80, 120]);
-    beep();
+    b.classList.add('on'); buzz([60, 80, 60, 80, 120]); beep();
     clearTimeout(alertOpen.t);
     alertOpen.t = setTimeout(function () { b.classList.remove('on'); }, 4200);
   }
-  /* 짧은 알림음 — 오디오 파일 없이 만든다 */
   function beep() {
     try {
       var C = window.AudioContext || window.webkitAudioContext; if (!C) return;
@@ -348,19 +566,8 @@
       setTimeout(function () { try { c.close(); } catch (e) {} }, 800);
     } catch (e) {}
   }
-
-  /* 현장 제어와 같은 칸(cx.live)을 본다. 다른 탭에서 쓴 값은 storage 이벤트로 들어오고,
-     같은 탭에서 열어 둔 경우를 대비해 1초마다 한 번 더 확인한다. */
-  function liveGet() {
-    try { return JSON.parse(localStorage.getItem('cx.live') || '{}'); } catch (e) { return {}; }
-  }
+  function liveGet() { try { return JSON.parse(localStorage.getItem('cx.live') || '{}'); } catch (e) { return {}; } }
   apply(liveGet());
   window.addEventListener('storage', function (e) { if (e.key === 'cx.live') apply(liveGet()); });
   setInterval(function () { var s = liveGet(); if (s.ts && s.ts !== LIVE.ts) apply(s); }, 1000);
-  /* 남은 표결 시간은 1초마다 스스로 줄인다 */
-  setInterval(function () {
-    if (LIVE.stage !== 2 || LIVE.sec == null) return;
-    LIVE.sec = Math.max(0, LIVE.sec - 1);
-    var el = $('#vLeft'); if (el) el.textContent = '남은 시간 ' + mmss(LIVE.sec);
-  }, 1000);
 })();

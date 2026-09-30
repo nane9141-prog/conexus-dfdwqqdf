@@ -3,64 +3,109 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0B1220">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>현장투표 · 주주총회</title>
 <link rel="icon" href="../kudos-favicon.png">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-<link rel="stylesheet" href="vote.css?v=1">
+<link rel="stylesheet" href="vote.css?v=10">
 </head>
 <body>
 <div id="phone">
 
-  <!-- ══ 1. NFC 태깅 ══ -->
+  <!-- ══ 현장 · NFC 태깅 ══ -->
   <section class="scr on" id="scrNfc">
-    <div class="nfc">
-      <div class="nfc-top">
-        <div class="lgo"><span class="dot"><i class="ph-fill ph-gavel"></i></span>CONEXUS</div>
-        <h1>현장투표</h1>
-        <p>주주총회장 입구의 NFC 태그에<br>휴대폰 뒷면을 대 주세요.</p>
-      </div>
-      <button class="nfc-target" id="nfcGo" type="button" aria-label="태그에 대기">
-        <span class="w w1"></span><span class="w w2"></span><span class="w w3"></span>
-        <span class="core"><i class="ph ph-wifi-high"></i></span>
-      </button>
-      <div class="nfc-hint" id="nfcHint">태그를 기다리는 중…</div>
-      <div class="nfc-foot">화면을 누르면 태깅된 것으로 진행됩니다 (시연용)</div>
+    <div class="tagwrap">
+      <h1>태깅 한 번으로<br>주주총회 시작하기</h1>
+      <p>NFC 기기에 주주님의 휴대폰 뒷면을 태깅해 주세요</p>
+      <div class="tagring"><span class="r1"></span><span class="r2"></span><span class="r3"></span></div>
+    </div>
+    <div class="tagfoot"><button class="btn" id="nfcGo" type="button">NFC 태깅하기<i class="ph ph-caret-right"></i></button></div>
+  </section>
+
+  <!-- ══ 현장 · 출입증 카드 ══ -->
+  <section class="scr" id="scrCards">
+    <div class="cardstage" id="cardStage">
+      <div class="deck" id="deck"></div>
+      <div class="dots" id="dots"></div>
+      <div class="cert"><i class="ph-fill ph-seal-check"></i>Certified by IR KUDOS</div>
     </div>
   </section>
 
-  <!-- ══ 2. 출입증 리스트 ══ -->
-  <section class="scr" id="scrPass">
-    <div class="tb">
-      <h1>출입증</h1>
-      <span class="sp"></span>
-      <button class="ic" id="pvOut" type="button" aria-label="처음으로"><i class="ph ph-sign-out"></i></button>
-    </div>
-    <div class="bd" id="passBd"></div>
-  </section>
-
-  <!-- ══ 3·4. 투표 ══ -->
-  <section class="scr" id="scrVote">
+  <!-- ══ 의안 목록 ══ -->
+  <section class="scr" id="scrList">
     <div class="tb line">
-      <button class="ic bk" id="vBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
-      <h1 id="vTitle">현장투표</h1>
+      <button class="ic bk" id="lsBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1 id="lsTitle">주주총회</h1>
       <span class="sp"></span>
       <span class="ic" aria-hidden="true"></span>
     </div>
-    <div class="vhead" id="vHead"></div>
-    <div class="bd" id="voteBd"></div>
+    <div class="bd plain"><div class="aglist" id="agList"></div></div>
   </section>
 
-  <!-- Face ID -->
-  <div class="faceov" id="faceOv">
-    <div class="facebox">
-      <div class="fic" id="faceIc"><i class="ph ph-scan"></i></div>
-      <div class="ft" id="faceT">Face ID</div>
-      <div class="fd" id="faceD">얼굴을 화면에 맞춰 주세요</div>
+  <!-- ══ 의안 투표 ══ -->
+  <section class="scr" id="scrVote">
+    <div class="tb line">
+      <button class="ic bk" id="vBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1 id="vTitle">의안</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
     </div>
-  </div>
+    <div class="bd plain" id="voteBd"></div>
+    <div class="vfoot">
+      <button class="btn" id="vGo" type="button" disabled>투표하기</button>
+      <div class="vnote">투표하기 버튼을 누르지 않으면 불참처리됩니다.</div>
+    </div>
+  </section>
+
+  <!-- ══ 내역 ══ -->
+  <section class="scr" id="scrHist">
+    <div class="tb"><h1>현장 투표 내역</h1></div>
+    <div class="bd plain"><div class="hlist" id="histBd"></div></div>
+  </section>
+
+  <!-- ══ 설정 ══ -->
+  <section class="scr" id="scrSet">
+    <div class="tb"><h1>설정</h1></div>
+    <div class="bd plain" id="setBd"></div>
+  </section>
+
+  <!-- 하단 탭 -->
+  <nav class="tabbar" id="tabbar" hidden>
+    <button data-tab="site" type="button"><i class="ph-fill ph-stamp"></i>현장</button>
+    <button data-tab="hist" type="button"><i class="ph-fill ph-list-dashes"></i>내역</button>
+    <button data-tab="set"  type="button"><i class="ph-fill ph-gear-six"></i>설정</button>
+  </nav>
+
+  <!-- 비밀번호 설정 -->
+  <section class="scr pin" id="scrPin">
+    <div class="tb"><span class="sp"></span><button class="ic" id="pinX" type="button" aria-label="닫기"><i class="ph ph-x"></i></button></div>
+    <div class="pinbd">
+      <h2 id="pinT">비밀번호 입력</h2>
+      <p id="pinD">안전한 투표를 위해 비밀번호 설정이 필요합니다.<br>비밀번호를 입력해주세요.</p>
+      <div class="pindots" id="pinDots"></div>
+    </div>
+    <div class="pinpad" id="pinPad"></div>
+  </section>
+
+  <!-- 생체인증 사용 안내 -->
+  <div class="ov" id="bioOv"><div class="bx">
+    <div class="biobox">
+      <div class="bioic"><i class="ph ph-scan"></i><i class="ph ph-fingerprint"></i></div>
+      <h3>생체인증을 사용하시겠습니까?</h3>
+      <p>생체인증을 사용하면 매번 비밀번호를 입력하지 않아도 됩니다.</p>
+    </div>
+    <div class="bf"><button class="btn" id="bioYes" type="button">생체인증 사용하기</button></div>
+    <button class="bioskip" id="bioNo" type="button">다음에</button>
+  </div></div>
+
+  <!-- Face ID -->
+  <div class="faceov" id="faceOv"><div class="facebox">
+    <div class="fic" id="faceIc"><i class="ph ph-scan"></i></div>
+    <div class="ft" id="faceT">Face ID</div>
+    <div class="fd" id="faceD">얼굴을 화면에 맞춰 주세요</div>
+  </div></div>
 
   <div class="ov" id="ov"><div class="bx" id="ovBx"></div></div>
   <div id="toast"><div class="t" id="toastT"></div></div>
@@ -68,6 +113,6 @@
 </div>
 
 <script src="../cx-data.js?v=1"></script>
-<script src="vote.js?v=2"></script>
+<script src="vote.js?v=10"></script>
 </body>
 </html>
