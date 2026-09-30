@@ -276,11 +276,13 @@
   APP.setProxy = function (i, v) {
     var x = APP.find(i); if (!x) return;
     var all = pxAll();
+    /* 신분증 사진은 쌓아 둘 이유가 없어 가장 최근 한 건만 들고 있는다 */
+    Object.keys(all).forEach(function (k) { delete all[k].idImg; });
     all[x.i] = { votes: v.votes, sign: v.sign, idImg: v.idImg, at: x.at };
     var keys = Object.keys(all);
     while (keys.length > 20) { delete all[keys.shift()]; }
     try { localStorage.setItem(PXKEY, JSON.stringify(all)); }
-    catch (e) {                                   /* 용량이 차면 이미지는 버리고 기록만 남긴다 */
+    catch (e) {                                   /* 그래도 용량이 차면 이미지는 버리고 기록만 남긴다 */
       all[x.i] = { votes: v.votes, at: x.at };
       try { localStorage.setItem(PXKEY, JSON.stringify(all)); } catch (e2) {}
     }
