@@ -623,7 +623,7 @@ a{color:inherit;text-decoration:none}
 .cmp2.end .r .got{color:var(--fg)}
 .cmp2 .r .goal{color:#6B7280;font-weight:600}
 .cmp2 .arc{position:relative;margin:6px -16px 0;height:104px}
-.cmp2 .arc svg{display:block;width:100%;height:104px}
+.cmp2 .arc svg{display:block;width:100%;height:auto}
 .cmp2 .arc .pct{position:absolute;left:0;right:0;bottom:12px;text-align:center;
   font-size:19px;font-weight:800;color:var(--blue)}
 .cmp2.end .arc .pct{color:var(--ink)}

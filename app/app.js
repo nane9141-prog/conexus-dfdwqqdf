@@ -1257,24 +1257,23 @@
   /* ══ 수집현황 ════════════════════════════════ */
   /* 카드 아래를 가로지르는 큰 호 — 진행중은 파랑 + 끝에 손잡이, 종료는 진회색 */
   function arc(pct, live) {
-    var W = 402, H = 104, R = 300, cx = W / 2, cy = 104 + R;   /* 아래쪽 먼 중심 */
-    function pt(t) {                                            /* t: 0(왼) ~ 1(오) */
-      var a = Math.PI + t * Math.PI * 0.42 - Math.PI * 0.21;    /* 위쪽 얕은 호 */
-      return [cx + R * Math.sin((t - 0.5) * 0.84), cy - R * Math.cos((t - 0.5) * 0.84)];
-    }
-    var p0 = pt(0), p1 = pt(1);
-    var d = 'M' + p0[0].toFixed(1) + ' ' + p0[1].toFixed(1)
-      + ' A' + R + ' ' + R + ' 0 0 1 ' + p1[0].toFixed(1) + ' ' + p1[1].toFixed(1);
-    var len = R * 0.84;                                         /* 호 길이 */
-    var on = len * Math.min(1, pct / 100);
-    var k = pt(Math.min(1, pct / 100));
-    var col = live ? '#0071F3' : '#4B5058';
-    return '<div class="arc"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">'
+    /* 카드 폭을 가로지르는 얕은 원호 — 양 끝 y=96, 가운데 y=20 */
+    var W = 402, H = 104, x0 = 8, x1 = W - 8, ye = 96, ya = 20;
+    var c = (x1 - x0), sg = ye - ya;
+    var R = (c * c / 4 + sg * sg) / (2 * sg);                 /* 현과 활꼴 높이로 반지름 */
+    var cx = W / 2, cy = ye + (R - sg);                        /* 중심은 아래쪽 멀리 */
+    var f0 = Math.atan2(ye - cy, x0 - cx), f1 = Math.atan2(ye - cy, x1 - cx);
+    function pt(f) { var a = f0 + (f1 - f0) * f; return [cx + R * Math.cos(a), cy + R * Math.sin(a)]; }
+    var d = 'M' + x0 + ' ' + ye + ' A' + R.toFixed(1) + ' ' + R.toFixed(1) + ' 0 0 1 ' + x1 + ' ' + ye;
+    var len = R * (f1 - f0);
+    var f = Math.max(0, Math.min(1, pct / 100));
+    var k = pt(f), col = live ? '#0071F3' : '#4B5058';
+    return '<div class="arc"><svg viewBox="0 0 ' + W + ' ' + H + '">'
       + '<path d="' + d + '" fill="none" stroke="#EDEFF2" stroke-width="14" stroke-linecap="round"/>'
-      + '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="14" stroke-linecap="round"'
-      + ' stroke-dasharray="' + on.toFixed(1) + ' ' + (len * 2).toFixed(1) + '"/>'
-      + (live && pct > 0 && pct < 100
-          ? '<circle cx="' + k[0].toFixed(1) + '" cy="' + k[1].toFixed(1) + '" r="9" fill="#0071F3"'
+      + (f > 0 ? '<path d="' + d + '" fill="none" stroke="' + col + '" stroke-width="14" stroke-linecap="round"'
+          + ' stroke-dasharray="' + (len * f).toFixed(1) + ' ' + (len * 2).toFixed(1) + '"/>' : '')
+      + (live && f > 0.02 && f < 0.99
+          ? '<circle cx="' + k[0].toFixed(1) + '" cy="' + k[1].toFixed(1) + '" r="8" fill="#0071F3"'
             + ' stroke="#CFE3FF" stroke-width="6"/>' : '')
       + '</svg><div class="pct">' + pct + '% 달성</div></div>';
   }
