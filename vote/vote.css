@@ -189,14 +189,25 @@ button{background:none;border:none;cursor:pointer}
 .pbox .sno{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:7px;
   background:#F1F2F4;color:#5B6070;font-size:11px;font-weight:700}
 .pbox .snm{margin-top:10px;font-size:15px;font-weight:700;line-height:1.5;word-break:keep-all}
+/* 찬반기 버튼 — default · selected(=pressing) · unselected 세 상태 (Figma 2621:8902) */
 .ch3{display:flex;gap:10px;margin-top:14px}
-.ch3 button{flex:1;height:76px;border-radius:12px;background:#F5F6F8;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:700;color:#A7AAB1}
-.ch3 button i{font-size:22px}
-.ch3 button.on[data-c="찬성"]{background:#E9F2FF;color:var(--blue)}
-.ch3 button.on[data-c="반대"]{background:#FDECEE;color:var(--red)}
-.ch3 button.on[data-c="기권"]{background:#ECEDEF;color:var(--ink)}
-.ch3 button:active{transform:scale(.97)}
+.ch3 button{flex:1;height:76px;border-radius:12px;background:#fff;border:1px solid #EDEEF1;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  font-size:13px;font-weight:700;transition:background .12s,color .12s,border-color .12s}
+.ch3 button i{font-size:22px;line-height:1}
+/* default — 아이콘·글자에 각 의견의 색 */
+.ch3 button[data-c="찬성"]{color:var(--blue)}
+.ch3 button[data-c="반대"]{color:var(--red)}
+.ch3 button[data-c="기권"]{color:var(--ink)}
+.ch3 button[data-c="중립"]{color:#A7AAB1}
+/* selected · 누르는 동안 — 옅은 배경이 깔린다 */
+.ch3 button.on[data-c="찬성"],.ch3 button[data-c="찬성"]:active{background:#D3E7FF;border-color:transparent;color:var(--blue)}
+.ch3 button.on[data-c="반대"],.ch3 button[data-c="반대"]:active{background:#FFDCE1;border-color:transparent;color:var(--red)}
+.ch3 button.on[data-c="기권"],.ch3 button[data-c="기권"]:active{background:#E3E4E7;border-color:transparent;color:var(--ink)}
+.ch3 button.on[data-c="중립"],.ch3 button[data-c="중립"]:active{background:#D7D9DE;border-color:transparent;color:var(--ink)}
+/* unselected — 같은 줄에서 다른 버튼이 선택된 상태 */
+.ch3.has button:not(.on){background:#F7F8FA;border-color:transparent;color:#D4D6DB}
+.ch3.has button:not(.on):active{background:#F0F1F4}
 /* 집중투표 후보 입력 */
 .cand{display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:14px 16px}
 .cand+.cand{margin-top:10px}

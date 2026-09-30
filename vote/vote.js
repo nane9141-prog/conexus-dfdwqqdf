@@ -254,8 +254,8 @@
   }
   function ch3(key) {
     var cur = PICK[key];
-    var I = { 찬성: 'ph-circle', 반대: 'ph-x', 기권: 'ph-minus' };
-    return '<div class="ch3" data-k="' + key + '">'
+    var I = { 찬성: 'ph-circle', 반대: 'ph-x', 기권: 'ph-minus', 중립: 'ph-triangle' };
+    return '<div class="ch3' + (cur ? ' has' : '') + '" data-k="' + key + '">'
       + ['찬성', '반대', '기권'].map(function (c) {
           return '<button type="button" data-c="' + c + '"' + (cur === c ? ' class="on"' : '') + '>'
             + '<i class="ph-bold ' + I[c] + '"></i>' + c + '</button>';
@@ -289,6 +289,7 @@
           var key = row.dataset.k, c = b.dataset.c;
           /* 같은 버튼을 다시 누르면 선택 해제 */
           if (PICK[key] === c) delete PICK[key]; else PICK[key] = c;
+          row.classList.toggle('has', !!PICK[key]);
           row.querySelectorAll('[data-c]').forEach(function (o) {
             o.classList.toggle('on', PICK[key] === o.dataset.c);
           });
