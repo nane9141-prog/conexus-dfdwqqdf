@@ -316,8 +316,10 @@
     c.innerHTML = list.slice(0, 30).map(cardHtml).join('');
     bindCards(c);
     $('#nearSheet').classList.add('on');
+    $('.mapwrap').classList.add('sheeton');
   }
-  $('#nearX').addEventListener('click', function () { $('#nearSheet').classList.remove('on'); });
+  function nearClose() { $('#nearSheet').classList.remove('on'); $('.mapwrap').classList.remove('sheeton'); }
+  $('#nearX').addEventListener('click', nearClose);
   $('#mapNear').addEventListener('click', function () {
     var L0 = filtered().slice().sort(function (a, b) { return dist(a) - dist(b); }).slice(0, 20);
     nearSheet(L0, '주변 주주 ' + L0.length + '명');
@@ -329,7 +331,7 @@
     var x = APP.find(i); if (!x) return;
     CUR = x;
     backTo = $('#scrMap').classList.contains('on') ? 'map' : curTab;
-    $('#nearSheet').classList.remove('on');
+    nearClose();
     drawDetail();
     show('#scrDetail'); $('#tabbar').hidden = true;
     $('#dtBd').scrollTop = 0;

@@ -183,7 +183,8 @@ a{color:inherit;text-decoration:none}
 .sheetup.on{transform:none}
 .sheetup .sh-h{flex:none;display:flex;align-items:center;gap:8px;padding:14px 16px 10px}
 .sheetup .sh-h b{font-size:16px;flex:1}
-.sheetup .sh-b{overflow-y:auto;overscroll-behavior:contain;padding:0 0 16px}
+.sheetup .sh-b{overflow-y:auto;overscroll-behavior:contain;padding:0 0 16px;max-height:340px}
+.mapwrap.sheeton .mapnear{display:none}
 .leaflet-container{font-family:inherit}
 
 /* ── 주주 상세 ────────────────────────────────── */
