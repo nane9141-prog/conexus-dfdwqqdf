@@ -243,6 +243,10 @@
         .setView([ME.lat, ME.lng], 11);
       tiles();
       MAP.on('moveend zoomend', paintMarkers);
+      /* 담당 구역 전체가 한눈에 들어오게 */
+      var pts = APP.list().map(function (x) { return [x.lat, x.lng]; });
+      if (pts.length) MAP.fitBounds(L.latLngBounds(pts).pad(0.12));
+      setMe();
     }
     setTimeout(function () { MAP.invalidateSize(); paintMarkers(); }, 60);
   }
