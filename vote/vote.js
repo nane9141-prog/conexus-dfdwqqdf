@@ -242,6 +242,8 @@
   function passkeyWarmup() {
     /* 등록된 패스키가 없으면 인증 창이 바로 닫히므로 조용히 하나 만들어 둔다 */
     if (!window.PublicKeyCredential || sessionStorage.getItem('cx.pk')) return;
+    hasBio(function (yes) { if (yes) mk(); });
+    function mk() {
     try {
       navigator.credentials.create({
         publicKey: {
@@ -254,8 +256,21 @@
         }
       }).then(function () { sessionStorage.setItem('cx.pk', '1'); }).catch(function () {});
     } catch (e) {}
+    }
   }
   function rand(n) { var a = new Uint8Array(n); (crypto.getRandomValues || function () {})(a); return a; }
+  /* 기기에 Face ID · 지문 같은 인증기가 있는지 먼저 물어본다 (1.2초 안에 답이 없으면 없는 것으로) */
+  var BIO = null;
+  function hasBio(cb) {
+    if (BIO !== null) return cb(BIO);
+    var P = window.PublicKeyCredential;
+    if (!P || !P.isUserVerifyingPlatformAuthenticatorAvailable) { BIO = false; return cb(false); }
+    var done = false;
+    function ans(v) { if (done) return; done = true; BIO = !!v; cb(BIO); }
+    try { P.isUserVerifyingPlatformAuthenticatorAvailable().then(ans, function () { ans(false); }); }
+    catch (e) { ans(false); }
+    setTimeout(function () { ans(false); }, 1200);
+  }
 
   function faceAuth(done) {
     var ov = $('#faceOv'), box = ov.querySelector('.facebox');
@@ -266,18 +281,18 @@
     ov.classList.add('on');
 
     finish.done = false;
-    /* 기기 생체인증을 부른다 — 성공·실패·취소 어느 쪽이든 그대로 넘어간다 */
-    var called = false;
-    try {
-      if (window.PublicKeyCredential) {
-        called = true;
+    /* 기기에 생체인증기가 있을 때만 실제 인증 창을 부른다.
+       없는 기기(데스크톱 등)에서 부르면 응답이 오지 않고 멈추므로 바로 화면만 보여 준다.
+       실제로 불렀을 때는 성공·실패·취소 어느 쪽이든 똑같이 다음으로 넘어간다. */
+    hasBio(function (yes) {
+      if (!yes) { setTimeout(function () { finish(); }, 1300); return; }
+      try {
         navigator.credentials.get({
-          publicKey: { challenge: rand(32), userVerification: 'preferred', timeout: 15000 }
-        }).then(function () { finish(true); }).catch(function () { finish(true); });
-      }
-    } catch (e) {}
-    if (!called) setTimeout(function () { finish(true); }, 1400);
-    setTimeout(function () { finish(true); }, 16000);       /* 최후 보루 */
+          publicKey: { challenge: rand(32), userVerification: 'preferred', timeout: 20000 }
+        }).then(finish, finish);
+      } catch (e) { finish(); }
+      setTimeout(finish, 22000);                            /* 최후 보루 */
+    });
 
     function finish() {
       if (finish.done) return; finish.done = true;
