@@ -50,6 +50,14 @@ a{color:inherit;text-decoration:none}
 .tb .ic i{font-size:22px}
 .tb .bk{margin-left:-8px}
 
+/* 스크롤바 — 내용 폭을 밀지 않도록 얇게 겹쳐 그린다 */
+*{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.18) transparent}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,0,0,.16);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.3)}
+::-webkit-scrollbar-corner{background:transparent}
+
 /* 본문 */
 .bd{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
   overscroll-behavior:contain;background:var(--bg)}
@@ -126,7 +134,9 @@ a{color:inherit;text-decoration:none}
 .cb.rd.on{background-size:13px 13px}
 
 /* ── 필터 칩 · 검색 ───────────────────────────── */
-.chips{display:flex;gap:6px;padding:4px 16px 12px;overflow-x:auto;scrollbar-width:none}
+.chips{display:flex;gap:6px;padding:4px 16px 12px;overflow-x:auto;scrollbar-width:none;
+  touch-action:pan-x;cursor:grab;user-select:none;-webkit-user-select:none}
+.chips:active{cursor:grabbing}
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:none;display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 12px;
   border:1px solid var(--bd);border-radius:1000px;background:#fff;font-size:13px;font-weight:600;color:var(--mut)}
@@ -284,8 +294,30 @@ a{color:inherit;text-decoration:none}
 .f2>*{flex:1;min-width:0}
 .fsel,.finp{height:44px;border:1px solid var(--bd);border-radius:10px;background:#fff;padding:0 12px;
   font-size:14px;color:var(--fg);width:100%;outline:none;-webkit-appearance:none;appearance:none}
-.fsel{background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A7AAB1' stroke-width='2'><path d='m6 9 6 6 6-6'/></svg>") no-repeat right 10px center/16px;padding-right:32px}
-.fsel:invalid,.fsel.ph{color:var(--mut2)}
+.fsel{background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A7AAB1' stroke-width='2'><path d='m6 9 6 6 6-6'/></svg>") no-repeat right 10px center/16px;
+  padding-right:32px;text-align:left;cursor:pointer;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fsel.ph{color:var(--mut2)}
+.fsel[disabled]{background-color:#F7F8FA;color:#C4C7CE;cursor:default}
+/* 선택 목록 한 줄 */
+.corow .sp2{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.corow.on{color:var(--blue)}
+.corow.on i{font-size:18px;color:var(--blue)}
+/* 양쪽 손잡이 슬라이더 */
+.drng{position:relative;height:52px;padding-top:12px}
+.drng .trk{position:absolute;left:0;right:0;top:20px;height:4px;border-radius:4px;background:#E3E5EA}
+.drng .fill{position:absolute;top:0;bottom:0;background:var(--ink);border-radius:4px}
+.drng input[type=range]{position:absolute;left:0;right:0;top:11px;width:100%;height:22px;margin:0;
+  -webkit-appearance:none;appearance:none;background:none;pointer-events:none}
+.drng input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;
+  width:22px;height:22px;border-radius:1000px;background:#fff;border:1px solid #D7D9DF;
+  box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
+.drng input[type=range]::-moz-range-thumb{pointer-events:auto;width:20px;height:20px;border-radius:1000px;
+  background:#fff;border:1px solid #D7D9DF;box-shadow:0 1px 4px rgba(0,0,0,.2);cursor:pointer}
+.drng #fAgeA{z-index:4} .drng #fAgeB{z-index:3}
+.drng .lb{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;
+  align-items:center;font-size:12px;color:var(--mut2);font-variant-numeric:tabular-nums}
+.drng .lb b{color:var(--fg);font-weight:700;font-size:13px}
 .finp:focus,.fsel:focus{border-color:var(--ink)}
 .fnote{font-size:12px;color:var(--mut2)}
 /* 입력 오른쪽 단위 표기 (주 · %) */

@@ -138,11 +138,41 @@
   }
   var ADV = blankAdv(), DRAFT = null, OPEN = {};
 
-  var SI_LIST = ['서울특별시'];
-  function guList() {
-    var m = {};
-    APP.list().forEach(function (x) { m[x.area.split(' ')[1]] = 1; });
-    return Object.keys(m).sort();
+  /* 방문 진행상태 필터에 쓰는 상태 — 보완요청은 처리 결과라 여기서는 빼둔다 */
+  var ST_FILTER = ['plan', 'replan', 'no', 'done'];
+
+  function guList() { return (APP.REGION[DRAFT.si] || []).slice(); }
+
+  /* 값 하나를 고르는 바텀 시트 — 시스템 select 대신 쓴다 */
+  function pickSheet(title, items, cur, onPick) {
+    var q = '';
+    function body(bx) {
+      var L = items.filter(function (n) { return !q || n.indexOf(q) >= 0; });
+      bx.querySelector('.bb').innerHTML =
+        (items.length > 12
+          ? '<div class="srch" style="padding:0 0 10px"><div class="wrap"><i class="ph ph-magnifying-glass"></i>'
+            + '<input id="pkQ" placeholder="검색" value="' + esc(q) + '"></div></div>' : '')
+        + '<div class="colist">'
+        + (L.length ? L.map(function (n) {
+            return '<div class="corow' + (n === cur ? ' on' : '') + '" role="button" tabindex="0" data-pk="' + esc(n) + '">'
+              + '<span class="sp2">' + esc(n) + '</span>'
+              + (n === cur ? '<i class="ph ph-check"></i>' : '') + '</div>';
+          }).join('') : '<div class="empty" style="padding:36px 0">결과가 없습니다</div>')
+        + '</div>';
+      bx.querySelectorAll('[data-pk]').forEach(function (r) {
+        r.addEventListener('click', function () { onPick(r.dataset.pk); closeSheet(); });
+      });
+      var qi = bx.querySelector('#pkQ');
+      if (qi) qi.addEventListener('input', function () { q = this.value; body(bx); bx.querySelector('#pkQ').focus(); });
+    }
+    sheet({
+      title: title, body: '',
+      foot: '<button class="btn gh" type="button" id="pkClr">선택 안 함</button>',
+      after: function (bx) {
+        body(bx);
+        bx.querySelector('#pkClr').addEventListener('click', function () { onPick(''); closeSheet(); });
+      }
+    });
   }
 
   function chipRow(key, all, items, multi) {
@@ -165,16 +195,14 @@
           + (DRAFT.co.length ? esc(DRAFT.co.join(', ')) : '기업을 선택해 주세요') + '</button>' },
       { k: 'st', t: '방문 진행상태', d: '방문할 대상의 진행상태를 선택해주세요.',
         sum: DRAFT.st.map(function (v) { return ST[v].nm; }).join(', '),
-        body: chipRow('st', '전체', APP.STATE_ORDER, true) },
-      { k: 'area', t: '주주 거주 지역', d: '1지역 지역을 선택해 주세요.',
+        body: chipRow('st', '전체', ST_FILTER, true) },
+      { k: 'area', t: '주주 거주 지역', d: '조회할 지역을 선택해 주세요.',
         sum: [DRAFT.si, DRAFT.gu].filter(Boolean).join(' '),
         body: '<div class="f2">'
-          + '<select class="fsel' + (DRAFT.si ? '' : ' ph') + '" id="fSi"><option value="">지역 선택</option>'
-          + SI_LIST.map(function (v) { return '<option' + (DRAFT.si === v ? ' selected' : '') + '>' + v + '</option>'; }).join('')
-          + '</select>'
-          + '<select class="fsel' + (DRAFT.gu ? '' : ' ph') + '" id="fGu"><option value="">시/군/구 선택</option>'
-          + guList().map(function (v) { return '<option' + (DRAFT.gu === v ? ' selected' : '') + '>' + v + '</option>'; }).join('')
-          + '</select></div>' },
+          + '<button class="fsel' + (DRAFT.si ? '' : ' ph') + '" type="button" id="fSi">'
+          + esc(DRAFT.si || '지역 선택') + '</button>'
+          + '<button class="fsel' + (DRAFT.gu ? '' : ' ph') + '" type="button" id="fGu"'
+          + (DRAFT.si ? '' : ' disabled') + '>' + esc(DRAFT.gu || '시/군/구 선택') + '</button></div>' },
       { k: 'live', t: '실거주 가능성', d: '실거주 가능성을 선택해 주세요. \'높음\'은 집으로 방문해 주세요.',
         sum: DRAFT.live.join(', '),
         body: chipRow('live', '전체', ['높음', '보통', '낮음'], true) },
@@ -185,12 +213,7 @@
         body: chipRow('gbs', '전체', ['개인', '법인'], true) },
       { k: 'sex', t: '성별 및 연령대', d: '주주의 성별과 연령대를 설정해 주세요.',
         sum: DRAFT.sex.concat([DRAFT.ageFrom, DRAFT.ageTo].filter(Boolean).join('~')).filter(Boolean).join(', '),
-        body: chipRow('sex', '전체', ['남성', '여성'], true)
-          + '<div class="f2" style="margin-top:2px">'
-          + '<select class="fsel' + (DRAFT.ageFrom ? '' : ' ph') + '" id="fAgeA"><option value="">나이 선택</option>'
-          + ageOpts(DRAFT.ageFrom) + '</select>'
-          + '<select class="fsel' + (DRAFT.ageTo ? '' : ' ph') + '" id="fAgeB"><option value="">나이 선택</option>'
-          + ageOpts(DRAFT.ageTo) + '</select></div>' },
+        body: chipRow('sex', '전체', ['남성', '여성'], true) + ageSlider() },
       { k: 'bld', t: '건물 유형', d: '단독주택 또는 아파트 등 거주 중인 건물 형태를 선택해 주세요.',
         sum: DRAFT.bld.join(', '),
         body: chipRow('bld', '전체', ['집합건물', '단독건물'], true) }
@@ -225,10 +248,23 @@
       + '<div class="unit"><input class="finp" id="fShB" inputmode="numeric" placeholder="N (Max)" value="' + (DRAFT.shTo || '') + '"><span>주</span></div></div>';
   }
 
-  function ageOpts(cur) {
-    var h = '';
-    for (var a = 20; a <= 90; a += 10) h += '<option' + (String(cur) === String(a) ? ' selected' : '') + '>' + a + '대</option>';
-    return h;
+  /* 연령대 — 양쪽 손잡이 슬라이더 */
+  var AGE_MIN = 20, AGE_MAX = 90;
+  function ageLo() { return DRAFT.ageFrom || AGE_MIN; }
+  function ageHi() { return DRAFT.ageTo || AGE_MAX; }
+  function ageLabel() {
+    if (!DRAFT.ageFrom && !DRAFT.ageTo) return '전체 연령';
+    return ageLo() + '세 ~ ' + (ageHi() >= AGE_MAX ? AGE_MAX + '세 이상' : ageHi() + '세');
+  }
+  function ageSlider() {
+    var lo = ageLo(), hi = ageHi(), span = AGE_MAX - AGE_MIN;
+    var l = (lo - AGE_MIN) / span * 100, r = 100 - (hi - AGE_MIN) / span * 100;
+    return '<div class="drng" id="fAgeW" style="margin-top:6px">'
+      + '<div class="trk"><div class="fill" style="left:' + l + '%;right:' + r + '%"></div></div>'
+      + '<input type="range" id="fAgeA" min="' + AGE_MIN + '" max="' + AGE_MAX + '" step="1" value="' + lo + '">'
+      + '<input type="range" id="fAgeB" min="' + AGE_MIN + '" max="' + AGE_MAX + '" step="1" value="' + hi + '">'
+      + '<div class="lb"><span>' + AGE_MIN + '세</span><b id="fAgeT">' + ageLabel() + '</b><span>' + AGE_MAX + '세+</span></div>'
+      + '</div>';
   }
 
   function drawFilter() {
@@ -259,10 +295,41 @@
         drawFilter();
       });
     });
-    bind('#fSi', 'change', function () { DRAFT.si = this.value; drawFilter(); });
-    bind('#fGu', 'change', function () { DRAFT.gu = this.value; drawFilter(); });
-    bind('#fAgeA', 'change', function () { DRAFT.ageFrom = parseInt(this.value, 10) || ''; drawFilter(); });
-    bind('#fAgeB', 'change', function () { DRAFT.ageTo = parseInt(this.value, 10) || ''; drawFilter(); });
+    bind('#fSi', 'click', function () {
+      pickSheet('지역 선택', APP.SIDO, DRAFT.si, function (v) {
+        if (DRAFT.si !== v) DRAFT.gu = '';
+        DRAFT.si = v; drawFilter();
+      });
+    });
+    bind('#fGu', 'click', function () {
+      if (!DRAFT.si) { toast('지역을 먼저 선택해 주세요'); return; }
+      pickSheet(DRAFT.si, guList(), DRAFT.gu, function (v) { DRAFT.gu = v; drawFilter(); });
+    });
+    /* 연령대 슬라이더 — 두 손잡이가 서로를 넘지 않게 */
+    (function () {
+      var w = el.querySelector('#fAgeW'); if (!w) return;
+      var a = w.querySelector('#fAgeA'), b = w.querySelector('#fAgeB');
+      var fill = w.querySelector('.fill'), lab = w.querySelector('#fAgeT');
+      function sync(from) {
+        var lo = +a.value, hi = +b.value;
+        if (lo > hi) { if (from === 'a') { hi = lo; b.value = hi; } else { lo = hi; a.value = lo; } }
+        DRAFT.ageFrom = lo === AGE_MIN ? '' : lo;
+        DRAFT.ageTo = hi === AGE_MAX ? '' : hi;
+        var span = AGE_MAX - AGE_MIN;
+        fill.style.left = (lo - AGE_MIN) / span * 100 + '%';
+        fill.style.right = 100 - (hi - AGE_MIN) / span * 100 + '%';
+        lab.textContent = ageLabel();
+      }
+      a.addEventListener('input', function () { sync('a'); });
+      b.addEventListener('input', function () { sync('b'); });
+      /* 손잡이가 겹쳤을 때 가까운 쪽을 잡도록 */
+      w.addEventListener('pointerdown', function (e) {
+        var r = w.getBoundingClientRect();
+        var v = AGE_MIN + (e.clientX - r.left) / r.width * (AGE_MAX - AGE_MIN);
+        var near = Math.abs(v - +a.value) <= Math.abs(v - +b.value);
+        a.style.zIndex = near ? 4 : 3; b.style.zIndex = near ? 3 : 4;
+      });
+    })();
     bind('#fShR', 'input', function () { DRAFT.shTo = +this.value; el.querySelector('#fShB').value = this.value; });
     bind('#fShA', 'input', function () { DRAFT.shFrom = parseInt(this.value.replace(/\D/g, ''), 10) || 0; });
     bind('#fShB', 'input', function () { DRAFT.shTo = parseInt(this.value.replace(/\D/g, ''), 10) || 0; });
@@ -340,6 +407,7 @@
   function advPass(x) {
     var a = ADV;
     if (a.co.length && a.co.indexOf(x.org) < 0) return false;
+    if (a.si && x.area.indexOf(a.si) < 0) return false;
     if (a.gu && x.area.indexOf(a.gu) < 0) return false;
     if (a.live.length && a.live.indexOf(x.live.nm.replace('거주 가능성 ', '')) < 0) return false;
     if (a.shMode === 'rt') {
@@ -352,7 +420,7 @@
     if (a.gbs.length && a.gbs.indexOf(x.gb) < 0) return false;
     if (a.sex.length && a.sex.indexOf(x.sex) < 0) return false;
     if (a.ageFrom && x.age < a.ageFrom) return false;
-    if (a.ageTo && x.age > a.ageTo + 9) return false;
+    if (a.ageTo && x.age > a.ageTo) return false;
     if (a.bld.length && a.bld.indexOf(x.bld) < 0) return false;
     return true;
   }
@@ -1231,6 +1299,28 @@
       }
     });
   }
+
+  /* 필터 칩 줄 — 넘칠 때 마우스로 끌어서 볼 수 있게. 끈 뒤의 클릭은 삼킨다. */
+  (function () {
+    var el = $('#chips'), down = false, moved = 0, x0 = 0, l0 = 0;
+    el.addEventListener('pointerdown', function (e) {
+      if (el.scrollWidth <= el.clientWidth) return;
+      down = true; moved = 0; x0 = e.clientX; l0 = el.scrollLeft;
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var d = e.clientX - x0;
+      if (Math.abs(d) > 3) moved = Math.max(moved, Math.abs(d));
+      el.scrollLeft = l0 - d;
+    });
+    function up() { down = false; setTimeout(function () { moved = 0; }, 0); }
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    el.addEventListener('pointerleave', up);
+    el.addEventListener('click', function (e) {
+      if (moved > 6) { e.stopPropagation(); e.preventDefault(); }
+    }, true);
+  })();
 
   /* 위임 결과가 바뀌면 현황·목록을 다시 그린다 */
   window.addEventListener('cx-collect', function () {
