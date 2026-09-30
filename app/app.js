@@ -261,8 +261,12 @@
     var key = naverKey();
     if (!key) { nvState = 3; return flushNv(false); }
     nvState = 1;
-    /* 키가 잘못됐을 때 네이버가 불러 주는 콜백 */
-    window.navermap_authFailure = function () { nvState = 3; flushNv(false); };
+    /* 키가 잘못됐을 때 네이버가 불러 주는 콜백.
+       이 콜백은 지도를 만든 뒤에 오기도 하므로, 이미 떠 있으면 기본 지도로 갈아 끼운다. */
+    window.navermap_authFailure = function () {
+      nvState = 3;
+      if (MAP) downgrade(); else flushNv(false);
+    };
     var s = document.createElement('script');
     s.src = 'https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=' + encodeURIComponent(key);
     s.onload = function () {
@@ -314,9 +318,23 @@
     MAP.on('moveend zoomend', paintMarkers);
   }
 
-  /* 엔진 차이를 여기서만 흡수한다 */
-  function isNv() { return ENGINE === 'naver'; }
-  function resize() { isNv() ? naver.maps.Event.trigger(MAP, 'resize') : MAP.invalidateSize(); }
+  /* 네이버 인증이 늦게 거절되면 지도를 통째로 기본 지도로 바꿔 끼운다 */
+  function downgrade() {
+    ENGINE = 'osm'; MAP = null; MKS = []; MEMK = null; tileIdx = 0; tileLay = null;
+    var el = document.getElementById('map');
+    el.innerHTML = ''; el.className = '';
+    delete el._leaflet_id;
+    initOsm(); setMe(); fitAll();
+    setTimeout(function () { resize(); paintMarkers(); }, 60);
+    mapNote();
+  }
+
+  /* 엔진 차이를 여기서만 흡수한다 — 인증이 거절되면 naver 전역이 사라지므로 함께 본다 */
+  function isNv() { return ENGINE === 'naver' && window.naver && naver.maps; }
+  function resize() {
+    if (!MAP) return;
+    try { isNv() ? naver.maps.Event.trigger(MAP, 'resize') : MAP.invalidateSize(); } catch (e) {}
+  }
   function zoomOf() { return MAP.getZoom(); }
   function setView(lat, lng, z) {
     if (isNv()) { MAP.setCenter(new naver.maps.LatLng(lat, lng)); if (z) MAP.setZoom(z, true); }
@@ -385,8 +403,8 @@
   function paintMarkers() {
     if (!MAP) return;
     MKS.forEach(unmark); MKS = [];
-    var L0 = filtered(), z = zoomOf();
-    var vis = L0.filter(inView);
+    var L0 = filtered(), z, vis;
+    try { z = zoomOf(); vis = L0.filter(inView); } catch (e) { return; }
     if (z >= 14) {
       vis.slice(0, 300).forEach(function (x) {
         MKS.push(mark(x.lat, x.lng, '<div class="pin ' + x.st + '"></div>', 30,
