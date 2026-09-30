@@ -212,6 +212,26 @@
 
   /* ══ 지도 ════════════════════════════════════ */
   var MAP = null, LAYER = null, ME = { lat: 37.5250, lng: 126.9250 }, MEMK = null;
+
+  /* 배경 타일 — 키 없이 쓰는 공개 타일을 순서대로 시도하고, 모두 막히면 단색 배경으로 넘어간다.
+     타일이 안 떠도 클러스터·핀은 그대로 보이므로 시연이 끊기지 않는다. */
+  var TILE_SRC = [
+    { u: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png', a: '&copy; OpenStreetMap' },
+    { u: 'https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', a: '&copy; OpenStreetMap, HOT' },
+    { u: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png', a: '&copy; OpenStreetMap, Wikimedia' }
+  ];
+  var tileIdx = 0, tileLay = null;
+  function tiles() {
+    if (tileLay) { MAP.removeLayer(tileLay); tileLay = null; }
+    if (tileIdx >= TILE_SRC.length) { document.getElementById('map').classList.add('flat'); return; }
+    var src = TILE_SRC[tileIdx], bad = 0, ok = false;
+    tileLay = L.tileLayer(src.u, { maxZoom: 19, attribution: src.a, subdomains: 'abc' })
+      .on('tileload', function () { ok = true; })
+      .on('tileerror', function () { if (!ok && ++bad >= 3) { tileIdx++; tiles(); } })
+      .addTo(MAP);
+    /* 응답이 아예 없을 때도 다음 후보로 넘어간다 */
+    setTimeout(function () { if (!ok && tileIdx === TILE_SRC.indexOf(src)) { tileIdx++; tiles(); } }, 6000);
+  }
   function dist(x) {
     var dy = (x.lat - ME.lat) * 111, dx = (x.lng - ME.lng) * 88;
     return Math.sqrt(dy * dy + dx * dx);
@@ -221,9 +241,7 @@
     if (!MAP) {
       MAP = L.map('map', { zoomControl: false, attributionControl: true })
         .setView([ME.lat, ME.lng], 11);
-      L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19, attribution: '&copy; OpenStreetMap'
-      }).addTo(MAP);
+      tiles();
       MAP.on('moveend zoomend', paintMarkers);
     }
     setTimeout(function () { MAP.invalidateSize(); paintMarkers(); }, 60);
