@@ -322,7 +322,8 @@
   function downgrade() {
     ENGINE = 'osm'; MAP = null; MKS = []; MEMK = null; tileIdx = 0; tileLay = null;
     var el = document.getElementById('map');
-    el.innerHTML = ''; el.className = '';
+    /* 네이버 API 가 컨테이너에 남긴 인라인 스타일까지 걷어내야 높이가 살아난다 */
+    el.innerHTML = ''; el.className = ''; el.removeAttribute('style');
     delete el._leaflet_id;
     initOsm(); setMe(); fitAll();
     setTimeout(function () { resize(); paintMarkers(); }, 60);
