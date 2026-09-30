@@ -121,14 +121,24 @@
 
   /* ── 캠페인(주주총회) ──────────────────────────────────────────────── */
   var M = (CX.meeting || {});
+  /* from = 권유 시작일, due = 수집 마감일. c1 만 앱에서 수집한 실적을 그대로 쓴다. */
   APP.CAMPAIGNS = [
     { id: 'c1', org: M.org || '큐더스전자', term: M.name || '제10기 정기주주총회',
-      due: M.date || '2026-09-29', state: 'live',
+      from: '2026-09-15', due: '2026-10-21', state: 'live',
       goalSh: 50, goalVt: 15000000 },
+    { id: 'c4', org: '한미반도체', term: '제 9기 정기주주총회',
+      from: '2026-09-18', due: '2026-10-14', state: 'live',
+      goalSh: 40, goalVt: 9000000, doneSh: 31, doneVt: 6840000 },
+    { id: 'c5', org: '한화에어로스페이스', term: '제 9기 정기주주총회',
+      from: '2026-09-22', due: '2026-10-07', state: 'live',
+      goalSh: 60, goalVt: 20000000, doneSh: 18, doneVt: 5120000 },
+    { id: 'c6', org: '무신사', term: '제 9기 정기주주총회',
+      from: '2026-09-10', due: '2026-10-03', state: 'live',
+      goalSh: 30, goalVt: 6000000, doneSh: 27, doneVt: 5460000 },
     /* 지난 캠페인은 마감된 실적을 그대로 보여 준다 */
-    { id: 'c2', org: '카카오뱅크', term: '제 9기 정기주주총회', due: '2026-03-12', state: 'end',
+    { id: 'c2', org: '카카오뱅크', term: '제 9기 정기주주총회', from: '2026-02-16', due: '2026-03-12', state: 'end',
       goalSh: 50, goalVt: 15000000, doneSh: 50, doneVt: 15420000 },
-    { id: 'c3', org: '네이버', term: '제 26기 임시주주총회', due: '2026-02-20', state: 'end',
+    { id: 'c3', org: '네이버', term: '제 26기 임시주주총회', from: '2026-01-26', due: '2026-02-20', state: 'end',
       goalSh: 50, goalVt: 15000000, doneSh: 45, doneVt: 13610000 }
   ];
 
@@ -296,7 +306,8 @@
     var c = null; APP.CAMPAIGNS.forEach(function (x) { if (x.id === campId) c = x; });
     var gSh = (c && c.goalSh) || 50, gVt = (c && c.goalVt) || 15000000;
     var vt = done.reduce(function (a, x) { return a + x.sh; }, 0);
-    if (c && c.state === 'end') {
+    /* c1 만 앱에서 실제로 수집한 값을 쓰고, 나머지는 미리 정해 둔 실적을 보여 준다 */
+    if (c && c.doneSh != null) {
       return { sh: c.doneSh, goalSh: gSh, vt: c.doneVt, goalVt: gVt,
         pct: Math.min(100, Math.round(Math.min(c.doneSh / gSh, c.doneVt / gVt) * 100)) };
     }

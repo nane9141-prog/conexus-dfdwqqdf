@@ -759,3 +759,8 @@ a{color:inherit;text-decoration:none}
 .pxsum .r{display:flex;gap:12px;padding:6px 0;font-size:13px}
 .pxsum .r .k{width:76px;flex:none;color:#8A8F99}
 .pxsum .r .v{flex:1;font-weight:700}
+
+/* 수집 기간 줄 */
+.cmp2 .r.term{padding-top:7px;border-top:1px solid #E6E8EC;margin-top:1px}
+.cmp2 .r.term .pr{flex:1;color:#5B6070;font-weight:600;font-variant-numeric:tabular-nums}
+.cmp2 .r.term .left{flex:none;font-weight:800;color:var(--blue)}

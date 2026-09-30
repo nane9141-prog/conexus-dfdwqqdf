@@ -1487,6 +1487,7 @@
             + ' stroke="#CFE3FF" stroke-width="6"/>' : '')
       + '</svg><div class="pct">' + pct + '% 달성</div></div>';
   }
+  function dot(d) { return (d || '').replace(/-/g, '.'); }
   function dday(due) {
     return Math.ceil((new Date(due + 'T00:00:00') - new Date('2026-09-30T00:00:00')) / 86400000);
   }
@@ -1494,7 +1495,7 @@
     $('#statBd').innerHTML = APP.CAMPAIGNS.map(function (c) {
       var t = APP.stat(c.id), dd = dday(c.due), live = c.state === 'live';
       var badge = live
-        ? '<span class="dd">' + (dd > 0 ? 'D-' + dd : dd === 0 ? 'D-DAY' : '마감 임박') + '</span>'
+        ? '<span class="dd">' + (dd > 0 ? 'D-' + dd : 'D-DAY') + '</span>'
         : '<span class="dd end">종료</span>';
       return '<div class="cmp2' + (live ? '' : ' end') + '">'
         + '<div class="l1"><span class="co">' + esc(c.org) + '</span>' + badge + '</div>'
@@ -1504,6 +1505,9 @@
         + '<span class="got">확보 ' + cm(t.sh) + '명</span><span class="goal">목표 ' + cm(t.goalSh) + '명</span></div>'
         + '<div class="r"><span class="k">주식 수</span>'
         + '<span class="got">확보 ' + cm(t.vt) + '주</span><span class="goal">목표 ' + cm(t.goalVt) + '주</span></div>'
+        + '<div class="r term"><span class="k">수집 기간</span>'
+        + '<span class="pr">' + dot(c.from) + ' ~ ' + dot(c.due) + '</span>'
+        + (live ? '<span class="left">' + (dd > 0 ? dd + '일 남음' : '오늘 마감') + '</span>' : '') + '</div>'
         + '</div>'
         + arc(t.pct, live)
         + (live ? '' : '<div class="due2">마감일 ' + c.due.replace(/-/g, '.') + '</div>')
