@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=54">
+<link rel="stylesheet" href="app.css?v=60">
 </head>
 <body>
 <div id="phone">
@@ -118,6 +118,18 @@
       <button class="btn gh" id="dtState" type="button">방문 상태 변경</button>
       <button class="btn" id="dtStart" type="button">위임 시작</button>
     </div>
+  </section>
+
+  <!-- ══ 현관문 사진 촬영 ══ -->
+  <section class="scr" id="scrDoor">
+    <div class="tb line">
+      <button class="ic bk" id="doorBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>현관문 촬영</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="bd plain"><div class="pxwrap" id="doorBd"></div></div>
+    <div class="dt-ft"><button class="btn" id="doorNext" type="button" disabled>사진 전송</button></div>
   </section>
 
   <!-- ══ 방문상태 히스토리 ══ -->
@@ -247,7 +259,7 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="../cx-data.js?v=1"></script>
 <script src="../cx-roster.js?v=r9"></script>
-<script src="app-data.js?v=13"></script>
-<script src="app.js?v=54"></script>
+<script src="app-data.js?v=14"></script>
+<script src="app.js?v=60"></script>
 </body>
 </html>

@@ -45,12 +45,17 @@
   function sheet(o) {
     var ov = $('#ov'), bx = $('#ovBx');
     ov.classList.toggle('mid', !!o.mid);
-    bx.innerHTML = '<div class="bh"><b>' + esc(o.title) + '</b>'
+    bx.innerHTML = '<div class="bh">'
+      + (o.back ? '<button class="bk2" type="button" data-ovback><i class="ph ph-arrow-left"></i></button>' : '')
+      + '<b>' + esc(o.title) + '</b>'
       + (o.x === false ? '' : '<button class="x" type="button" data-ovx><i class="ph ph-x"></i></button>') + '</div>'
       + '<div class="bb">' + (o.body || '') + '</div>'
       + (o.foot ? '<div class="bf">' + o.foot + '</div>' : '');
     ov.classList.add('on');
     bx.querySelectorAll('[data-ovx]').forEach(function (b) { b.addEventListener('click', closeSheet); });
+    if (o.back) bx.querySelectorAll('[data-ovback]').forEach(function (b) {
+      b.addEventListener('click', function () { closeSheet(); o.back(); });
+    });
     if (o.after) o.after(bx);
   }
   function closeSheet() { $('#ov').classList.remove('on'); }
@@ -964,6 +969,7 @@
           + '<span class="sp"></span>'
           + (x.addrs.length > 1 ? '<span class="more" id="dtMore" role="button">전체 주소 ' + x.addrs.length + '건 ›</span>' : '')
           + '</div><div class="tx">' + esc(a0.full) + '</div></div>')
+      + (x.st === 'replan' ? visitRow(x) : '')
       + '</div></div>'
 
       + '<div class="dsec" style="margin-bottom:12px"><div class="h"><b>메모</b>'
@@ -979,6 +985,7 @@
     $('#dtTel').addEventListener('click', openTel);
     $('#dtCopy').addEventListener('click', function () { copyAddr(a0); });
     var more = $('#dtMore'); if (more) more.addEventListener('click', openAddrs);
+    var vb = $('#dtVisit'); if (vb) vb.addEventListener('click', openVisit);
     $('#dtMemo').addEventListener('click', function () { editMemo(null); });
     $('#dtBd').querySelectorAll('[data-mdel]').forEach(function (b) {
       b.addEventListener('click', function () { delMemo(+b.dataset.mdel); });
@@ -989,6 +996,98 @@
     $('#dtStart').textContent = x.st === 'done' ? '위임장 확인' : '위임 시작';
   }
   function dkv(k, v) { return '<div class="dt-kv"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>'; }
+
+  /* ── 재방문 일정 (Figma 5148:26160) ────────────────────────
+     재방문예정 주주에게만 보이고, 등록한 시간에 맞춰 알림을 보낸다는 안내를 단다. */
+  function visitRow(x) {
+    return '<div class="vsline">'
+      + '<div class="dt-kv" style="align-items:center"><div class="k">재방문 일정</div><div class="v">'
+      + (x.visit
+          ? '<span class="telval"><b style="font-weight:800">' + esc(vsLabel(x.visit)) + '</b>'
+            + '<button class="ed" type="button" id="dtVisit">변경</button></span>'
+          : '<button class="telbtn" type="button" id="dtVisit">일정 등록</button>')
+      + '</div></div>'
+      + '<div class="vsnote">* 재방문 시간에 맞춰 알림을 보내드려요.</div></div>';
+  }
+  var WD = ['일', '월', '화', '수', '목', '금', '토'];
+  function vsLabel(v) {
+    var d = new Date(v.replace(' ', 'T') + ':00');
+    if (isNaN(d)) return v;
+    return (d.getMonth() + 1) + '월 ' + d.getDate() + '일(' + WD[d.getDay()] + ') '
+      + (d.getHours() < 12 ? '오전 ' : '오후 ') + ((d.getHours() % 12) || 12) + '시'
+      + (d.getMinutes() ? ' ' + d.getMinutes() + '분' : '');
+  }
+  function vsDates() {
+    var out = [], base = new Date('2026-09-30T00:00:00');
+    for (var i = 0; i < 21; i++) {
+      var d = new Date(base.getTime() + i * 86400000);
+      function p(v) { return (v < 10 ? '0' : '') + v; }
+      out.push({ v: d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()),
+        t: (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + WD[d.getDay()] + ')'
+          + (i === 0 ? ' · 오늘' : i === 1 ? ' · 내일' : '') });
+    }
+    return out;
+  }
+  function vsTimes() {
+    var out = [];
+    for (var h = 9; h <= 20; h++) for (var m = 0; m < 60; m += 30) {
+      var v = (h < 10 ? '0' : '') + h + ':' + (m ? '30' : '00');
+      out.push({ v: v, t: (h < 12 ? '오전 ' : '오후 ') + ((h % 12) || 12) + '시' + (m ? ' 30분' : '') });
+    }
+    return out;
+  }
+  function openVisit() {
+    var cur = (CUR.visit || '').split(' ');
+    var date = cur[0] || '', time = cur[1] || '';
+    var DS = vsDates(), TS = vsTimes();
+    function lbl(L, v, ph) { var f = L.filter(function (o) { return o.v === v; })[0]; return f ? f.t : ph; }
+    function body() {
+      return '<div class="vsform">'
+        + '<div class="fld2"><label>날짜</label>'
+        + '<button class="fsel' + (date ? '' : ' ph') + '" type="button" id="vsD">' + esc(lbl(DS, date, '날짜를 선택해 주세요')) + '</button></div>'
+        + '<div class="fld2"><label>시간</label>'
+        + '<button class="fsel' + (time ? '' : ' ph') + '" type="button" id="vsT">' + esc(lbl(TS, time, '시간을 선택해 주세요')) + '</button></div>'
+        + '<div class="vsnote" style="margin-top:14px">* 재방문 시간에 맞춰 알림을 보내드려요.</div></div>';
+    }
+    sheet({
+      title: '재방문 일정 등록',
+      body: body(),
+      foot: (CUR.visit ? '<button class="btn gh" type="button" id="vsDel">삭제</button>' : '')
+        + '<button class="btn" type="button" id="vsOk" disabled>등록하기</button>',
+      after: function (bx) {
+        function paint() {
+          bx.querySelector('.bb').innerHTML = body();
+          bx.querySelector('#vsD').addEventListener('click', function () {
+            pickSheet('날짜 선택', DS.map(function (o) { return o.t; }), lbl(DS, date, ''), function (v) {
+              var f = DS.filter(function (o) { return o.t === v; })[0];
+              date = f ? f.v : ''; setTimeout(function () { openVisit2(date, time); }, 0);
+            });
+          });
+          bx.querySelector('#vsT').addEventListener('click', function () {
+            pickSheet('시간 선택', TS.map(function (o) { return o.t; }), lbl(TS, time, ''), function (v) {
+              var f = TS.filter(function (o) { return o.t === v; })[0];
+              time = f ? f.v : ''; setTimeout(function () { openVisit2(date, time); }, 0);
+            });
+          });
+          bx.querySelector('#vsOk').disabled = !(date && time);
+        }
+        paint();
+        bx.querySelector('#vsOk').addEventListener('click', function () {
+          APP.setVisit(CUR.i, date + ' ' + time);
+          closeSheet(); drawDetail(); toast('재방문 일정을 등록했습니다', true);
+        });
+        var del = bx.querySelector('#vsDel');
+        if (del) del.addEventListener('click', function () {
+          APP.setVisit(CUR.i, ''); closeSheet(); drawDetail(); toast('재방문 일정을 삭제했습니다');
+        });
+      }
+    });
+  }
+  /* 날짜·시간을 고르고 돌아올 때 값을 유지한 채 다시 연다 */
+  function openVisit2(d, t) {
+    var keep = CUR.visit; CUR.visit = (d && t) ? (d + ' ' + t) : (d ? d + ' ' : ' ' + t);
+    openVisit(); CUR.visit = keep;
+  }
 
   /* ── 메모 — 여러 건을 날짜와 함께 쌓는다 ───────────────────── */
   function memos(x) {
@@ -1205,47 +1304,166 @@
 
   /* 방문 상태 변경 */
   /* 방문 상태 변경 */
-  var RSN = {
-    plan:   ['방문 예정 등록', '연락 후 재방문', '주소 확인 완료'],
-    replan: ['부재중', '보완 서류 필요', '재방문 요청'],
-    no:     ['타인 거주', '연락 두절', '수집 거부']
+  /* ── 방문 상태 변경 ─────────────────────────────────────────
+     방문예정은 바로 반영, 수집불가·재방문예정은 사유를 묻는다.
+     재방문예정은 사유를 묻기 전에 현관문 사진을 먼저 찍는다. (Figma 5148:26311 · 5196:19418) */
+  var NOQ = {
+    q1: { q: '수집 불가한 이유가 무엇인가요?',
+      opts: ['위임 거절', '개인정보 수집 거부', '반복 부재'] },
+    q2: { q: '우편물이나 배송물 등에서 주주의 이름을 확인할 수 있나요?', opts: ['네', '아니요'],
+      only: ['반복 부재'] }                       /* 반복 부재일 때만 묻는다 */
   };
-  $('#dtState').addEventListener('click', function () {
-    var pick = CUR.st, why = '';
+  var REQ = {
+    q1: { q: '재방문해야 하는 이유가 무엇인가요?',
+      opts: ['부재중(미응답)', '부재중(가족대면)', '타인 거주중', '보완 서류 필요'] },
+    q2: { q: '우편물이나 배송물 등에서 주주의 이름을 확인할 수 있나요?', opts: ['네', '아니요'],
+      only: ['부재중(미응답)', '부재중(가족대면)'] }   /* 부재중일 때만 묻는다 */
+  };
+
+  $('#dtState').addEventListener('click', openState);
+  function openState() {
     sheet({
       title: '방문 상태 변경',
-      body: '<div class="stlist" id="stL"></div><div class="strsn" id="stR"></div>',
-      foot: '<button class="btn gh" type="button" data-ovx>취소</button>'
-        + '<button class="btn" type="button" id="stOk">변경하기</button>',
+      body: '<div class="stlist">' + ['plan', 'replan', 'no'].map(function (k) {
+        return '<button class="strow' + (CUR.st === k ? ' on' : '') + '" type="button" data-sst="' + k + '">'
+          + ST[k].nm + '</button>';
+      }).join('') + '</div>',
       after: function (bx) {
-        function paint() {
-          bx.querySelector('#stL').innerHTML = ['plan', 'replan', 'no'].map(function (k) {
-            return '<button class="strow' + (pick === k ? ' on' : '') + '" type="button" data-sst="' + k + '">'
-              + ST[k].nm + '</button>';
-          }).join('');
-          bx.querySelector('#stR').innerHTML = '<div class="lb">사유 (선택)</div>'
-            + '<div class="chips2">' + (RSN[pick] || []).map(function (r) {
-                return '<button type="button" data-rsn="' + esc(r) + '"' + (why === r ? ' class="on"' : '') + '>' + esc(r) + '</button>';
-              }).join('') + '</div>'
-            + '<input id="stWhy" placeholder="직접 입력" value="' + esc(why) + '">';
-          bx.querySelectorAll('[data-sst]').forEach(function (b) {
-            b.addEventListener('click', function () { pick = b.dataset.sst; why = ''; paint(); });
+        bx.querySelectorAll('[data-sst]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var k = b.dataset.sst;
+            closeSheet();
+            if (k === 'plan') { applyState('plan', ''); return; }
+            if (k === 'no') { setTimeout(function () { askReason('no'); }, 120); return; }
+            setTimeout(openDoor, 120);              /* 재방문예정 — 현관문 촬영부터 */
           });
-          bx.querySelectorAll('[data-rsn]').forEach(function (b) {
-            b.addEventListener('click', function () { why = (why === b.dataset.rsn) ? '' : b.dataset.rsn; paint(); });
-          });
-          bx.querySelector('#stWhy').addEventListener('input', function () { why = this.value; });
-        }
-        paint();
-        bx.querySelector('#stOk').addEventListener('click', function () {
-          APP.setState(CUR.i, pick);
-          histAdd(CUR, pick, why);
-          closeSheet(); drawDetail(); refresh();
-          toast(CUR.name + ' — ' + ST[pick].nm + '으로 변경했습니다', true);
         });
       }
     });
+  }
+  function applyState(st, why) {
+    APP.setState(CUR.i, st);
+    histAdd(CUR, st, why);
+    drawDetail(); refresh();
+    toast(CUR.name + ' — ' + ST[st].nm + '으로 변경했습니다', true);
+  }
+
+  /* 사유 선택 시트 — 두 번째 질문은 조건에 맞을 때만 나온다 */
+  function askReason(st, back) {
+    var SPEC = st === 'no' ? NOQ : REQ;
+    var a1 = '', a2 = '';
+    function show2() { return SPEC.q2.only.indexOf(a1) >= 0; }
+    function grp(key, spec, cur) {
+      return '<div class="qgrp"><div class="q">' + esc(spec.q) + '</div>'
+        + '<div class="qopts' + (spec.opts.length <= 2 ? '' : '') + '">'
+        + spec.opts.map(function (o) {
+            return '<button class="qopt' + (cur === o ? ' on' : '') + '" type="button" data-q="' + key + '" data-v="' + esc(o) + '">'
+              + '<span class="rdo"></span>' + esc(o) + '</button>';
+          }).join('') + '</div></div>';
+    }
+    function body() {
+      return '<div class="qpanel">' + grp('q1', SPEC.q1, a1)
+        + (show2() ? grp('q2', SPEC.q2, a2) : '') + '</div>';
+    }
+    sheet({
+      title: st === 'no' ? '수집불가 사유를 선택해 주세요' : '재방문 사유를 선택해 주세요',
+      back: back, body: body(),
+      foot: '<button class="btn ink" type="button" id="rsOk2" disabled>선택 완료</button>',
+      after: function (bx) {
+        function paint() {
+          bx.querySelector('.bb').innerHTML = body();
+          bind();
+          bx.querySelector('#rsOk2').disabled = !(a1 && (!show2() || a2));
+        }
+        function bind() {
+          bx.querySelectorAll('[data-q]').forEach(function (b) {
+            b.addEventListener('click', function () {
+              if (b.dataset.q === 'q1') { if (a1 !== b.dataset.v) a2 = ''; a1 = b.dataset.v; }
+              else a2 = b.dataset.v;
+              paint();
+            });
+          });
+        }
+        bind();
+        bx.querySelector('#rsOk2').addEventListener('click', function () {
+          var why = a1 + (show2() && a2 ? ' · 이름 확인 ' + a2 : '');
+          closeSheet();
+          applyState(st, why);
+        });
+      }
+    });
+  }
+
+  /* 현관문 사진 촬영 — 재방문예정 앞 단계 */
+  var DOOR = { img: null };
+  function openDoor() {
+    DOOR.img = null; drawDoor();
+    show('#scrDoor'); $('#tabbar').hidden = true;
+  }
+  $('#doorBack').addEventListener('click', function () {
+    camStop(); show('#scrDetail'); $('#tabbar').hidden = true;
   });
+  function drawDoor() {
+    $('#doorBd').innerHTML = '<div class="pxh">현관문을 촬영해 주세요</div>'
+      + '<div class="pxd">방문한 세대의 현관문이 보이도록 찍어 주세요. 사진은 방문 증빙으로 쓰입니다.</div>'
+      + '<div class="camwrap door" id="dcW">'
+      + (DOOR.img ? '<img src="' + DOOR.img + '" alt="촬영한 현관문">'
+          : '<video id="dcV" playsinline muted autoplay></video>'
+            + '<div class="guide"><div class="fr"></div></div>'
+            + '<div class="hint">현관문이 테두리 안에 들어오게 맞춰 주세요</div>')
+      + '</div>'
+      + (DOOR.img
+          ? '<div class="camdone"><i class="ph-fill ph-check-circle"></i>현관문 사진을 확인했습니다</div>'
+            + '<div class="cambar"><button class="alt" type="button" id="dcRe">다시 촬영</button></div>'
+          : '<div class="cambar"><button class="shutter" type="button" id="dcShot" aria-label="촬영"></button>'
+            + '<button class="alt" type="button" id="dcPick">앨범에서 선택</button></div>'
+            + '<input type="file" id="dcFile" accept="image/*" capture="environment" hidden>');
+
+    var nx = $('#doorNext');
+    nx.disabled = !DOOR.img;
+    nx.onclick = function () {
+      camStop();
+      toast('사진 전송 성공', true);
+      show('#scrDetail'); $('#tabbar').hidden = true;
+      setTimeout(function () { askReason('replan', openDoor); }, 260);
+    };
+    if (DOOR.img) { $('#dcRe').addEventListener('click', function () { DOOR.img = null; drawDoor(); }); return; }
+
+    var v = $('#dcV');
+    navigator.mediaDevices && navigator.mediaDevices.getUserMedia
+      ? navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false })
+          .then(function (st) { CAM.stream = st; v.srcObject = st; })
+          .catch(fail)
+      : fail();
+    function fail() {
+      $('#dcW').innerHTML = '<div class="off"><i class="ph ph-camera-slash"></i>'
+        + '카메라를 사용할 수 없습니다.<br>앨범에서 사진을 선택해 주세요.</div>';
+      var sh = $('#dcShot'); if (sh) sh.style.display = 'none';
+    }
+    $('#dcShot').addEventListener('click', function () {
+      if (!CAM.stream) { $('#dcFile').click(); return; }
+      var w = v.videoWidth, h = v.videoHeight; if (!w) return;
+      DOOR.img = shrink(v, w, h); camStop(); drawDoor();
+    });
+    $('#dcPick').addEventListener('click', function () { $('#dcFile').click(); });
+    $('#dcFile').addEventListener('change', function () {
+      var f = this.files && this.files[0]; if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function () {
+        var im = new Image();
+        im.onload = function () { DOOR.img = shrink(im, im.width, im.height); camStop(); drawDoor(); };
+        im.src = fr.result;
+      };
+      fr.readAsDataURL(f);
+    });
+  }
+  /* 사진은 1024px 폭 JPEG 로 줄인다 — 현관문 사진은 남기지 않고 전송만 한다 */
+  function shrink(src, w, h) {
+    var c = document.createElement('canvas'), k = Math.min(1, 1024 / w);
+    c.width = Math.round(w * k); c.height = Math.round(h * k);
+    c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+    return c.toDataURL('image/jpeg', 0.7);
+  }
 
   /* ══ 위임 진행 — 약관 → 행사방향 → 전자서명 → 신분증 ═══════ */
   var PX = null;

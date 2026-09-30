@@ -227,6 +227,7 @@
         addrs: addrList(r.i, ad, lv),               /* 대표 주소 + 추가 주소 */
         get more() { return Math.max(0, this.addrs.length - 1); },
         memo: SAVED.memo[r.i] || '',
+        visit: SAVED.visit[r.i] || '',              /* 재방문 일정 */
         /* 앱에서 처리한 적이 없는 건은 배정 이후 아무 날짜나 하나 붙여 둔다 */
         at: SAVED.at[r.i] || (st === 'plan' ? '' : atOf(r.i))
       };
@@ -238,10 +239,10 @@
   function load() {
     var s = {};
     try { s = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
-    return { st: s.st || {}, memo: s.memo || {}, tel: s.tel || {}, at: s.at || {}, addr: s.addr || {} };
+    return { st: s.st || {}, memo: s.memo || {}, tel: s.tel || {}, at: s.at || {}, addr: s.addr || {}, visit: s.visit || {} };
   }
   function save() {
-    var s = { st: SAVED.st, memo: SAVED.memo, tel: SAVED.tel, at: SAVED.at, addr: SAVED.addr, ts: Date.now() };
+    var s = { st: SAVED.st, memo: SAVED.memo, tel: SAVED.tel, at: SAVED.at, addr: SAVED.addr, visit: SAVED.visit, ts: Date.now() };
     /* CONEXUS 가 바로 쓰도록 확보 합계도 함께 적어 둔다 */
     var done = APP.list().filter(function (x) { return x.st === 'done'; });
     s.done = done.length;
@@ -277,6 +278,7 @@
     SAVED.addr[x.i] = k; save();
   };
   APP.setTel  = function (i, t) { var x = APP.find(i); if (!x) return; x.tel  = t; SAVED.tel[x.i]  = t; save(); };
+  APP.setVisit = function (i, v) { var x = APP.find(i); if (!x) return; x.visit = v; SAVED.visit[x.i] = v; save(); };
   /* 위임장 — 의안별 행사 방향·서명·신분증.
      이미지는 1024px JPEG 로 줄여 넣지만 그래도 커서 최근 20건만 남긴다. */
   var PXKEY = 'cx.app.px';

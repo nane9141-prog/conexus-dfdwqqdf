@@ -798,3 +798,34 @@ a{color:inherit;text-decoration:none}
 @media (prefers-reduced-motion:reduce){
   .cmp2 .arc .kb{animation:none}
 }
+
+/* ═══ 방문 상태 사유 선택 (Figma 5148:26311 · 5196:19418) ════ */
+.ov .bh .bk2{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--fg);
+  margin-left:-4px}
+.ov .bh .bk2 i{font-size:20px}
+.qpanel{background:#F5F6F8;border-radius:14px;padding:16px;margin:2px 0 4px}
+.qgrp+.qgrp{margin-top:18px}
+.qgrp .q{font-size:15px;font-weight:800;color:var(--fg);line-height:1.5}
+.qopts{display:grid;grid-template-columns:1fr 1fr;gap:10px 8px;margin-top:12px}
+.qopts.one{grid-template-columns:1fr}
+.qopt{display:flex;align-items:center;gap:8px;text-align:left;font-size:14px;font-weight:600;color:var(--fg)}
+.rdo{width:22px;height:22px;flex:none;border-radius:1000px;border:1.5px solid #C9CDD4;background:#fff;
+  display:inline-flex;align-items:center;justify-content:center}
+.rdo::after{content:"";width:8px;height:8px;border-radius:1000px;background:#fff;opacity:0}
+.qopt.on .rdo{background:var(--blue);border-color:var(--blue)}
+.qopt.on .rdo::after{opacity:1}
+.ov .bf .btn.ink{background:var(--ink);color:#fff}
+.ov .bf .btn.ink:disabled{background:#C9CDD4}
+
+/* 현관문 촬영 — 세로 가이드 */
+.camwrap.door{height:300px}
+.camwrap.door .guide .fr{width:58%;aspect-ratio:.62/1;border-radius:10px}
+
+/* 재방문 일정 */
+.vsline{margin-top:6px;padding-top:12px;border-top:1px solid #F0F1F3}
+.vsnote{margin-top:6px;padding-left:76px;font-size:12px;color:#9AA0A8;line-height:1.5}
+.vsform{padding:4px 0 6px}
+.vsform .fld2{display:flex;flex-direction:column;gap:8px}
+.vsform .fld2+.fld2{margin-top:14px}
+.vsform .fld2 label{font-size:13px;font-weight:700;color:var(--fg)}
+.vsform .vsnote{padding-left:0}
