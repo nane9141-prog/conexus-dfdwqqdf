@@ -149,7 +149,7 @@ button{background:none;border:none;cursor:pointer}
 .pcard .hr{height:1px;background:rgba(255,255,255,.45);margin:24px 0}
 .pcard .rows{display:flex;gap:16px}
 .pcard .rw{flex:1}
-.pcard .rw .k{font-size:12px;opacity:.9}
+.pcard .rw .k{font-size:14px;opacity:.9}
 .pcard .rw .v{margin-top:4px;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
 .pcard .asof{margin-top:16px;margin-bottom:24px;font-size:12px;opacity:.82}
 /* 캡처 방지 안내 띠 */
