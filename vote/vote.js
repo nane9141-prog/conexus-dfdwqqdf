@@ -92,12 +92,29 @@
   var tagged = false;
   show('#scrNfc', 'site');
   $('#nfcGo').addEventListener('click', doTag);
+  var scanT = null;
+  /* iOS NFC 스캔 시트를 띄우고 2초 뒤 진입한다 */
   function doTag() {
     if (tagged) return;
-    tagged = true; buzz([30, 60, 30]);
-    if (!PIN.set) { openPin('new'); return; }     /* 첫 태깅이면 비밀번호부터 */
-    drawCards();
+    tagged = true;
+    openScan();
+    scanT = setTimeout(function () {
+      closeScan(); buzz([30, 60, 30]);
+      if (!PIN.set) { openPin('new'); return; }   /* 첫 태깅이면 비밀번호부터 */
+      drawCards();
+    }, 2000);
   }
+  function openScan() {
+    var el = $('#nfcSheet'); el.hidden = false;
+    requestAnimationFrame(function () { el.classList.add('on'); });
+  }
+  function closeScan() {
+    var el = $('#nfcSheet'); el.classList.remove('on');
+    setTimeout(function () { el.hidden = true; }, 230);
+  }
+  $('#nfcSheetX').addEventListener('click', function () {
+    clearTimeout(scanT); tagged = false; closeScan();
+  });
   (function () {
     if (!('NDEFReader' in window)) return;
     try { var r = new window.NDEFReader(); r.scan().then(function () { r.onreading = doTag; }).catch(function () {}); } catch (e) {}
@@ -107,10 +124,8 @@
   /* ══ 2. 출입증 카드 ══════════════════════════ */
   function drawCards() {
     $('#deck').innerHTML = CARDS.map(function (c) {
-      /* 뒤에 깔린 색 덩어리(glow)를 유리(pcard) 너머로 비춰 보이게 한다 */
-      return '<div class="cardwrap' + (c.live ? '' : ' off') + '" role="button" tabindex="0" data-card="' + c.key + '"'
-        + ' style="--c0:' + c.g[0] + ';--c1:' + c.g[1] + ';--c2:' + c.g[2] + ';--c3:' + c.g[3] + '">'
-        + '<div class="glow"></div><div class="pcard">'
+      return '<div class="pcard' + (c.live ? '' : ' off') + '" role="button" tabindex="0" data-card="' + c.key + '"'
+        + ' style="--c0:' + c.g[0] + ';--c1:' + c.g[1] + ';--c2:' + c.g[2] + '">'
         + '<i class="ph ph-wifi-high nfcic"></i>'
         + '<div class="nm">' + esc(ME.nm) + '</div>'
         + '<div class="mid"><div class="co">' + esc(c.co) + '</div>'
@@ -119,8 +134,7 @@
         + '<div class="rows"><div class="rw"><div class="k">주식 수</div><div class="v">' + cm(c.sh) + '주</div></div>'
         + '<div class="rw"><div class="k">참석번호</div><div class="v">' + esc(c.seat) + '</div></div></div>'
         + '<div class="asof">' + esc(c.asof) + '</div></div>'
-        + '<div class="warn"><div>' + warnRun() + warnRun() + '</div></div>'
-        + '</div></div>';
+        + '</div>';
     }).join('');
     $('#dots').innerHTML = CARDS.map(function (c, i) { return '<span class="' + (i ? '' : 'on') + '"></span>'; }).join('');
     $('#deck').querySelectorAll('[data-card]').forEach(function (el) {
@@ -133,11 +147,6 @@
     tint(0);
     show('#scrCards', 'site');
     autoSlide();
-  }
-  function warnRun() {
-    var s = '';
-    for (var i = 0; i < 3; i++) s += '<span><i class="ph-fill ph-warning"></i>캡처 화면으로는 입장할 수 없습니다</span>';
-    return s;
   }
   /* 뒤 배경을 지금 보는 카드 색으로 천천히 바꾼다 */
   function tint(i) {
