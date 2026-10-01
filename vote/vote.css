@@ -98,27 +98,27 @@ button{background:none;border:none;cursor:pointer}
 .tagfoot{flex:none;padding:0 16px calc(20px + var(--sa-bot))}
 @media (prefers-reduced-motion:reduce){ .tagring span{animation:none;opacity:.6;transform:scale(1)} }
 
-/* ── iOS 스캔 준비 완료 시트 ─────────────────── */
-.nfcsheet{position:absolute;inset:0;z-index:70;display:flex;align-items:flex-end;justify-content:center;
-  padding:0 8px calc(8px + var(--sa-bot));background:rgba(0,0,0,.28);
-  opacity:0;transition:opacity .22s ease}
+/* ── iOS NFC 스캔 모달 ──────────────────────── */
+.nfcsheet{position:absolute;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;
+  padding:0 24px;background:rgba(0,0,0,.4);opacity:0;transition:opacity .2s ease}
 .nfcsheet[hidden]{display:none}
 .nfcsheet.on{opacity:1}
-.nfcsheet .ns{width:100%;max-width:420px;border-radius:14px;padding:22px 20px 14px;text-align:center;
-  background:rgba(249,249,249,.92);-webkit-backdrop-filter:blur(22px) saturate(180%);
-  backdrop-filter:blur(22px) saturate(180%);
-  box-shadow:0 10px 34px rgba(0,0,0,.2);
-  transform:translateY(16px);transition:transform .26s cubic-bezier(.2,.8,.3,1)}
-.nfcsheet.on .ns{transform:translateY(0)}
-.nfcsheet .nsic{width:54px;height:54px;margin:0 auto 12px;border-radius:1000px;background:#fff;
-  display:flex;align-items:center;justify-content:center;font-size:28px;color:#007AFF;
-  box-shadow:0 1px 4px rgba(0,0,0,.12)}
-.nfcsheet .nsic i{transform:rotate(90deg);animation:nspulse 1.4s ease-in-out infinite}
-@keyframes nspulse{0%,100%{opacity:.45}50%{opacity:1}}
-.nfcsheet .nst{font-size:17px;font-weight:700;letter-spacing:-.02em;color:#000}
-.nfcsheet .nsd{margin-top:5px;font-size:13px;color:#6C6C70;line-height:1.45}
-.nfcsheet .nsx{margin-top:16px;width:100%;height:46px;border:0;border-top:1px solid rgba(60,60,67,.16);
-  background:transparent;font-size:17px;color:#007AFF;font-weight:400;cursor:pointer}
+.nfcsheet .ns{position:relative;width:100%;max-width:330px;border-radius:28px;background:#fff;
+  padding:30px 22px 20px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.26);
+  transform:scale(.92);transition:transform .24s cubic-bezier(.2,.9,.3,1)}
+.nfcsheet.on .ns{transform:scale(1)}
+.nfcsheet .nsclose{position:absolute;right:16px;top:16px;width:30px;height:30px;border:0;padding:0;
+  border-radius:1000px;background:#E9E9EB;color:#8E8E93;font-size:17px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center}
+.nfcsheet .nst{font-size:25px;font-weight:800;letter-spacing:-.03em;color:#000;line-height:1.25}
+.nfcsheet .nsd{margin-top:8px;font-size:15px;color:#000;line-height:1.4;letter-spacing:-.02em}
+.nfcsheet .nsart{margin:26px auto 30px;width:158px;height:158px}
+.nfcsheet .nsart svg{width:100%;height:100%;display:block;animation:nspulse 1.6s ease-in-out infinite}
+@keyframes nspulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.955);opacity:.84}}
+.nfcsheet .nsx{width:100%;height:54px;border:0;border-radius:13px;background:#F2F2F7;
+  font-size:17px;font-weight:600;color:#000;letter-spacing:-.02em;cursor:pointer}
+.nfcsheet .nsx:active{background:#E5E5EA}
+@media (prefers-reduced-motion:reduce){ .nfcsheet .nsart svg{animation:none} }
 
 /* ── 현장 · 출입증 카드 ──────────────────────── */
 #scrCards{background:#fff}

@@ -112,9 +112,9 @@
     var el = $('#nfcSheet'); el.classList.remove('on');
     setTimeout(function () { el.hidden = true; }, 230);
   }
-  $('#nfcSheetX').addEventListener('click', function () {
-    clearTimeout(scanT); tagged = false; closeScan();
-  });
+  function cancelScan() { clearTimeout(scanT); tagged = false; closeScan(); }
+  $('#nfcSheetX').addEventListener('click', cancelScan);
+  $('#nfcSheetC').addEventListener('click', cancelScan);
   (function () {
     if (!('NDEFReader' in window)) return;
     try { var r = new window.NDEFReader(); r.scan().then(function () { r.onreading = doTag; }).catch(function () {}); } catch (e) {}
