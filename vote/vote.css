@@ -223,7 +223,16 @@ button{background:none;border:none;cursor:pointer}
 
 /* ── 의안 투표 ───────────────────────────────── */
 .vtop{padding:18px 20px 16px;background:#fff}
-.vtop .nm{font-size:19px;font-weight:800;line-height:1.45;letter-spacing:-.02em;word-break:keep-all}
+.vhd{display:flex;align-items:flex-start;gap:8px}
+.vtop .nm{flex:1;min-width:0;font-size:19px;font-weight:800;line-height:1.45;letter-spacing:-.02em;word-break:keep-all}
+/* 제목 옆 상태 배지 */
+.vbdg{flex:none;margin-top:3px;display:inline-flex;align-items:center;gap:4px;height:26px;padding:4px 8px;
+  border-radius:16px;font-size:12px;font-weight:500;line-height:18px;letter-spacing:-.01em}
+.vbdg .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.vbdg.pass{background:#EBF4FF;color:#0071F3}
+.vbdg.fail{background:#FDF4F5;color:#E9081B}
+.vbdg.gray{background:#F3F4F6;color:#A7AAB1}
+.vbdg.cnt{background:transparent;padding:0;height:18px;color:#0DAD7E}
 /* 집중투표 안내 */
 .vtip{margin-top:16px;background:#fff;border:1px solid #EEF0F2;border-radius:12px;padding:16px}
 .vtip .k{font-size:12px;font-weight:700;color:#0071F3;letter-spacing:-.01em;line-height:18px}
@@ -286,6 +295,7 @@ button{background:none;border:none;cursor:pointer}
 .cumsum .r.rest .v{color:#0071F3}
 .cumsum.over .r.used .v,.cumsum.over .r.rest .v{color:#E9081B}
 /* 하단 */
+.vfoot[hidden]{display:none}
 .vfoot{flex:none;padding:16px 20px calc(20px + var(--sa-bot));
   background:linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 10%, #fff 100%)}
 .vrem{margin-bottom:8px;text-align:center;font-size:12px;font-weight:500;line-height:18px;
@@ -472,3 +482,13 @@ button{background:none;border:none;cursor:pointer}
 .agvnm{margin-top:8px;font-size:16px;font-weight:700;line-height:24px;color:#151419;
   letter-spacing:-.01em;word-break:keep-all}
 @media (prefers-reduced-motion:reduce){ .agvic{animation:none} }
+
+/* 투표 상태 안내 (선택 영역 아래) */
+.vstat{margin-top:16px;display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:13px;font-weight:500;color:#6B7078;letter-spacing:-.01em}
+.vstat i{font-size:17px;color:#A7AAB1}
+/* 투표 불가 상태 — 고른 값은 그대로 보이되 바꿀 수 없다 */
+.vpick.lock .ch3 button,.vpick.lock [data-cd]{pointer-events:none}
+.vpick.lock [data-cd]{background:#F7F8FA;color:#8A8F99}
+/* 찬성 ○ 아이콘을 조금 더 굵게 */
+.ch3 button .ph-circle{font-weight:700;-webkit-text-stroke:.8px currentColor}

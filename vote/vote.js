@@ -323,7 +323,14 @@
     var no = CURAG, a = agOf(no), k = kindOf(no), d = detail(no);
     $('#vTitle').textContent = no.replace('제', '제 ') + ' 의안';
 
-    var top = '<div class="vtop"><div class="nm">' + esc(a.nm) + '</div>'
+    /* 상태 — 대기 / 진행중 / 집계중 / 가결·부결 */
+    var res = LIVE.done && LIVE.done[no], isLive = LIVE.ag === no;
+    var open = isLive && LIVE.stage === 2, cnt = isLive && LIVE.stage === 3;
+    var closed = !!res || cnt, mv = myVote(no);
+    var bdg = res ? '<span class="vbdg ' + (res === '가결' ? 'pass' : res === '부결' ? 'fail' : 'gray') + '">' + res + '</span>'
+      : cnt ? '<span class="vbdg cnt"><span class="dot"></span>집계중</span>' : '';
+
+    var top = '<div class="vtop"><div class="vhd"><div class="nm">' + esc(a.nm) + '</div>' + bdg + '</div>'
       + (k === 'cum' ? '<div class="vtip"><div class="k">집중투표</div>'
           + '<div class="t">보유 주식 1주마다 ' + (d.directors || 2) + '개의 의결권이 부여됩니다.</div>'
           + '<div class="d">원하는 후보자에게 집중 또는 분산하여 자유롭게 의결권을 행사할 수 있습니다.</div></div>' : '')
@@ -342,9 +349,15 @@
     else if (k === 'excl') pick = exclHtml(no, d);
     else pick = '<div class="pbox">' + ch3('_') + '</div>';
 
-    $('#voteBd').innerHTML = top + '<div class="vpick">' + pick + '</div>';
+    var line = open ? ''
+      : closed ? '<div class="vstat"><i class="ph-fill ph-check-circle"></i>'
+                 + (mv ? '투표가 마감되었습니다' : '해당 투표에 투표하지 않았습니다') + '</div>'
+      : '<div class="vstat"><i class="ph-fill ph-info"></i>아직 투표 시작 전입니다</div>';
+
+    $('#voteBd').innerHTML = top + '<div class="vpick' + (open ? '' : ' lock') + '">' + pick + line + '</div>';
     bindPick(k);
     syncGo(k);
+    $('.vfoot').hidden = !open;                 /* 투표 가능할 때만 하단 버튼 */
     $('#voteBd').scrollTop = 0;
 
     $('#vLim').addEventListener('click', function () { $('#vLimTx').classList.toggle('on'); });
