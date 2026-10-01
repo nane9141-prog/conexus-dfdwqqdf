@@ -886,6 +886,8 @@ function cxChannel(K) {
       for (var k in patch) s[k] = patch[k];
       s.ts = Date.now();
       try { localStorage.setItem(K, JSON.stringify(s)); } catch (e) {}
+      /* 다른 기기(현장 휴대폰)로도 보낸다 — 중계가 없으면 그냥 넘어간다 */
+      if (K === 'cx.live' && window.cxRelay) window.cxRelay.publish(s);
       fire(s);
     },
     on: function (f) { subs.push(f); f(get()); }
