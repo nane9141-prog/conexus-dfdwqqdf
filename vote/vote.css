@@ -142,7 +142,7 @@ button{background:none;border:none;cursor:pointer}
 .pcard.mid{transform:scale(1)}
 .pcard .nfcic{position:absolute;right:36px;top:36px;z-index:1;display:block;color:#fff;opacity:.95}
 .pcard .nfcic svg{width:34px;height:34px;display:block}
-.pcard .nm{margin-top:18px;font-size:30px;font-weight:800;letter-spacing:-.03em}
+.pcard .nm{margin-top:18px;font-size:32px;font-weight:800}
 .pcard .mid{margin-top:auto}
 .pcard .co{font-size:21px;font-weight:800;letter-spacing:-.03em}
 .pcard .term{margin-top:6px;font-size:14px;opacity:.92}
