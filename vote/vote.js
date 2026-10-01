@@ -604,6 +604,7 @@
             LOT = window.lottie.loadAnimation({
               container: $('#faceLot'), renderer: 'svg', loop: false, autoplay: false, animationData: j
             });
+            LOT.setSpeed(1.8);                   /* 원본 4초 — 시연에 맞게 줄인다 */
             lotOk = true;
             $('#pinFace').classList.add('haslot');
           } catch (e) {}
