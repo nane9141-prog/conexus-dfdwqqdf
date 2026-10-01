@@ -122,11 +122,22 @@
   if (/[?&]nfc=1/.test(location.search)) setTimeout(doTag, 200);
 
   /* ══ 2. 출입증 카드 ══════════════════════════ */
+  /* 카드 대표색을 그림자 색으로 쓰기 위해 hex → rgba */
+  function rgba(hex, a) {
+    var n = parseInt(hex.slice(1), 16);
+    return 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')';
+  }
+  function warnRun() {
+    var s = '';
+    for (var i = 0; i < 3; i++) s += '<span><i class="ph-fill ph-warning"></i>캡처 화면으로는 입장할 수 없습니다</span>';
+    return s;
+  }
   function drawCards() {
     $('#deck').innerHTML = CARDS.map(function (c) {
       return '<div class="pcard' + (c.live ? '' : ' off') + '" role="button" tabindex="0" data-card="' + c.key + '"'
-        + ' style="--c0:' + c.g[0] + ';--c1:' + c.g[1] + ';--c2:' + c.g[2] + '">'
-        + '<i class="ph ph-wifi-high nfcic"></i>'
+        + ' style="--c0:' + c.g[0] + ';--c1:' + c.g[1] + ';--c2:' + c.g[2]
+        + ';--sh:' + rgba(c.g[0], .34) + ';--sh2:' + rgba(c.g[0], .18) + '">'
+        + '<span class="nfcic"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"> <path d="M10.5191 20.8294C10.5191 21.2009 10.4967 21.5842 10.4517 21.9792C10.4064 22.3742 10.346 22.7561 10.2705 23.125C10.1719 23.6072 10.2257 24.0683 10.4319 24.5082C10.6381 24.9485 10.9705 25.26 11.4293 25.4428C11.8738 25.6116 12.2973 25.5965 12.6998 25.3975C13.1019 25.1985 13.364 24.8767 13.486 24.4323C13.6227 23.8572 13.7288 23.2632 13.8043 22.6504C13.8798 22.0375 13.9176 21.4318 13.9176 20.8333C13.9176 20.2348 13.8798 19.6291 13.8043 19.0163C13.7288 18.4034 13.6227 17.8095 13.486 17.2344C13.364 16.7899 13.1019 16.4682 12.6998 16.2692C12.2973 16.0702 11.8738 16.0551 11.4293 16.2239C10.9705 16.4067 10.6381 16.7182 10.4319 17.1585C10.2257 17.5984 10.1719 18.0594 10.2705 18.5416C10.346 18.9106 10.4064 19.2912 10.4517 19.6835C10.4967 20.0759 10.5191 20.4578 10.5191 20.8294ZM18.4489 20.8333C18.4489 21.7687 18.3886 22.6923 18.2682 23.6042C18.1473 24.5165 17.9665 25.4026 17.7255 26.2624C17.5802 26.7446 17.6049 27.1998 17.7997 27.628C17.9942 28.0566 18.3008 28.3539 18.7196 28.5201C19.1663 28.7142 19.6104 28.7053 20.0518 28.4934C20.4932 28.2816 20.7853 27.9357 20.928 27.4558C21.2524 26.3887 21.4867 25.3032 21.6309 24.1995C21.7752 23.0954 21.8473 21.9729 21.8473 20.8322C21.8473 19.6915 21.7752 18.5694 21.6309 17.466C21.4867 16.3627 21.2524 15.2776 20.928 14.2109C20.7853 13.7309 20.4932 13.3851 20.0518 13.1732C19.6104 12.9614 19.1663 12.9525 18.7196 13.1466C18.3008 13.3127 17.9942 13.6101 17.7997 14.0387C17.6049 14.4669 17.5802 14.9221 17.7255 15.4043C17.9665 16.2641 18.1473 17.1502 18.2682 18.0625C18.3886 18.9744 18.4489 19.898 18.4489 20.8333ZM26.3786 20.8333C26.3786 22.2596 26.2768 23.6646 26.0733 25.0486C25.8701 26.4329 25.5609 27.7815 25.1455 29.0944C25.0001 29.591 25.0062 30.0698 25.1636 30.5308C25.3211 30.9923 25.6286 31.3238 26.0863 31.5254C26.5308 31.7173 26.9737 31.7137 27.4151 31.5147C27.8565 31.3161 28.1486 30.9755 28.2913 30.4929C28.8053 28.9504 29.1814 27.3746 29.4196 25.7656C29.6579 24.1563 29.777 22.5122 29.777 20.8333C29.777 19.1545 29.6579 17.5104 29.4196 15.901C29.1814 14.2921 28.8053 12.7163 28.2913 11.1738C28.1486 10.6912 27.8565 10.3506 27.4151 10.152C26.9737 9.95299 26.5308 9.9494 26.0863 10.1412C25.6286 10.3429 25.3211 10.6744 25.1636 11.1358C25.0062 11.5969 25.0001 12.0757 25.1455 12.5723C25.5609 13.8852 25.8701 15.2338 26.0733 16.6181C26.2768 18.002 26.3786 19.4071 26.3786 20.8333Z" fill="currentColor"/> </svg></span>'
         + '<div class="nm">' + esc(ME.nm) + '</div>'
         + '<div class="mid"><div class="co">' + esc(c.co) + '</div>'
         + '<div class="term">' + esc(c.term) + '</div>'
@@ -134,55 +145,43 @@
         + '<div class="rows"><div class="rw"><div class="k">주식 수</div><div class="v">' + cm(c.sh) + '주</div></div>'
         + '<div class="rw"><div class="k">참석번호</div><div class="v">' + esc(c.seat) + '</div></div></div>'
         + '<div class="asof">' + esc(c.asof) + '</div></div>'
+        + '<div class="warn"><div>' + warnRun() + warnRun() + '</div></div>'
         + '</div>';
     }).join('');
-    $('#dots').innerHTML = CARDS.map(function (c, i) { return '<span class="' + (i ? '' : 'on') + '"></span>'; }).join('');
     $('#deck').querySelectorAll('[data-card]').forEach(function (el) {
       el.addEventListener('click', function () {
+        if ($('#deck').dataset.drag) return;        /* 드래그로 넘긴 직후면 열지 않는다 */
         var c = CARDS.filter(function (x) { return x.key === el.dataset.card; })[0];
         if (!c.live) { toast(c.co + ' 주주총회는 아직 시작 전입니다'); return; }
         CUR = c; drawList(); show('#scrList');
       });
     });
-    tint(0);
     show('#scrCards', 'site');
-    autoSlide();
+    dragDeck();
   }
-  /* 뒤 배경을 지금 보는 카드 색으로 천천히 바꾼다 */
-  function tint(i) {
-    $$('#dots span').forEach(function (d, n) { d.classList.toggle('on', n === i); });
-  }
-  var slideT = null, slideIdx = 0;
-  function autoSlide() {
-    var deck = $('#deck');
-    /* 카드를 화면 가운데에 놓는 스크롤 위치 */
-    function posOf(i) {
-      var el = deck.children[i]; if (!el) return 0;
-      return el.offsetLeft - (deck.clientWidth - el.offsetWidth) / 2;
-    }
-    function nearest() {
-      var best = 0, gap = Infinity;
-      for (var i = 0; i < deck.children.length; i++) {
-        var d = Math.abs(deck.scrollLeft - posOf(i));
-        if (d < gap) { gap = d; best = i; }
-      }
-      return best;
-    }
-    var idleT = null;
-    deck.addEventListener('scroll', function () {
-      var i = nearest();
-      if (i !== slideIdx) { slideIdx = i; tint(i); }
-      clearTimeout(idleT); idleT = setTimeout(function () { hold = Date.now(); }, 200);
+  /* 카드 덱: 자동 전환 없이 손/마우스 드래그로만 넘긴다 */
+  var dragBound = false;
+  function dragDeck() {
+    if (dragBound) return;
+    dragBound = true;
+    var deck = $('#deck'), down = false, moved = 0, sx = 0, sl = 0;
+    deck.addEventListener('pointerdown', function (e) {
+      if (e.pointerType === 'touch') return;        /* 터치는 브라우저 기본 스크롤에 맡긴다 */
+      down = true; moved = 0; sx = e.clientX; sl = deck.scrollLeft;
+      deck.classList.add('grab');
     });
-    var hold = 0;
-    clearInterval(slideT);
-    slideT = setInterval(function () {
-      if (!$('#scrCards').classList.contains('on')) return;
-      if (Date.now() - hold < 6000) return;        /* 손으로 넘긴 직후에는 쉰다 */
-      slideIdx = (slideIdx + 1) % CARDS.length;
-      deck.scrollTo({ left: posOf(slideIdx), behavior: 'smooth' });
-      tint(slideIdx);
-    }, 4200);
+    window.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var d = e.clientX - sx;
+      if (Math.abs(d) > moved) moved = Math.abs(d);
+      deck.scrollLeft = sl - d;
+      if (moved > 4) e.preventDefault();
+    });
+    window.addEventListener('pointerup', function () {
+      if (!down) return;
+      down = false; deck.classList.remove('grab');
+      if (moved > 6) { deck.dataset.drag = '1'; setTimeout(function () { delete deck.dataset.drag; }, 0); }
+    });
   }
 
   /* ══ 3. 의안 목록 ════════════════════════════ */

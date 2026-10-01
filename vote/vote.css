@@ -92,7 +92,7 @@ button{background:none;border:none;cursor:pointer}
 /* 가운데 코어 */
 .tagring::before{content:"";position:absolute;width:26%;height:26%;border-radius:1000px;
   background:#EEF2FD;border:1px solid #DDE5F6}
-.tagring > i{position:absolute;font-size:34px;color:#3D5AFE;transform:rotate(90deg);
+.tagring > svg{position:absolute;width:52px;height:52px;color:#3D5AFE;
   animation:corepulse 3s ease-in-out infinite}
 @keyframes corepulse{0%,100%{opacity:.5}18%{opacity:1}}
 .tagfoot{flex:none;padding:0 16px calc(20px + var(--sa-bot))}
@@ -123,16 +123,18 @@ button{background:none;border:none;cursor:pointer}
 /* ── 현장 · 출입증 카드 ──────────────────────── */
 #scrCards{background:#fff}
 .cardstage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:calc(24px + var(--sa-top)) 0 10px;min-height:0;position:relative;overflow:hidden;background:#fff}
+  padding:calc(16px + var(--sa-top)) 0 6px;min-height:0;position:relative;background:#fff}
 .deck{position:relative;z-index:1;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
-  display:flex;gap:14px;padding:14px 24px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  display:flex;gap:14px;padding:22px 24px 34px;cursor:grab;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .deck::-webkit-scrollbar{display:none}
+.deck.grab{cursor:grabbing;scroll-snap-type:none;user-select:none}
 .pcard{scroll-snap-align:center;flex:0 0 calc(100% - 48px);border-radius:24px;overflow:hidden;
   aspect-ratio:.66/1;max-height:62vh;position:relative;display:flex;flex-direction:column;
   padding:24px;color:#fff;text-align:left;
   background:linear-gradient(158deg, var(--c1) 0%, var(--c0) 46%, var(--c2) 100%);
-  box-shadow:0 14px 30px rgba(16,24,40,.18), 0 3px 8px rgba(16,24,40,.08)}
-.pcard .nfcic{position:absolute;right:22px;top:22px;z-index:1;font-size:24px;opacity:.95;transform:rotate(90deg)}
+  box-shadow:0 12px 24px -6px var(--sh,rgba(16,24,40,.22)), 0 3px 8px var(--sh2,rgba(16,24,40,.1))}
+.pcard .nfcic{position:absolute;right:20px;top:20px;z-index:1;display:block;color:#fff;opacity:.95}
+.pcard .nfcic svg{width:34px;height:34px;display:block}
 .pcard .nm{margin-top:34px;font-size:30px;font-weight:800;letter-spacing:-.03em}
 .pcard .mid{margin-top:auto}
 .pcard .co{font-size:21px;font-weight:800;letter-spacing:-.03em}
@@ -143,12 +145,15 @@ button{background:none;border:none;cursor:pointer}
 .pcard .rw .k{font-size:12px;opacity:.9}
 .pcard .rw .v{margin-top:4px;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
 .pcard .asof{margin-top:16px;font-size:12px;opacity:.82}
+/* 캡처 방지 안내 띠 */
+.pcard .warn{position:absolute;left:0;right:0;bottom:0;height:26px;background:rgba(255,255,255,.2);
+  display:flex;align-items:center;overflow:hidden;font-size:10px;font-weight:600;color:rgba(255,255,255,.92)}
+.pcard .warn div{display:flex;gap:26px;white-space:nowrap;padding-left:12px;animation:mar 16s linear infinite}
+.pcard .warn span{display:inline-flex;align-items:center;gap:4px}
+@keyframes mar{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 .pcard.off{filter:saturate(.5);opacity:.9}
 .pcard .st{position:absolute;left:24px;top:24px;z-index:1;display:inline-flex;align-items:center;height:26px;
   padding:0 11px;border-radius:1000px;background:rgba(255,255,255,.24);font-size:11px;font-weight:800}
-.dots{position:relative;z-index:1;display:flex;gap:6px;justify-content:center;margin-top:16px}
-.dots span{width:6px;height:6px;border-radius:6px;background:#D7DAE1;transition:.2s}
-.dots span.on{width:18px;background:var(--ink)}
 .cert{position:relative;z-index:1;margin-top:14px;display:flex;align-items:center;gap:6px;
   font-size:12px;font-weight:600;color:#8A8F99}
 .cert i{font-size:15px;color:var(--blue)}
