@@ -521,15 +521,18 @@ html{-webkit-text-size-adjust:100%}
 .pinface:active{background:#E8EAEE}
 .pinface .pfic{position:relative;width:52px;height:52px;display:flex;align-items:center;justify-content:center}
 .pinface .ficon{width:52px;height:52px;color:#8A8F99;transition:color .25s ease}
-.pinface .fchk{position:absolute;width:30px;height:24px;opacity:0;pointer-events:none}
-.pinface .fchk path{fill:none;stroke:#1DB954;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;
-  stroke-dasharray:88;stroke-dashoffset:88}
-/* 스캔 중 — 모서리가 조여졌다 펴지길 3번 */
-.pinface.scan .ficon{color:#0071F3;animation:fscan .6s ease-in-out 3 alternate}
-/* 인증 완료 — 윤곽은 옅은 초록으로 물러나고 체크가 그려진다 */
-.pinface.ok{background:#E9F8F0}
-.pinface.ok .ficon{color:#1DB954;opacity:.3;animation:fpop .4s cubic-bezier(.34,1.56,.64,1) forwards}
-.pinface.ok .fchk{opacity:1}
-.pinface.ok .fchk path{animation:fdraw .4s ease-out .1s forwards}
-.pinface.ok .pft{color:#1DB954}
-@media (prefers-reduced-motion:reduce){ .pinface.scan .ficon,.pinface.ok .ficon,.pinface.ok .fchk path{animation:none} }
+.pinface .fchk{position:absolute;width:44px;height:36px;opacity:0;pointer-events:none}
+.pinface .fchk path{fill:none;stroke:#0071F3;stroke-width:8;stroke-linecap:round;stroke-linejoin:round}
+/* 스캔 중 — iOS 처럼 크게 움직이지 않고 옅어졌다 돌아오기를 반복한다 */
+.pinface.scan .ficon{color:#0071F3;animation:fbreathe 1.1s ease-in-out infinite}
+@keyframes fbreathe{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.985)}}
+/* 인증 완료 — 얼굴이 살짝 작아지며 사라지고 그 자리에 체크가 올라온다 */
+.pinface.ok .ficon{color:#0071F3;animation:fswapout .26s ease-in forwards}
+@keyframes fswapout{to{opacity:0;transform:scale(.74)}}
+.pinface.ok .fchk{animation:fswapin .42s cubic-bezier(.2,1.25,.35,1) .14s forwards}
+@keyframes fswapin{from{opacity:0;transform:scale(.55)}to{opacity:1;transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){
+  .pinface.scan .ficon{animation:none}
+  .pinface.ok .ficon{opacity:0}
+  .pinface.ok .fchk{opacity:1;animation:none}
+}

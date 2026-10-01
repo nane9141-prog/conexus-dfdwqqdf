@@ -606,16 +606,16 @@
     setTimeout(function () {
       t.classList.remove('scan');
       t.classList.add('ok');
-      $('#pinFaceT').textContent = '인증 완료';
+      $('#pinFaceT').textContent = '완료';
       $('#pinD').innerHTML = ME.nm + ' 님 본인 확인이 끝났습니다.';
-      buzz([20, 40, 20]);
+      buzz(18);
       setTimeout(function () {
         t.classList.remove('ok');
         $('#pinFaceT').textContent = 'Face ID';
         faceBusy = false;
         done();
-      }, 800);
-    }, 1800);
+      }, 760);
+    }, 1500);
   }
   /* 암호 화면을 거치지 않고 부른 경우 — 전체 화면 연출 */
   function faceOverlay(done) {
