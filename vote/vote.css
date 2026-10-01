@@ -129,9 +129,11 @@ button{background:none;border:none;cursor:pointer}
 /* 카드는 남는 세로 공간의 가운데에 놓는다 */
 .deckwrap{flex:1;min-height:0;display:flex;align-items:center}
 .deck{position:relative;z-index:1;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
-  display:flex;gap:6px;padding:26px 32px 30px;cursor:grab;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  display:flex;gap:2px;padding:26px 32px 30px;cursor:grab;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .deck::-webkit-scrollbar{display:none}
 .deck.grab{cursor:grabbing;scroll-snap-type:none;user-select:none}
+.deck.glide{scroll-snap-type:none}
+.deck.grab .pcard{transition:none}
 /* 가운데 카드만 원래 크기, 옆 카드는 살짝 줄여 오른쪽에 걸치게 */
 .pcard{scroll-snap-align:center;flex:0 0 100%;border-radius:24px;overflow:hidden;
   aspect-ratio:.62/1;max-height:62vh;position:relative;display:flex;flex-direction:column;

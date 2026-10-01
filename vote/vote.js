@@ -171,14 +171,47 @@
   }
   /* 카드 덱: 자동 전환 없이 손/마우스 드래그로만 넘긴다 */
   var dragBound = false;
+  function cardPos(i) {
+    var deck = $('#deck'), el = deck.children[i];
+    if (!el) return 0;
+    return el.offsetLeft - (deck.clientWidth - el.offsetWidth) / 2;
+  }
+  function nearestCard() {
+    var deck = $('#deck'), best = 0, gap = Infinity;
+    for (var i = 0; i < deck.children.length; i++) {
+      var d = Math.abs(deck.scrollLeft - cardPos(i));
+      if (d < gap) { gap = d; best = i; }
+    }
+    return best;
+  }
+  /* 놓은 뒤 관성으로 미끄러지다 가장 가까운 카드에 멈춘다 */
+  function glideTo(i) {
+    var deck = $('#deck');
+    i = Math.max(0, Math.min(deck.children.length - 1, i));
+    var from = deck.scrollLeft, to = cardPos(i), d = to - from;
+    if (Math.abs(d) < 1) { markCenter(); return; }
+    var t0 = 0, dur = Math.min(620, 260 + Math.abs(d) * 0.55);
+    deck.classList.add('glide');
+    function step(t) {
+      if (!t0) t0 = t;
+      var p = Math.min(1, (t - t0) / dur);
+      var e = 1 - Math.pow(1 - p, 4);            /* easeOutQuart */
+      deck.scrollLeft = from + d * e;
+      markCenter();
+      if (p < 1) requestAnimationFrame(step);
+      else deck.classList.remove('glide');
+    }
+    requestAnimationFrame(step);
+  }
   function dragDeck() {
     if (dragBound) return;
     dragBound = true;
-    var deck = $('#deck'), down = false, moved = 0, sx = 0, sl = 0;
+    var deck = $('#deck'), down = false, moved = 0, sx = 0, sl = 0, vx = 0, lx = 0, lt = 0;
     deck.addEventListener('scroll', markCenter, { passive: true });
     deck.addEventListener('pointerdown', function (e) {
-      if (e.pointerType === 'touch') return;        /* 터치는 브라우저 기본 스크롤에 맡긴다 */
-      down = true; moved = 0; sx = e.clientX; sl = deck.scrollLeft;
+      if (e.pointerType === 'touch') return;      /* 터치는 브라우저 기본 스크롤에 맡긴다 */
+      down = true; moved = 0; vx = 0;
+      sx = lx = e.clientX; lt = e.timeStamp; sl = deck.scrollLeft;
       deck.classList.add('grab');
     });
     window.addEventListener('pointermove', function (e) {
@@ -186,12 +219,21 @@
       var d = e.clientX - sx;
       if (Math.abs(d) > moved) moved = Math.abs(d);
       deck.scrollLeft = sl - d;
+      var dt = e.timeStamp - lt;
+      if (dt > 0) vx = 0.8 * ((e.clientX - lx) / dt) + 0.2 * vx;   /* px/ms, 평활화 */
+      lx = e.clientX; lt = e.timeStamp;
       if (moved > 4) e.preventDefault();
-    });
+    }, { passive: false });
     window.addEventListener('pointerup', function () {
       if (!down) return;
       down = false; deck.classList.remove('grab');
-      if (moved > 6) { deck.dataset.drag = '1'; setTimeout(function () { delete deck.dataset.drag; }, 0); }
+      if (moved > 6) {
+        deck.dataset.drag = '1'; setTimeout(function () { delete deck.dataset.drag; }, 0);
+        var cur = nearestCard();
+        /* 빠르게 튕기면 한 장 넘기고, 천천히 놓으면 가까운 카드로 붙는다 */
+        var next = Math.abs(vx) > 0.45 ? cur + (vx < 0 ? 1 : -1) : cur;
+        glideTo(next);
+      }
     });
   }
 
