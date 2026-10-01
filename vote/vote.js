@@ -502,10 +502,19 @@
   });
 
   /* ══ 본인인증 — 생체인증을 쓰면 Face ID, 아니면 비밀번호 ══ */
+  /* 본인확인 — 암호 입력 화면을 띄우고, 생체인증을 켜 두었으면
+     같은 제스처 안에서 바로 Face ID 를 부른다(iOS 시트가 뜨려면 제스처가 끊기면 안 된다).
+     얼굴이 안 되면 그 화면에서 비밀번호를 눌러도 되고, Face ID 타일로 다시 시도해도 된다. */
+  var pinAuth = null;
   function auth(done) {
-    if (SET.bio) faceAuth(done);
-    else openPin('check', done);
+    var fired = false;
+    function once() { if (fired) return; fired = true; done(); }
+    pinAuth = function () { faceAuth(function () { leavePin(); once(); }); };
+    openPin('check', once);
+    if (SET.bio) pinAuth();
   }
+  function leavePin() { if ($('#scrPin').classList.contains('on')) { pinDone = null; show('#scrVote'); } }
+  $('#pinFace').addEventListener('click', function () { if (pinAuth) pinAuth(); });
 
   /* ── 비밀번호 ───────────────────────────────── */
   var PIN = { set: false, val: '', tmp: '' };
@@ -519,6 +528,7 @@
       : mode === 'again' ? '확인을 위해 한 번 더 입력해 주세요.'
       : '투표를 위해 비밀번호를 입력해 주세요.';
     padDraw(); dotsDraw();
+    $('#pinFace').hidden = !(mode === 'check' && SET.bio);
     show('#scrPin');
   }
   $('#pinX').addEventListener('click', function () {

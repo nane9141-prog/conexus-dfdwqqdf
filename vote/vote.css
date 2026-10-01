@@ -505,3 +505,11 @@ html{-webkit-text-size-adjust:100%}
 /* 투표 철회 버튼 */
 .btn.dark{background:#151419;color:#fff}
 .btn.dark:active{background:#000}
+
+/* 암호 입력 화면의 Face ID 타일 (iOS 잠금 해제와 같은 자리) */
+.pinface{margin:26px auto 0;width:112px;height:112px;border-radius:16px;background:#F2F3F5;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+  color:#6B7078;font-size:13px;font-weight:600;letter-spacing:-.01em}
+.pinface[hidden]{display:none}
+.pinface i{font-size:40px;color:#8A8F99}
+.pinface:active{background:#E8EAEE}
