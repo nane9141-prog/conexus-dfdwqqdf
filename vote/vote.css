@@ -345,13 +345,13 @@ html{-webkit-text-size-adjust:100%}
 .pindots{display:flex;gap:16px;margin-top:64px}
 .pindots span{width:11px;height:11px;border-radius:11px;background:#E1E3E8;transition:.15s}
 .pindots span.on{background:var(--ink)}
-.pinpad{flex:none;background:var(--blue);display:grid;grid-template-columns:repeat(3,1fr);
-  padding-bottom:var(--sa-bot)}
-.pinpad button{height:74px;color:#fff;font-size:24px;font-weight:700;display:flex;align-items:center;
-  justify-content:center}
-.pinpad button:active{background:rgba(255,255,255,.14)}
-.pinpad button.sm{font-size:15px;font-weight:600}
-.pinpad button i{font-size:26px}
+.pinpad{flex:none;background:#fff;display:grid;grid-template-columns:repeat(3,1fr);
+  padding:0 0 calc(10px + var(--sa-bot))}
+.pinpad button{height:74px;color:#151419;font-size:26px;font-weight:400;display:flex;
+  align-items:center;justify-content:center;letter-spacing:-.01em}
+.pinpad button:active{background:#F2F3F5}
+.pinpad button.sm{font-size:15px;font-weight:500;color:#6B7078}
+.pinpad button i{font-size:26px;color:#151419}
 
 /* ── 생체인증 안내 ───────────────────────────── */
 .biobox{padding:28px 24px 8px;text-align:center}
@@ -362,21 +362,28 @@ html{-webkit-text-size-adjust:100%}
 .bioskip{width:100%;padding:4px 0 calc(22px + var(--sa-bot));font-size:15px;font-weight:700;color:#8A8F99}
 
 /* ── Face ID ─────────────────────────────────── */
-.faceov{position:absolute;inset:0;z-index:1100;background:rgba(8,12,20,.92);display:none;
-  align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.faceov{position:absolute;inset:0;z-index:1100;background:rgba(255,255,255,.96);display:none;
+  align-items:center;justify-content:center;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .faceov.on{display:flex}
-.facebox{text-align:center;color:#fff;padding:0 32px}
-.fic{width:112px;height:112px;border-radius:26px;border:3px solid rgba(255,255,255,.9);margin:0 auto;
-  display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.fic i{font-size:58px;color:#fff}
-.fic::after{content:"";position:absolute;left:0;right:0;height:3px;background:#4DA3FF;
-  box-shadow:0 0 14px #4DA3FF;animation:scan 1.5s ease-in-out infinite}
-@keyframes scan{0%,100%{top:8%}50%{top:88%}}
-.facebox.ok .fic{border-color:#34D399}
-.facebox.ok .fic::after{display:none}
-.facebox.ok .fic i{color:#34D399}
-.ft{margin-top:22px;font-size:20px;font-weight:800;letter-spacing:-.02em}
-.fd{margin-top:8px;font-size:14px;color:#A8B7CC;line-height:1.6}
+.facebox{text-align:center;color:#151419;padding:0 32px}
+/* 얼굴 윤곽 — 모서리가 조여졌다 펴지길 3번 반복한 뒤 제자리로 */
+.fic{width:150px;height:150px;margin:0 auto;display:flex;align-items:center;justify-content:center;
+  position:relative;color:#0071F3;opacity:.8;transform:scale(1.1);
+  animation:fscan .6s ease-in-out 3 alternate}
+.fic i{font-size:100px;line-height:1}
+@keyframes fscan{from{transform:scale(1.1)}to{transform:scale(.95)}}
+/* 인증 완료 — 스프링으로 제자리에 놓이고 체크가 그려진다 */
+.facebox.ok .fic{color:#1DB954;opacity:.3;animation:fpop .4s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes fpop{from{transform:scale(.95)}60%{transform:scale(1.06)}to{transform:scale(1)}}
+.fchk{position:absolute;width:62px;height:50px;pointer-events:none;opacity:0}
+.facebox.ok .fchk{opacity:1}
+.fchk path{fill:none;stroke:#1DB954;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:88;stroke-dashoffset:88}
+.facebox.ok .fchk path{animation:fdraw .4s ease-out .1s forwards}
+@keyframes fdraw{to{stroke-dashoffset:0}}
+.ft{margin-top:26px;font-size:20px;font-weight:700;letter-spacing:-.02em;color:#151419}
+.fd{margin-top:8px;font-size:14px;color:#6B7078;line-height:1.6}
+@media (prefers-reduced-motion:reduce){ .fic,.facebox.ok .fic,.facebox.ok .fchk path{animation:none} }
 
 /* ── 공통 오버레이 ───────────────────────────── */
 .ov{position:absolute;inset:0;z-index:900;background:rgba(0,0,0,.44);display:none;

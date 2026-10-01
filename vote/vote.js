@@ -585,98 +585,33 @@
     drawCards();
   });
 
-  /* ── Face ID — iOS 기본 생체인증(WebAuthn)을 그대로 띄운다 ──
-     Safari 는 사용자 제스처 안에서 바로 불러야 시트를 띄우므로,
-     버튼 클릭 핸들러에서 await 없이 동기로 navigator.credentials 를 부른다.
-     패스키가 없으면 만들고(create), 있으면 그것으로 확인한다(get).
-     WebAuthn 을 못 쓰는 기기에서는 기존 연출로 대신한다. */
-  var PKID = 'cx.vote.pk';
-  function rand(n) { var a = new Uint8Array(n); try { crypto.getRandomValues(a); } catch (e) {} return a; }
-  function b64u(buf) {
-    var b = '', a = new Uint8Array(buf);
-    for (var i = 0; i < a.length; i++) b += String.fromCharCode(a[i]);
-    return btoa(b).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-  function unb64u(t) {
-    t = t.replace(/-/g, '+').replace(/_/g, '/');
-    var b = atob(t), a = new Uint8Array(b.length);
-    for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
-    return a;
-  }
-  function savedKey() { try { return localStorage.getItem(PKID) || ''; } catch (e) { return ''; } }
-  function canWebAuthn() {
-    return !!(window.PublicKeyCredential && navigator.credentials
-      && location.protocol === 'https:');
-  }
-  /* 설정에서 생체인증을 켤 때 패스키를 미리 만들어 둔다 (이 호출도 제스처 안) */
-  function passkeyWarmup() {
-    if (!canWebAuthn() || savedKey()) return;
-    makeKey().catch(function () {});
-  }
-  function makeKey() {
-    return navigator.credentials.create({
-      publicKey: {
-        challenge: rand(32),
-        rp: { id: location.hostname, name: '현장투표' },
-        user: { id: rand(16), name: ME.nm + '-' + ME.no, displayName: ME.nm },
-        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
-        authenticatorSelection: {
-          authenticatorAttachment: 'platform',
-          userVerification: 'required',
-          residentKey: 'preferred'
-        },
-        timeout: 60000, attestation: 'none'
-      }
-    }).then(function (c) {
-      try { localStorage.setItem(PKID, b64u(c.rawId)); } catch (e) {}
-      return c;
-    });
-  }
-  function useKey() {
-    var id = savedKey();
-    return navigator.credentials.get({
-      publicKey: {
-        challenge: rand(32),
-        rpId: location.hostname,
-        allowCredentials: id ? [{ type: 'public-key', id: unb64u(id), transports: ['internal'] }] : [],
-        userVerification: 'required',
-        timeout: 60000
-      }
-    });
-  }
+  /* ── Face ID — 실제 기기 인증은 부르지 않고 연출만 보여준 뒤 넘어간다
+     (시연용. 모바일·웹 모두 같은 동작)
+     스캔 0.6s x3 → 1.8s 지점에서 성공 전환 → 체크 0.4s → 닫기 */
+  function passkeyWarmup() {}                    /* 더 이상 쓰지 않는다 */
+  var faceBusy = false;
   function faceAuth(done) {
-    if (!canWebAuthn()) { faceFallback(done); return; }
-    var p;
-    try { p = savedKey() ? useKey() : makeKey(); }
-    catch (e) { faceFallback(done); return; }
-    p.then(function () { buzz([20, 40, 20]); done(); })
-     .catch(function (err) {
-       var n = err && err.name;
-       /* 사용자가 직접 취소한 경우에만 멈춘다 */
-       if (n === 'NotAllowedError' || n === 'AbortError') { toast('본인 확인이 취소되었습니다'); return; }
-       /* 등록된 패스키가 사라졌으면 다시 만들어 본다 */
-       if (savedKey() && (n === 'InvalidStateError' || n === 'NotFoundError')) {
-         try { localStorage.removeItem(PKID); } catch (e) {}
-       }
-       faceFallback(done);
-     });
-  }
-  /* WebAuthn 을 못 쓰는 기기 — 화면 안에서 안내만 보여주고 넘어간다 */
-  function faceFallback(done) {
+    if (faceBusy) return;
+    faceBusy = true;
     var ov = $('#faceOv'), box = ov.querySelector('.facebox');
     box.classList.remove('ok');
-    $('#faceIc').innerHTML = '<i class="ph ph-scan"></i>';
+    /* 애니메이션을 처음부터 다시 돌리려면 노드를 한 번 갈아 끼워야 한다 */
+    var ic = $('#faceIc');
+    ic.style.animation = 'none'; void ic.offsetWidth; ic.style.animation = '';
     $('#faceT').textContent = 'Face ID';
     $('#faceD').textContent = '얼굴을 화면에 맞춰 주세요';
     ov.classList.add('on');
     setTimeout(function () {
       box.classList.add('ok');
-      $('#faceIc').innerHTML = '<i class="ph-fill ph-check"></i>';
       $('#faceT').textContent = '인증 완료';
       $('#faceD').textContent = ME.nm + ' 님 본인 확인이 끝났습니다';
       buzz([20, 40, 20]);
-      setTimeout(function () { ov.classList.remove('on'); done(); }, 800);
-    }, 1300);
+      setTimeout(function () {
+        ov.classList.remove('on');
+        faceBusy = false;
+        done();
+      }, 900);
+    }, 1800);
   }
 
   /* ══ 내역 ════════════════════════════════════ */
