@@ -66,6 +66,7 @@ button{background:none;border:none;cursor:pointer}
   justify-content:center;gap:4px;padding:4px 0;border-radius:8px;
   color:#CBCDD2;font-size:10px;line-height:16px;font-weight:500;letter-spacing:-.01em}
 .tabbar button i{font-size:28px;line-height:1;display:block}
+.tabbar button svg{width:28px;height:28px;display:block;flex:none}
 .tabbar button.on{color:#151419}
 
 /* ── 현장 · NFC 태깅 ─────────────────────────── */
