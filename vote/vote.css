@@ -144,8 +144,8 @@ button{background:none;border:none;cursor:pointer}
 .pcard .nfcic svg{width:34px;height:34px;display:block}
 .pcard .nm{margin-top:18px;font-size:32px;font-weight:800}
 .pcard .mid{margin-top:auto}
-.pcard .co{font-size:21px;font-weight:800;letter-spacing:-.03em}
-.pcard .term{margin-top:6px;font-size:14px;opacity:.92}
+.pcard .co{font-size:24px;font-weight:800;letter-spacing:-.03em}
+.pcard .term{margin-top:6px;font-size:16px;opacity:.92}
 .pcard .hr{height:1px;background:rgba(255,255,255,.45);margin:24px 0}
 .pcard .rows{display:flex;gap:16px}
 .pcard .rw{flex:1}
