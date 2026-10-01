@@ -162,7 +162,7 @@ button{background:none;border:none;cursor:pointer}
 .pcard .st{position:absolute;left:40px;top:40px;z-index:1;display:inline-flex;align-items:center;height:26px;
   padding:0 11px;border-radius:1000px;background:rgba(255,255,255,.24);font-size:11px;font-weight:800}
 .cert{flex:none;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:6px;
-  padding:0 0 calc(14px + var(--sa-bot) * .2);
+  padding:0 0 calc(32px + var(--sa-bot) * .2);
   font-size:12px;font-weight:600;color:#8A8F99}
 .cert i{font-size:15px;color:var(--blue)}
 
