@@ -53,6 +53,19 @@
   var VKEY = 'cx.onsite';
   function votes() { try { return JSON.parse(localStorage.getItem(VKEY) || '{}'); } catch (e) { return {}; } }
   function myVote(no) { var v = votes()[no]; return v || null; }
+  /* 던진 표를 거둔다 — 합계도 다시 센다 */
+  function dropVote(no) {
+    var v = votes();
+    delete v[no];
+    v._sum = {};
+    Object.keys(v).forEach(function (k) {
+      if (k.charAt(0) === '_' || !v[k].pick) return;
+      var s = (v._sum[k] = v._sum[k] || { 찬성: 0, 반대: 0, 기권: 0 });
+      s[v[k].pick] += v[k].sh;
+    });
+    try { localStorage.setItem(VKEY, JSON.stringify(v)); } catch (e) {}
+    try { window.dispatchEvent(new CustomEvent('cx-onsite', { detail: v })); } catch (e) {}
+  }
   function saveVote(no, data) {
     var v = votes();
     v[no] = Object.assign({ sh: CUR.sh, nm: ME.nm, co: CUR.co, at: Date.now() }, data);
@@ -292,7 +305,7 @@
       + (sub ? '<i class="nd ' + nd + (nd === 'cur' ? ' ph ph-arrow-right' : '') + '"></i>' : '')
       + '<div class="top"><span class="left">'
       + '<span class="nbadge">' + (sub ? '<i class="ph ph-arrow-elbow-down-right"></i>' : '') + esc(no) + '</span>'
-      + (mv ? '<span class="vchk"><i class="ph-fill ph-check"></i></span>' : '')
+      + (mv ? '<span class="vchk"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg"> <rect width="16" height="16" rx="8" fill="#0DAD7E"/> <path d="M6.77496 9.33514L10.8853 5.22489C11.0182 5.09189 11.1749 5.02539 11.3553 5.02539C11.5358 5.02539 11.6925 5.09189 11.8255 5.22489C11.9585 5.35781 12.025 5.51539 12.025 5.69764C12.025 5.87989 11.9585 6.03752 11.8255 6.17052L7.24508 10.7564C7.11208 10.8894 6.95537 10.9559 6.77496 10.9559C6.59454 10.9559 6.43783 10.8894 6.30483 10.7564L4.16896 8.62052C4.03596 8.48752 3.97037 8.32989 3.97221 8.14764C3.97404 7.96539 4.04146 7.80781 4.17446 7.67489C4.30737 7.54189 4.46496 7.47539 4.64721 7.47539C4.82946 7.47539 4.98708 7.54189 5.12008 7.67489L6.77496 9.33514Z" fill="white"/> </svg></span>' : '')
       + '</span>'
       + (st ? '<span class="st2 ' + st.k + '">' + (st.dot ? '<span class="dot"></span>' : '')
               + '<span class="tx">' + st.nm + '</span></span>' : '')
@@ -455,8 +468,12 @@
       rem.classList.toggle('over', us > pl);
       rem.textContent = us > pl ? cm(us - pl) + '주 초과' : cm(pl - us) + '주';
     } else rem.hidden = true;
-    go.textContent = saved ? '투표 변경하기' : '투표하기';
-    go.disabled = !ok || !!same;
+    /* 저장된 값과 똑같으면 '투표 철회하기'(검정), 바꿨으면 '투표 변경하기' */
+    var mode = !saved ? 'new' : same ? 'drop' : 'edit';
+    go.dataset.mode = mode;
+    go.textContent = mode === 'drop' ? '투표 철회하기' : mode === 'edit' ? '투표 변경하기' : '투표하기';
+    go.classList.toggle('dark', mode === 'drop');
+    go.disabled = mode === 'drop' ? false : !ok;
     var f = $('.vfoot'), old = f.querySelector('.vdone');
     if (old) old.remove();
     if (saved) f.insertAdjacentHTML('afterbegin',
@@ -464,6 +481,16 @@
   }
   $('#vGo').addEventListener('click', function () {
     var k = kindOf(CURAG);
+    if (this.dataset.mode === 'drop') {
+      auth(function () {
+        dropVote(CURAG);
+        PICK = {}; CUMV = {};
+        drawVote();
+        toast(CURAG + ' 투표를 철회했습니다');
+        buzz(40);
+      });
+      return;
+    }
     auth(function () {
       var data = (k === 'cum') ? { cum: Object.assign({}, CUMV) }
         : { picks: Object.assign({}, PICK), pick: PICK._ || PICK[Object.keys(PICK)[0]] };

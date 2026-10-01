@@ -188,8 +188,8 @@ html{-webkit-text-size-adjust:100%}
 .nbadge i{font-size:16px;color:inherit}
 .agr.mute .nbadge{color:#CBCDD2}
 /* 내가 투표한 의안 체크 */
-.vchk{flex:none;width:16px;height:16px;border-radius:18px;background:#0DAD7E;color:#fff;
-  display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+.vchk{flex:none;display:inline-flex;align-items:center}
+.vchk svg{width:16px;height:16px;display:block}
 /* 투표 상태 */
 .st2{flex:none;display:inline-flex;align-items:center;gap:4px;height:26px;padding:4px 8px;
   border-radius:16px;font-size:12px;font-weight:500;line-height:18px;letter-spacing:-.01em}
@@ -501,3 +501,7 @@ html{-webkit-text-size-adjust:100%}
 .rdot.on{background:#0DAD7E;box-shadow:0 0 0 4px rgba(13,173,126,.16)}
 .rdot.off{background:#E9081B;box-shadow:0 0 0 4px rgba(233,8,27,.14)}
 .rdot.na{background:#CBCDD2}
+
+/* 투표 철회 버튼 */
+.btn.dark{background:#151419;color:#fff}
+.btn.dark:active{background:#000}
