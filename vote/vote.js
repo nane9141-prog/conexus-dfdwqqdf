@@ -192,22 +192,29 @@
     }
     return best;
   }
-  /* 놓은 뒤 관성으로 미끄러지다 가장 가까운 카드에 멈춘다 */
-  function glideTo(i) {
+  /* 놓은 뒤 — 손가락이 가지고 있던 속도를 그대로 이어받아
+     임계감쇠 스프링으로 가장 가까운 카드에 미끄러져 멈춘다 (튕김 없음) */
+  var glideId = 0;
+  function glideTo(i, v0) {
     var deck = $('#deck');
     i = Math.max(0, Math.min(deck.children.length - 1, i));
-    var from = deck.scrollLeft, to = cardPos(i), d = to - from;
-    if (Math.abs(d) < 1) { markCenter(); return; }
-    var t0 = 0, dur = Math.min(1000, 420 + Math.abs(d) * 0.9);
+    var to = cardPos(i), x = deck.scrollLeft, v = v0 || 0;   /* v: px/s */
+    if (Math.abs(to - x) < 0.5 && Math.abs(v) < 30) { deck.scrollLeft = to; markCenter(); return; }
+    var k = 95, c = 2 * Math.sqrt(k), last = 0, id = ++glideId;
     deck.classList.add('glide');
     function step(t) {
-      if (!t0) t0 = t;
-      var p = Math.min(1, (t - t0) / dur);
-      var e = 1 - Math.pow(1 - p, 3);            /* easeOutCubic — 천천히 안착 */
-      deck.scrollLeft = from + d * e;
-      markCenter();
-      if (p < 1) requestAnimationFrame(step);
-      else deck.classList.remove('glide');
+      if (id !== glideId) return;
+      if (!last) { last = t; requestAnimationFrame(step); return; }
+      var dt = Math.min(0.032, (t - last) / 1000); last = t;
+      /* 한 프레임을 잘게 쪼개 적분해야 큰 dt에서도 흔들리지 않는다 */
+      var n = Math.ceil(dt / 0.008), h = dt / n;
+      for (var j = 0; j < n; j++) {
+        var a = -k * (x - to) - c * v;
+        v += a * h; x += v * h;
+      }
+      deck.scrollLeft = x; markCenter();
+      if (Math.abs(x - to) > 0.4 || Math.abs(v) > 25) requestAnimationFrame(step);
+      else { deck.scrollLeft = to; markCenter(); deck.classList.remove('glide'); }
     }
     requestAnimationFrame(step);
   }
@@ -218,6 +225,7 @@
     deck.addEventListener('scroll', markCenter, { passive: true });
     deck.addEventListener('pointerdown', function (e) {
       if (e.pointerType === 'touch') return;      /* 터치는 브라우저 기본 스크롤에 맡긴다 */
+      glideId++; deck.classList.remove('glide');   /* 진행 중이던 글라이드 중단 */
       down = true; moved = 0; vx = 0;
       sx = lx = e.clientX; lt = e.timeStamp; sl = deck.scrollLeft;
       deck.classList.add('grab');
@@ -242,7 +250,7 @@
         var start = nearestCardFrom(sl), moveX = deck.scrollLeft - sl;
         var next = (Math.abs(moveX) > w * 0.45 || Math.abs(vx) > 1.1)
           ? start + (moveX > 0 ? 1 : -1) : start;
-        glideTo(next);
+        glideTo(next, -vx * 1000);      /* 손가락 속도를 스크롤 속도로 환산 */
       }
     });
   }
