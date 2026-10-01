@@ -598,13 +598,14 @@
       .then(function (j) {
         if (!j) return;
         var sc = document.createElement('script');
-        sc.src = 'https://unpkg.com/lottie-web@5.12.2/build/player/lottie_light.min.js';
+        sc.src = 'https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js';
         sc.onload = function () {
           try {
             LOT = window.lottie.loadAnimation({
-              container: $('#faceLot'), renderer: 'svg', loop: false, autoplay: false, animationData: j
+              container: $('#faceLot'), renderer: 'svg', loop: false, autoplay: false, animationData: j,
+              rendererSettings: { progressiveLoad: false, preserveAspectRatio: 'xMidYMid meet' }
             });
-            LOT.setSpeed(1.8);                   /* 원본 4초 — 시연에 맞게 줄인다 */
+            LOT.setSpeed(1.3);                   /* 원본 4초 — 시연에 맞게 조금만 줄인다 */
             lotOk = true;
             $('#pinFace').classList.add('haslot');
           } catch (e) {}

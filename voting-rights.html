@@ -791,6 +791,7 @@
         return { r:r, vt:vt };
       });
     }
+    var first=true;
     function syncApp(){
       var tb=t.tBodies[0];
       Array.prototype.slice.call(tb.querySelectorAll('tr[data-app]')).forEach(function(tr){ tr.remove(); });
@@ -810,9 +811,11 @@
           td.className=(i===2||i>=9)?'num':(i===0?'mut':(i===3?'mut c':((i>=5&&i<=8)?'c':'')));
           td.innerHTML=cells[i]==null?'':cells[i];
         }
-        if(!seen['a'+r.i]) tr.classList.add('fresh');   /* 새로 들어온 건만 잠깐 강조 */
+        /* 처음 그릴 때는 그냥 두고, 시연 중 새로 들어온 건만 잠깐 강조 */
+        if(!first && !seen['a'+r.i]) tr.classList.add('fresh');
       });
       paint();
+      first=false;
     }
     /* 권고와 다른 칸 주황 표시 + 하단 합계 */
     function paint(){
