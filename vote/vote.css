@@ -519,6 +519,10 @@ html{-webkit-text-size-adjust:100%}
   color:#6B7078;font-size:13px;font-weight:600;letter-spacing:-.01em;transition:background .25s ease}
 .pinface[hidden]{display:none}
 .pinface:active{background:#E8EAEE}
+.pinface .flot{display:none;width:76px;height:76px}
+/* faceid.json 을 넣어 두면 로티 애니메이션이 직접 그려진 아이콘을 대신한다 */
+.pinface.haslot .flot{display:block}
+.pinface.haslot .pfic{display:none}
 .pinface .pfic{position:relative;width:52px;height:52px;display:flex;align-items:center;justify-content:center}
 .pinface .ficon{width:52px;height:52px;color:#8A8F99;transition:color .25s ease}
 .pinface .fchk{position:absolute;width:44px;height:36px;opacity:0;pointer-events:none}

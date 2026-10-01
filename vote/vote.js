@@ -589,6 +589,30 @@
      (시연용. 모바일·웹 모두 같은 동작)
      스캔 0.6s x3 → 1.8s 지점에서 성공 전환 → 체크 0.4s → 닫기 */
   function passkeyWarmup() {}                    /* 더 이상 쓰지 않는다 */
+  /* 같은 폴더에 faceid.json(로티)을 넣어 두면 그 애니메이션을 쓴다.
+     파일이 없거나 못 읽으면 아래 CSS 연출로 그대로 돌아간다. */
+  var LOT = null, lotOk = false;
+  (function loadLottie() {
+    fetch('faceid.json', { cache: 'force-cache' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (!j) return;
+        var sc = document.createElement('script');
+        sc.src = 'https://unpkg.com/lottie-web@5.12.2/build/player/lottie_light.min.js';
+        sc.onload = function () {
+          try {
+            LOT = window.lottie.loadAnimation({
+              container: $('#faceLot'), renderer: 'svg', loop: false, autoplay: false, animationData: j
+            });
+            lotOk = true;
+            $('#pinFace').classList.add('haslot');
+          } catch (e) {}
+        };
+        document.head.appendChild(sc);
+      })
+      .catch(function () {});
+  })();
+
   var faceBusy = false;
   function faceAuth(done) {
     if (faceBusy) return;
@@ -600,6 +624,7 @@
   function facePin(done) {
     var t = $('#pinFace');
     t.classList.remove('ok');
+    if (lotOk && LOT) { facePinLot(done); return; }
     t.classList.add('scan');
     $('#pinFaceT').textContent = 'Face ID';
     $('#pinD').innerHTML = '얼굴을 화면에 맞춰 주세요.';
@@ -616,6 +641,26 @@
         done();
       }, 760);
     }, 1500);
+  }
+  /* 로티가 있을 때 — 애니메이션을 한 번 재생하고 끝나면 넘어간다 */
+  function facePinLot(done) {
+    var t = $('#pinFace'), end = false;
+    $('#pinFaceT').textContent = 'Face ID';
+    $('#pinD').innerHTML = '얼굴을 화면에 맞춰 주세요.';
+    function fin() {
+      if (end) return; end = true;
+      LOT.removeEventListener('complete', fin);
+      $('#pinFaceT').textContent = '완료';
+      $('#pinD').innerHTML = ME.nm + ' 님 본인 확인이 끝났습니다.';
+      buzz(18);
+      setTimeout(function () {
+        $('#pinFaceT').textContent = 'Face ID';
+        faceBusy = false; done();
+      }, 700);
+    }
+    LOT.addEventListener('complete', fin);
+    try { LOT.goToAndPlay(0, true); } catch (e) { fin(); }
+    setTimeout(fin, 6000);                       /* 혹시 끝 신호가 안 오면 */
   }
   /* 암호 화면을 거치지 않고 부른 경우 — 전체 화면 연출 */
   function faceOverlay(done) {
