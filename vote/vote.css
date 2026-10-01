@@ -64,7 +64,7 @@ button{background:none;border:none;cursor:pointer}
   background:#fff;border-top:1px solid #F3F4F6}
 .tabbar button{width:80px;height:56px;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:4px;padding:4px 0;border-radius:8px;
-  color:#CBCDD2;font-size:10px;line-height:16px;font-weight:500;letter-spacing:-.01em}
+  color:#CBCDD2;font-size:12px;line-height:16px;font-weight:500;letter-spacing:-.01em}
 .tabbar button i{font-size:28px;line-height:1;display:block}
 .tabbar button svg{width:28px;height:28px;display:block;flex:none}
 .tabbar button.on{color:#151419}
@@ -122,17 +122,24 @@ button{background:none;border:none;cursor:pointer}
 
 /* ── 현장 · 출입증 카드 ──────────────────────── */
 #scrCards{background:#fff}
-.cardstage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:calc(16px + var(--sa-top)) 0 6px;min-height:0;position:relative;background:#fff}
+.cardstage{flex:1;display:flex;flex-direction:column;min-height:0;position:relative;background:#fff}
+/* 상단 — 출입증 갯수 */
+.chead{flex:none;display:flex;align-items:center;justify-content:space-between;
+  padding:calc(18px + var(--sa-top)) 32px 0;font-size:14px;color:#8A8F99;letter-spacing:-.02em}
+/* 카드는 남는 세로 공간의 가운데에 놓는다 */
+.deckwrap{flex:1;min-height:0;display:flex;align-items:center}
 .deck{position:relative;z-index:1;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
-  display:flex;gap:14px;padding:22px 24px 34px;cursor:grab;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  display:flex;gap:12px;padding:26px 32px 30px;cursor:grab;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .deck::-webkit-scrollbar{display:none}
 .deck.grab{cursor:grabbing;scroll-snap-type:none;user-select:none}
-.pcard{scroll-snap-align:center;flex:0 0 calc(100% - 48px);border-radius:24px;overflow:hidden;
-  aspect-ratio:.66/1;max-height:62vh;position:relative;display:flex;flex-direction:column;
+/* 가운데 카드만 원래 크기, 옆 카드는 살짝 줄여 오른쪽에 걸치게 */
+.pcard{scroll-snap-align:center;flex:0 0 calc(100% - 64px);border-radius:24px;overflow:hidden;
+  aspect-ratio:.62/1;max-height:60vh;position:relative;display:flex;flex-direction:column;
   padding:24px;color:#fff;text-align:left;
+  transform:scale(.9);transform-origin:center;transition:transform .26s cubic-bezier(.2,.8,.3,1);
   background:linear-gradient(158deg, var(--c1) 0%, var(--c0) 46%, var(--c2) 100%);
   box-shadow:0 12px 24px -6px var(--sh,rgba(16,24,40,.22)), 0 3px 8px var(--sh2,rgba(16,24,40,.1))}
+.pcard.mid{transform:scale(1)}
 .pcard .nfcic{position:absolute;right:20px;top:20px;z-index:1;display:block;color:#fff;opacity:.95}
 .pcard .nfcic svg{width:34px;height:34px;display:block}
 .pcard .nm{margin-top:34px;font-size:30px;font-weight:800;letter-spacing:-.03em}
@@ -154,7 +161,8 @@ button{background:none;border:none;cursor:pointer}
 .pcard.off{filter:saturate(.5);opacity:.9}
 .pcard .st{position:absolute;left:24px;top:24px;z-index:1;display:inline-flex;align-items:center;height:26px;
   padding:0 11px;border-radius:1000px;background:rgba(255,255,255,.24);font-size:11px;font-weight:800}
-.cert{position:relative;z-index:1;margin-top:14px;display:flex;align-items:center;gap:6px;
+.cert{flex:none;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;gap:6px;
+  padding:0 0 calc(14px + var(--sa-bot) * .2);
   font-size:12px;font-weight:600;color:#8A8F99}
 .cert i{font-size:15px;color:var(--blue)}
 

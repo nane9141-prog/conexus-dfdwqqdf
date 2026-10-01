@@ -156,8 +156,18 @@
         CUR = c; drawList(); show('#scrList');
       });
     });
+    $('#cCount').textContent = '출입증 ' + CARDS.length + '개';
     show('#scrCards', 'site');
-    dragDeck();
+    dragDeck(); markCenter();
+  }
+  /* 가운데에 온 카드만 원래 크기로 키운다 */
+  function markCenter() {
+    var deck = $('#deck'), mid = deck.scrollLeft + deck.clientWidth / 2, best = 0, gap = Infinity;
+    for (var i = 0; i < deck.children.length; i++) {
+      var el = deck.children[i], d = Math.abs(el.offsetLeft + el.offsetWidth / 2 - mid);
+      if (d < gap) { gap = d; best = i; }
+    }
+    for (var j = 0; j < deck.children.length; j++) deck.children[j].classList.toggle('mid', j === best);
   }
   /* 카드 덱: 자동 전환 없이 손/마우스 드래그로만 넘긴다 */
   var dragBound = false;
@@ -165,6 +175,7 @@
     if (dragBound) return;
     dragBound = true;
     var deck = $('#deck'), down = false, moved = 0, sx = 0, sl = 0;
+    deck.addEventListener('scroll', markCenter, { passive: true });
     deck.addEventListener('pointerdown', function (e) {
       if (e.pointerType === 'touch') return;        /* 터치는 브라우저 기본 스크롤에 맡긴다 */
       down = true; moved = 0; sx = e.clientX; sl = deck.scrollLeft;
