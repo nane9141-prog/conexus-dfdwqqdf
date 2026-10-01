@@ -99,14 +99,14 @@ button{background:none;border:none;cursor:pointer}
 @media (prefers-reduced-motion:reduce){ .tagring span{animation:none;opacity:.6;transform:scale(1)} }
 
 /* ── iOS NFC 스캔 모달 ──────────────────────── */
-.nfcsheet{position:absolute;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;
-  padding:0 24px;background:rgba(0,0,0,.4);opacity:0;transition:opacity .2s ease}
+.nfcsheet{position:absolute;inset:0;z-index:70;display:flex;align-items:flex-end;justify-content:center;
+  padding:0 12px calc(12px + var(--sa-bot));background:rgba(0,0,0,.4);opacity:0;transition:opacity .2s ease}
 .nfcsheet[hidden]{display:none}
 .nfcsheet.on{opacity:1}
-.nfcsheet .ns{position:relative;width:100%;max-width:330px;border-radius:28px;background:#fff;
+.nfcsheet .ns{position:relative;width:100%;max-width:380px;border-radius:28px;background:#fff;
   padding:30px 22px 20px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.26);
-  transform:scale(.92);transition:transform .24s cubic-bezier(.2,.9,.3,1)}
-.nfcsheet.on .ns{transform:scale(1)}
+  transform:translateY(18px);transition:transform .26s cubic-bezier(.2,.9,.3,1)}
+.nfcsheet.on .ns{transform:translateY(0)}
 .nfcsheet .nsclose{position:absolute;right:16px;top:16px;width:30px;height:30px;border:0;padding:0;
   border-radius:1000px;background:#E9E9EB;color:#8E8E93;font-size:17px;cursor:pointer;
   display:flex;align-items:center;justify-content:center}
@@ -135,7 +135,7 @@ button{background:none;border:none;cursor:pointer}
 /* 가운데 카드만 원래 크기, 옆 카드는 살짝 줄여 오른쪽에 걸치게 */
 .pcard{scroll-snap-align:center;flex:0 0 100%;border-radius:24px;overflow:hidden;
   aspect-ratio:.62/1;max-height:62vh;position:relative;display:flex;flex-direction:column;
-  padding:24px;color:#fff;text-align:left;
+  padding:24px 24px 42px;color:#fff;text-align:left;
   transform:scale(.9);transform-origin:center;transition:transform .26s cubic-bezier(.2,.8,.3,1);
   background:linear-gradient(158deg, var(--c1) 0%, var(--c0) 46%, var(--c2) 100%);
   box-shadow:0 12px 24px -6px var(--sh,rgba(16,24,40,.22)), 0 3px 8px var(--sh2,rgba(16,24,40,.1))}
@@ -369,7 +369,6 @@ button{background:none;border:none;cursor:pointer}
 .alertbar{position:absolute;left:12px;right:12px;top:calc(var(--sa-top) + 8px);z-index:1000;
   display:flex;align-items:center;gap:8px;padding:14px 16px;border-radius:14px;
   background:var(--blue);color:#fff;font-size:14px;font-weight:700;
-  box-shadow:0 10px 28px rgba(0,113,243,.4);
   transform:translateY(-160%);transition:transform .32s cubic-bezier(.22,1,.36,1)}
 .alertbar.on{transform:none}
 .alertbar i{font-size:20px;flex:none}
