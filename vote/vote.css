@@ -495,3 +495,9 @@ html{-webkit-text-size-adjust:100%}
 .vpick.lock [data-cd]{background:#F7F8FA;color:#8A8F99}
 /* 찬성 ○ 아이콘을 조금 더 굵게 */
 .ch3 button .ph-circle{font-weight:700;-webkit-text-stroke:.8px currentColor}
+
+/* 현장 연결 상태 점 */
+.rdot{flex:none;width:10px;height:10px;border-radius:50%;background:#CBCDD2;align-self:center}
+.rdot.on{background:#0DAD7E;box-shadow:0 0 0 4px rgba(13,173,126,.16)}
+.rdot.off{background:#E9081B;box-shadow:0 0 0 4px rgba(233,8,27,.14)}
+.rdot.na{background:#CBCDD2}

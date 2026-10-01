@@ -803,6 +803,12 @@
       + '<div class="d">투표 시작과 마감 전 알림을 받을 수 있습니다.</div></div>'
       + '<span class="sw' + (SET.noti ? ' on' : '') + '" id="swNoti" role="button"></span></div>'
       + '</div><div class="sgap"></div>'
+      /* 시연 점검용 — 제어 화면과 실시간으로 이어져 있는지 */
+      + '<div class="slist"><div class="lb">현장 연결</div>'
+      + '<div class="srow"><div class="c"><div class="t">실시간 주총 연결</div>'
+      + '<div class="d" id="relayD">확인 중…</div></div>'
+      + '<span class="rdot" id="relayDot"></span></div></div>'
+      + '<div class="sgap"></div>'
       + '<div class="slist"><div class="lb">약관</div>'
       + '<button class="slink" type="button" data-help="이용약관">이용약관<i class="ph ph-caret-right"></i></button>'
       + '<button class="slink" type="button" data-help="개인정보처리방침">개인정보처리방침<i class="ph ph-caret-right"></i></button>'
@@ -815,7 +821,22 @@
     $('#swNoti').addEventListener('click', function () {
       SET.noti = !SET.noti; saveSet(); this.classList.toggle('on', SET.noti);
     });
+    relayPaint();
   }
+  /* 연결 상태를 1초마다 다시 칠한다 — 설정 화면이 떠 있을 때만 */
+  function relayPaint() {
+    var d = $('#relayD'), dot = $('#relayDot');
+    if (!d || !dot) return;
+    var r = window.cxRelay;
+    var ok = !!(r && r.ok);
+    dot.className = 'rdot' + (ok ? ' on' : r ? ' off' : ' na');
+    d.textContent = !r ? '중계를 쓰지 않습니다 (같은 기기에서만 연동)'
+      : ok ? '연결됨 · 제어 화면의 표결이 바로 반영됩니다'
+      : '끊김 · 네트워크를 확인해 주세요 (다시 연결 중)';
+  }
+  setInterval(function () {
+    if ($('#scrSet').classList.contains('on')) relayPaint();
+  }, 1000);
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-help]');
     if (b) toast(b.dataset.help + ' — 시연 범위 밖입니다');
