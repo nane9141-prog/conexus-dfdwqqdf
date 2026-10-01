@@ -9,7 +9,7 @@
 <link rel="icon" href="../kudos-favicon.png">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-<link rel="stylesheet" href="vote.css?v=15">
+<link rel="stylesheet" href="vote.css?v=16">
 </head>
 <body>
 <div id="phone">
@@ -22,15 +22,6 @@
       <div class="tagring"><span class="r1"></span><span class="r2"></span><span class="r3"></span><i class="ph ph-wifi-high"></i></div>
     </div>
     <div class="tagfoot"><button class="btn" id="nfcGo" type="button">NFC 태깅하기<i class="ph ph-caret-right"></i></button></div>
-    <!-- iOS 스캔 준비 완료 시트 -->
-    <div class="nfcsheet" id="nfcSheet" hidden>
-      <div class="ns">
-        <div class="nsic"><i class="ph ph-wifi-high"></i></div>
-        <div class="nst">스캔 준비 완료</div>
-        <div class="nsd">iPhone 윗부분을 NFC 기기에<br>가까이 가져가세요</div>
-        <button class="nsx" id="nfcSheetX" type="button">취소</button>
-      </div>
-    </div>
   </section>
 
   <!-- ══ 현장 · 출입증 카드 ══ -->
@@ -87,6 +78,16 @@
     <button data-tab="set"  type="button"><i class="ph-fill ph-gear-six"></i>설정</button>
   </nav>
 
+  <!-- iOS 스캔 준비 완료 시트 -->
+  <div class="nfcsheet" id="nfcSheet" hidden>
+    <div class="ns">
+      <div class="nsic"><i class="ph ph-wifi-high"></i></div>
+      <div class="nst">스캔 준비 완료</div>
+      <div class="nsd">iPhone 윗부분을 NFC 기기에<br>가까이 가져가세요</div>
+      <button class="nsx" id="nfcSheetX" type="button">취소</button>
+    </div>
+  </div>
+
   <!-- 비밀번호 설정 -->
   <section class="scr pin" id="scrPin">
     <div class="tb"><span class="sp"></span><button class="ic" id="pinX" type="button" aria-label="닫기"><i class="ph ph-x"></i></button></div>
@@ -122,6 +123,6 @@
 </div>
 
 <script src="../cx-data.js?v=1"></script>
-<script src="vote.js?v=15"></script>
+<script src="vote.js?v=16"></script>
 </body>
 </html>
