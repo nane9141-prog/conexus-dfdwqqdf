@@ -201,34 +201,42 @@
 
   function drawList() {
     $('#lsTitle').textContent = CUR.co + ' ' + CUR.term;
-    var A = agenda();
-    $('#agList').innerHTML = A.map(function (a) {
+    $('#agList').innerHTML = agenda().map(function (a) {
       var kids = a.children || [];
-      var h = agRow(a, false);
-      kids.forEach(function (k) { h += agRow(k, true, a); });
-      return h;
+      if (!kids.length) return agRow(a, false);
+      /* 상위 + 하위를 한 묶음으로 감싸고, 하위에는 타임라인 레일을 붙인다 */
+      return '<div class="agg">' + agRow(a, false, true)
+        + '<div class="agkids">' + kids.map(function (k) { return agRow(k, true); }).join('') + '</div></div>';
     }).join('');
     $('#agList').querySelectorAll('[data-ag]').forEach(function (r) {
       r.addEventListener('click', function () { openVote(r.dataset.ag); });
     });
     show('#scrList');
   }
-  function agRow(a, sub, parent) {
-    var no = a.no, live = LIVE.ag === no, res = LIVE.done && LIVE.done[no];
-    var mv = myVote(no), k = kindOf(no);
+  /* 의안 상태 — 집계 결과 > 진행중/집계중 > 대기 */
+  function agState(no) {
+    var res = LIVE.done && LIVE.done[no];
+    if (res) return { k: res === '가결' ? 'pass' : res === '부결' ? 'fail' : 'gray', nm: res,
+                      off: res === '폐기' || res === '철회' };
+    if (LIVE.ag === no && LIVE.stage === 2) return { k: 'live', nm: '진행중', dot: true };
+    if (LIVE.ag === no && LIVE.stage === 3) return { k: 'cnt', nm: '집계중', dot: true };
+    return null;
+  }
+  function agRow(a, sub, lead) {
+    var no = a.no, st = agState(no), mv = myVote(no);
     /* 집중투표·양립불가의 하위는 상위에서 한 번에 고르므로 따로 누르지 않는다 */
     var pick = !a.header && !sub;
-    var cls = 'agrow' + (sub ? ' sub' : '') + (live ? ' cur' : '') + (res ? ' done' : '')
-      + (res === '폐기' || res === '철회' ? ' mute' : '');
-    var bg = res ? '<span class="bg ' + (res === '가결' ? 'pass' : res === '부결' ? 'fail' : 'gray') + '">' + res + '</span>'
-      : live && LIVE.stage === 2 ? '<span class="bg live">진행중</span>'
-      : live && LIVE.stage === 3 ? '<span class="bg cnt">집계중</span>' : '';
+    var nd = st && st.k === 'live' ? 'cur' : st && st.off ? 'off' : mv || (st && !st.dot) ? 'done' : 'wait';
+    var cls = 'agr' + (sub ? ' k' : '') + (lead ? ' lead' : '') + (st && st.off ? ' mute' : '');
     return '<div class="' + cls + '"' + (pick ? ' role="button" tabindex="0" data-ag="' + no + '"' : '') + '>'
-      + (sub ? '' : '<div class="rail"><div class="d"></div></div>')
-      + '<div class="c"><div class="top"><span class="no">' + (sub ? '↳ ' : '') + esc(no) + '</span>' + bg + '</div>'
-      + '<div class="nm">' + esc(a.nm) + '</div>'
-      + (mv && !sub ? '<span class="mv ' + (mv.pick || '행사') + '">' + (mv.pick || '행사 완료') + '</span>' : '')
-      + '</div></div>';
+      + (sub ? '<i class="nd ' + nd + (nd === 'cur' ? ' ph ph-arrow-right' : '') + '"></i>' : '')
+      + '<div class="top"><span class="left">'
+      + '<span class="nbadge">' + (sub ? '<i class="ph ph-arrow-elbow-down-right"></i>' : '') + esc(no) + '</span>'
+      + (mv ? '<span class="vchk"><i class="ph-fill ph-check"></i></span>' : '')
+      + '</span>'
+      + (st ? '<span class="st2 ' + st.k + '">' + (st.dot ? '<span class="dot"></span>' : '')
+              + '<span class="tx">' + st.nm + '</span></span>' : '')
+      + '</div><div class="nm">' + esc(a.nm) + '</div></div>';
   }
 
   /* ══ 4. 의안 투표 ════════════════════════════ */

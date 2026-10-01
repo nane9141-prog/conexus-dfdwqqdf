@@ -167,41 +167,57 @@ button{background:none;border:none;cursor:pointer}
 .cert i{font-size:15px;color:var(--blue)}
 
 /* ── 의안 목록 ───────────────────────────────── */
-.aglist{padding:6px 0 calc(20px + var(--sa-bot))}
-.agrow{display:flex;gap:10px;width:100%;text-align:left;padding:16px;border-bottom:1px solid #F1F2F4;
-  align-items:flex-start;background:#fff}
-.agrow:active{background:#FAFAFB}
-.agrow.sub{padding-left:16px}
-.agrow.sub .c{padding-left:14px}
-/* 왼쪽 진행 표시 */
-.agrow .rail{flex:none;width:18px;display:flex;flex-direction:column;align-items:center;padding-top:20px}
-.agrow .rail .d{width:14px;height:14px;border-radius:14px;border:1.5px solid #D7DAE1;background:#fff}
-.agrow.cur .rail .d{border-color:var(--blue);background:var(--blue);box-shadow:0 0 0 3px #D8E8FF}
-.agrow.done .rail .d{border-color:#C9CDD4;background:#C9CDD4}
-.agrow .c{flex:1;min-width:0}
-.agrow .top{display:flex;align-items:center;gap:8px}
-.agrow .no{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:7px;
-  background:#F1F2F4;color:#5B6070;font-size:11px;font-weight:700}
-.agrow.sub .no{background:none;padding:0;color:#8A8F99}
-.agrow .nm{margin-top:8px;font-size:15px;font-weight:700;line-height:1.5;word-break:keep-all}
-.agrow.sub .nm{font-size:14px}
-.agrow .bg{margin-left:auto;display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 9px;
-  border-radius:1000px;font-size:11px;font-weight:700;white-space:nowrap}
-.agrow .bg.live{background:#EBF4FF;color:var(--blue)}
-.agrow .bg.live::before{content:"";width:5px;height:5px;border-radius:5px;background:var(--blue);
-  animation:blink 1.4s ease-in-out infinite}
-.agrow .bg.cnt{background:#E9FBF3;color:var(--grn)}
-.agrow .bg.cnt::before{content:"";width:5px;height:5px;border-radius:5px;background:var(--grn)}
-.agrow .bg.pass{background:#EBF4FF;color:var(--blue)}
-.agrow .bg.fail{background:#FDECEE;color:var(--red)}
-.agrow .bg.gray{background:#F1F2F4;color:#8A8F99}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
-.agrow.mute{opacity:.45}
-.agrow .mv{margin-top:8px;display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:7px;
-  font-size:12px;font-weight:800}
-.agrow .mv.찬성{background:var(--blue-l);color:var(--blue)}
-.agrow .mv.반대{background:var(--red-l);color:var(--red)}
-.agrow .mv.기권{background:#F1F2F4;color:var(--ink)}
+.aglist{padding:12px 20px calc(24px + var(--sa-bot))}
+/* 의안 한 줄 */
+.agr{display:flex;flex-direction:column;gap:4px;width:100%;text-align:left;background:#fff;
+  padding:24px 12px;border-bottom:1px solid #EEF0F2;position:relative}
+.agr:active{background:#FAFAFB}
+.agr .top{display:flex;align-items:center;gap:4px;min-height:30px}
+.agr .left{flex:1;min-width:0;display:flex;align-items:center;gap:4px}
+.agr .nm{font-size:18px;font-weight:700;line-height:28px;color:#151419;letter-spacing:-.01em;word-break:keep-all}
+.agr.mute .nm{color:#CBCDD2}
+/* 의안 번호 뱃지 */
+.nbadge{flex:none;display:inline-flex;align-items:center;gap:2px;height:30px;padding:6px 8px;
+  border-radius:8px;background:#F3F4F6;color:#6B7078;
+  font-size:12px;font-weight:700;line-height:18px;letter-spacing:-.01em}
+.nbadge i{font-size:16px;color:inherit}
+.agr.mute .nbadge{color:#CBCDD2}
+/* 내가 투표한 의안 체크 */
+.vchk{flex:none;width:16px;height:16px;border-radius:18px;background:#0DAD7E;color:#fff;
+  display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+/* 투표 상태 */
+.st2{flex:none;display:inline-flex;align-items:center;gap:4px;height:26px;padding:4px 8px;
+  border-radius:16px;font-size:12px;font-weight:500;line-height:18px;letter-spacing:-.01em}
+.st2 .dot{width:8px;height:8px;border-radius:50%;background:currentColor}
+.st2.pass{background:#EBF4FF;color:#0071F3}
+.st2.fail{background:#FDF4F5;color:#E9081B}
+.st2.gray{background:#F3F4F6;color:#A7AAB1}
+.st2.live,.st2.cnt{background:transparent;padding:0;height:18px}
+.st2.live{color:#0071F3}
+.st2.cnt{color:#0DAD7E}
+/* 진행중 — 300ms로 옅어졌다 돌아온다 */
+.st2.live .tx{animation:agblink 1.2s ease-in-out infinite}
+@keyframes agblink{0%,100%{opacity:1}50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){ .st2.live .tx{animation:none} }
+/* 상위 + 하위 묶음 */
+.agg{border-bottom:1px solid #EEF0F2}
+.agg .agr{border-bottom:0}
+.agg > .agr.lead{padding:24px 12px 16px}
+.agkids{margin-left:20px;position:relative}
+.agkids::before{content:"";position:absolute;left:-11px;top:-16px;bottom:28px;
+  border-left:1px dashed #CBCDD2}
+.agkids .agr{padding:20px 12px}
+.agkids .agr:last-child{padding-bottom:24px}
+/* 타임라인 노드 */
+.agr.k .nd{position:absolute;left:-20px;top:26px;z-index:1;box-sizing:border-box;
+  width:16px;height:16px;border-radius:50%;background:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:11px}
+.nd.wait{border:1px solid #CBCDD2}
+.nd.done{border:1px solid #A7AAB1}
+.nd.done::after{content:"";width:10px;height:10px;border-radius:50%;background:#A7AAB1}
+.nd.cur{border:1px solid #0071F3;background:#EBF4FF;color:#0071F3}
+.nd.off{border:1px solid #E0E2E6}
+.nd.off::after{content:"";width:10px;height:10px;border-radius:50%;background:#E0E2E6}
 
 /* ── 의안 투표 ───────────────────────────────── */
 .vtop{padding:18px 16px 16px;background:#fff}
