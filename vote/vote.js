@@ -328,8 +328,7 @@
           + '<div class="t">보유 주식 1주마다 ' + (d.directors || 2) + '개의 의결권이 부여됩니다.</div>'
           + '<div class="d">원하는 후보자에게 집중 또는 분산하여 자유롭게 의결권을 행사할 수 있습니다.</div></div>' : '')
       + (k === 'excl' ? '<div class="vtip"><div class="k">양립불가</div>'
-          + '<div class="t">함께 가결될 수 없는 의안입니다.</div>'
-          + '<div class="d">각 안건에 대해 따로 의견을 선택해 주세요.</div></div>' : '')
+          + '<div class="d">서로 상충되는 의안이므로 <b>1개 의안에만 찬성</b>할 수 있습니다.</div></div>' : '')
       + '<div class="vinfo">'
       + '<div class="vrow"><span class="k">행사 가능 주식 수</span><span class="v">'
       + cm(k === 'cum' ? CUR.sh * (d.directors || 2) : CUR.sh) + ' 주</span></div>'
