@@ -370,7 +370,7 @@ html{-webkit-text-size-adjust:100%}
 .fic{width:150px;height:150px;margin:0 auto;display:flex;align-items:center;justify-content:center;
   position:relative;color:#0071F3;opacity:.8;transform:scale(1.1);
   animation:fscan .6s ease-in-out 3 alternate}
-.fic i{font-size:100px;line-height:1}
+.fic .ficon{width:100px;height:100px;display:block}
 @keyframes fscan{from{transform:scale(1.1)}to{transform:scale(.95)}}
 /* 인증 완료 — 스프링으로 제자리에 놓이고 체크가 그려진다 */
 .facebox.ok .fic{color:#1DB954;opacity:.3;animation:fpop .4s cubic-bezier(.34,1.56,.64,1) forwards}
@@ -518,5 +518,5 @@ html{-webkit-text-size-adjust:100%}
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
   color:#6B7078;font-size:13px;font-weight:600;letter-spacing:-.01em}
 .pinface[hidden]{display:none}
-.pinface i{font-size:40px;color:#8A8F99}
+.pinface .ficon{width:46px;height:46px;color:#8A8F99}
 .pinface:active{background:#E8EAEE}
