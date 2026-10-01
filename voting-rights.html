@@ -837,9 +837,10 @@
     var first=true;
     function syncApp(){
       var tb=t.tBodies[0];
-      Array.prototype.slice.call(tb.querySelectorAll('tr[data-app]')).forEach(function(tr){ tr.remove(); });
+      /* 지우기 전에 지금 떠 있는 건을 적어 둔다 — 이미 있던 건은 다시 강조하지 않는다 */
       var seen={};
-      Array.prototype.slice.call(tb.rows).forEach(function(tr){ seen[tr.dataset.k||'']=1; });
+      Array.prototype.slice.call(tb.rows).forEach(function(tr){ if(tr.dataset.k) seen[tr.dataset.k]=1; });
+      Array.prototype.slice.call(tb.querySelectorAll('tr[data-app]')).forEach(function(tr){ tr.remove(); });
       appRows().reverse().forEach(function(o){          /* 맨 위에 꽂으므로 역순으로 넣는다 */
         var r=o.r, vt=o.vt;
         var tr=tb.insertRow(0);
@@ -946,7 +947,7 @@
     /* 앱에서 위임을 마치면 바로 꽂힌다 — 다른 탭(storage) · 같은 탭(cx-collect) · 안전망 폴링 */
     window.addEventListener('storage',function(e){ if(e.key==='cx.collect'||e.key==='cx.app.px') syncApp(); });
     window.addEventListener('cx-collect',syncApp);
-    var last='';
+    var last=''; try{ last=localStorage.getItem('cx.collect')||''; }catch(e){}
     setInterval(function(){
       var now=''; try{ now=localStorage.getItem('cx.collect')||''; }catch(e){}
       if(now!==last){ last=now; syncApp(); }
