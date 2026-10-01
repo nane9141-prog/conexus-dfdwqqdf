@@ -821,10 +821,32 @@
     var key = LIVE.ag + '/' + LIVE.stage;
     if (LIVE.stage === 2 && key !== lastOpen) {
       lastOpen = key;
-      if (SET.noti && !myVote(LIVE.ag)) alertOpen(LIVE.ag + ' 표결이 시작되었습니다');
+      if (SET.noti && !myVote(LIVE.ag)) {
+        alertOpen(LIVE.ag + ' 표결이 시작되었습니다');
+        openAgAlert(LIVE.ag);
+      }
     }
     if ($('#scrList').classList.contains('on')) drawList();
   }
+  /* 투표가 열리면 바로 들어갈 수 있는 알림을 띄운다 */
+  function openAgAlert(no) {
+    if (!no) return;
+    /* 이미 그 의안 투표 화면을 보고 있으면 띄우지 않는다 */
+    if ($('#scrVote').classList.contains('on') && CURAG === no) return;
+    if (!tagged) return;                       /* 태깅 전에는 띄우지 않는다 */
+    var a = agOf(no);
+    $('#agvNo').textContent = no.replace('제', '제 ') + ' 의안';
+    $('#agvNm').textContent = a.nm || '';
+    $('#agOv').classList.add('on');
+  }
+  function closeAgAlert() { $('#agOv').classList.remove('on'); }
+  $('#agvLater').addEventListener('click', closeAgAlert);
+  $('#agvGo').addEventListener('click', function () {
+    closeAgAlert();
+    if (!CUR) CUR = CARDS[0];
+    openVote(LIVE.ag);
+  });
+
   function alertOpen(msg) {
     var b = $('#alertBar');
     $('#alertTx').textContent = msg;

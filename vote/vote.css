@@ -459,3 +459,16 @@ button{background:none;border:none;cursor:pointer}
   transition:opacity .16s ease,transform .16s ease;pointer-events:none}
 .sptip.on{opacity:1;transform:translateY(0)}
 .sptip b{display:block;margin-bottom:4px;font-size:13px;font-weight:700}
+
+/* ── 투표 시작 알림 ─────────────────────────── */
+.agvbox{padding:30px 24px 22px;text-align:center}
+.agvic{width:60px;height:60px;margin:0 auto 16px;border-radius:1000px;background:#EBF4FF;
+  display:flex;align-items:center;justify-content:center;font-size:30px;color:#0071F3;
+  animation:agvring 1.4s ease-in-out infinite}
+@keyframes agvring{0%,100%{transform:rotate(0)}15%{transform:rotate(-12deg)}30%{transform:rotate(10deg)}45%{transform:rotate(0)}}
+.agvbox h3{font-size:19px;font-weight:800;letter-spacing:-.02em;color:#151419}
+.agvno{margin-top:14px;display:inline-flex;align-items:center;height:26px;padding:0 10px;
+  border-radius:8px;background:#F3F4F6;color:#6B7078;font-size:12px;font-weight:700}
+.agvnm{margin-top:8px;font-size:16px;font-weight:700;line-height:24px;color:#151419;
+  letter-spacing:-.01em;word-break:keep-all}
+@media (prefers-reduced-motion:reduce){ .agvic{animation:none} }

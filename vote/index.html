@@ -9,7 +9,7 @@
 <link rel="icon" href="../kudos-favicon.png">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-<link rel="stylesheet" href="vote.css?v=40">
+<link rel="stylesheet" href="vote.css?v=41">
 </head>
 <body>
 <div id="phone">
@@ -133,6 +133,18 @@
     <button class="bioskip" id="bioNo" type="button">다음에</button>
   </div></div>
 
+  <!-- 투표 시작 알림 -->
+  <div class="ov" id="agOv"><div class="bx">
+    <div class="agvbox">
+      <div class="agvic"><i class="ph-fill ph-bell-ringing"></i></div>
+      <h3>투표가 시작되었습니다</h3>
+      <div class="agvno" id="agvNo"></div>
+      <div class="agvnm" id="agvNm"></div>
+    </div>
+    <div class="bf"><button class="btn" id="agvGo" type="button">투표하러 가기</button></div>
+    <button class="bioskip" id="agvLater" type="button">나중에</button>
+  </div></div>
+
   <!-- Face ID -->
   <div class="faceov" id="faceOv"><div class="facebox">
     <div class="fic" id="faceIc"><i class="ph ph-scan"></i></div>
@@ -146,6 +158,6 @@
 </div>
 
 <script src="../cx-data.js?v=1"></script>
-<script src="vote.js?v=40"></script>
+<script src="vote.js?v=41"></script>
 </body>
 </html>
