@@ -839,7 +839,13 @@
         openAgAlert(LIVE.ag);
       }
     }
+    /* 보고 있는 화면을 바로 최신 상태로 다시 그린다 */
     if ($('#scrList').classList.contains('on')) drawList();
+    if ($('#scrVote').classList.contains('on') && CURAG) {
+      var f = document.activeElement;
+      if (!f || !f.matches || !f.matches('[data-cd]')) drawVote();   /* 입력 중이면 건드리지 않는다 */
+    }
+    if ($('#scrHdet').classList.contains('on') && HD && HD.live) drawHdet();
   }
   /* 투표가 열리면 바로 들어갈 수 있는 알림을 띄운다 */
   function openAgAlert(no) {

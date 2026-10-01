@@ -21,6 +21,9 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-s
   font-size:14px;line-height:1.45}
 button,input{font-family:inherit;letter-spacing:inherit;font-size:inherit;color:inherit}
 button{background:none;border:none;cursor:pointer}
+/* 더블탭 확대(iOS) 방지 — 비밀번호 키패드를 빠르게 눌러도 화면이 커지지 않는다 */
+button,.ch3,.pinpad,.tabbar,.deck{touch-action:manipulation}
+html{-webkit-text-size-adjust:100%}
 *{scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.18) transparent}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.16);border-radius:4px}
