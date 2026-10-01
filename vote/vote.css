@@ -446,9 +446,9 @@ button{background:none;border:none;cursor:pointer}
 .vfold i{font-size:18px}
 .vcard.fold .vkids{display:none}
 /* 특수 유형 툴팁 */
-.vtip{position:absolute;z-index:120;max-width:252px;padding:12px 14px;border-radius:10px;
+.sptip{position:absolute;z-index:120;max-width:252px;padding:12px 14px;border-radius:10px;
   background:#2A2D33;color:#fff;font-size:12px;line-height:18px;letter-spacing:-.01em;
   box-shadow:0 8px 24px rgba(16,24,40,.26);opacity:0;transform:translateY(4px);
   transition:opacity .16s ease,transform .16s ease;pointer-events:none}
-.vtip.on{opacity:1;transform:translateY(0)}
-.vtip b{display:block;margin-bottom:4px;font-size:13px;font-weight:700}
+.sptip.on{opacity:1;transform:translateY(0)}
+.sptip b{display:block;margin-bottom:4px;font-size:13px;font-weight:700}

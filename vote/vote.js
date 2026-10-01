@@ -749,7 +749,7 @@
     closeTip();
     var t = SPTIP[ic.dataset.tip]; if (!t) return;
     tipEl = document.createElement('div');
-    tipEl.className = 'vtip';
+    tipEl.className = 'sptip';
     tipEl.innerHTML = '<b>' + t.t + '</b>' + t.d;
     $('#phone').appendChild(tipEl);
     var r = ic.getBoundingClientRect(), p = $('#phone').getBoundingClientRect();
