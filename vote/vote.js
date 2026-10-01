@@ -239,14 +239,9 @@
         deck.dataset.drag = '1'; setTimeout(function () { delete deck.dataset.drag; }, 0);
         /* 한 장 넘기려면 카드 폭의 45% 이상 끌거나 확실히 빠르게 튕겨야 한다 */
         var w = deck.children[0] ? deck.children[0].offsetWidth : 300;
-        var from = nearestCard(), base = Math.round(sl / 1) , cur = from;
-        var moveX = deck.scrollLeft - sl;
-        var next = cur;
-        if (Math.abs(moveX) > w * 0.45 || Math.abs(vx) > 1.1) {
-          next = Math.round(sl / 1) >= 0 ? nearestCardFrom(sl) + (moveX > 0 ? 1 : -1) : cur;
-        } else {
-          next = nearestCardFrom(sl);
-        }
+        var start = nearestCardFrom(sl), moveX = deck.scrollLeft - sl;
+        var next = (Math.abs(moveX) > w * 0.45 || Math.abs(vx) > 1.1)
+          ? start + (moveX > 0 ? 1 : -1) : start;
         glideTo(next);
       }
     });
