@@ -107,8 +107,10 @@
   /* ══ 2. 출입증 카드 ══════════════════════════ */
   function drawCards() {
     $('#deck').innerHTML = CARDS.map(function (c) {
-      return '<div class="pcard' + (c.live ? '' : ' off') + '" role="button" tabindex="0" data-card="' + c.key + '"'
+      /* 뒤에 깔린 색 덩어리(glow)를 유리(pcard) 너머로 비춰 보이게 한다 */
+      return '<div class="cardwrap' + (c.live ? '' : ' off') + '" role="button" tabindex="0" data-card="' + c.key + '"'
         + ' style="--c0:' + c.g[0] + ';--c1:' + c.g[1] + ';--c2:' + c.g[2] + ';--c3:' + c.g[3] + '">'
+        + '<div class="glow"></div><div class="pcard">'
         + '<i class="ph ph-wifi-high nfcic"></i>'
         + '<div class="nm">' + esc(ME.nm) + '</div>'
         + '<div class="mid"><div class="co">' + esc(c.co) + '</div>'
@@ -118,7 +120,7 @@
         + '<div class="rw"><div class="k">참석번호</div><div class="v">' + esc(c.seat) + '</div></div></div>'
         + '<div class="asof">' + esc(c.asof) + '</div></div>'
         + '<div class="warn"><div>' + warnRun() + warnRun() + '</div></div>'
-        + '</div>';
+        + '</div></div>';
     }).join('');
     $('#dots').innerHTML = CARDS.map(function (c, i) { return '<span class="' + (i ? '' : 'on') + '"></span>'; }).join('');
     $('#deck').querySelectorAll('[data-card]').forEach(function (el) {

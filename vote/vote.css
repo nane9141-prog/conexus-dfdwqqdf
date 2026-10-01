@@ -91,26 +91,41 @@ button{background:none;border:none;cursor:pointer}
 .cardstage{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:calc(24px + var(--sa-top)) 0 10px;min-height:0;position:relative;overflow:hidden;background:#fff}
 .deck{position:relative;z-index:1;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
-  display:flex;gap:14px;padding:0 24px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  display:flex;gap:14px;padding:18px 24px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .deck::-webkit-scrollbar{display:none}
-.pcard{scroll-snap-align:center;flex:0 0 calc(100% - 48px);border-radius:24px;overflow:hidden;
-  aspect-ratio:.66/1;max-height:62vh;position:relative;display:flex;flex-direction:column;
-  padding:24px;color:#fff;text-align:left;isolation:isolate;
-  background:var(--c0);box-shadow:0 18px 40px rgba(16,24,40,.22)}
-/* 색 덩어리 네 개가 서로 다른 속도로 움직여 그라데이션이 살아 있게 보인다 */
-.pcard::before,.pcard::after{content:"";position:absolute;inset:-30%;z-index:-1;pointer-events:none}
-.pcard::before{
+/* 카드 바깥틀 — 뒤의 색(.glow)과 앞의 유리(.pcard)를 겹쳐 둔다 */
+.cardwrap{scroll-snap-align:center;flex:0 0 calc(100% - 48px);
+  aspect-ratio:.66/1;max-height:62vh;position:relative;isolation:isolate;cursor:pointer}
+/* glass 효과는 뒤에 선명한 색이 있어야 보인다. 페이지 배경은 흰색으로 두고
+   색은 카드 뒤에만 깔아 유리 너머로 비치게 한다 */
+.cardwrap .glow{position:absolute;inset:-7px;z-index:0;border-radius:32px;pointer-events:none;
+  background:var(--c0);filter:blur(13px) saturate(125%);opacity:.92;overflow:hidden}
+.cardwrap .glow::before,.cardwrap .glow::after{content:"";position:absolute;inset:-30%}
+.cardwrap .glow::before{
   background:
     radial-gradient(48% 42% at 22% 18%, var(--c1) 0%, transparent 62%),
     radial-gradient(52% 46% at 82% 30%, var(--c2) 0%, transparent 66%),
     radial-gradient(60% 52% at 50% 96%, var(--c3) 0%, transparent 70%);
   animation:gflow 14s ease-in-out infinite alternate}
-.pcard::after{
+.cardwrap .glow::after{
   background:
     radial-gradient(40% 34% at 76% 76%, var(--c1) 0%, transparent 64%),
     radial-gradient(44% 38% at 14% 66%, var(--c3) 0%, transparent 66%);
   mix-blend-mode:screen;opacity:.72;
   animation:gflow2 19s ease-in-out infinite alternate}
+/* 서리 유리 판 — 반투명 배경 + backdrop blur + 옅은 흰 테두리 */
+.pcard{position:absolute;inset:0;z-index:1;border-radius:24px;overflow:hidden;
+  display:flex;flex-direction:column;padding:24px;color:#fff;text-align:left;
+  background:
+    linear-gradient(160deg, rgba(255,255,255,.26) 0%, rgba(255,255,255,.08) 46%, rgba(255,255,255,.14) 100%);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);
+  border:1px solid rgba(255,255,255,.28);
+  box-shadow:0 18px 40px rgba(16,24,40,.22),
+             inset 0 1px 0 rgba(255,255,255,.42),
+             inset 0 -1px 0 rgba(255,255,255,.12)}
+/* 유리 윗부분 광택 */
+.pcard::before{content:"";position:absolute;left:0;right:0;top:0;height:46%;pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.3) 0%, rgba(255,255,255,0) 100%)}
 @keyframes gflow{
   0%{transform:translate3d(-4%,-3%,0) scale(1.04) rotate(0deg)}
   50%{transform:translate3d(5%,4%,0) scale(1.14) rotate(8deg)}
@@ -119,26 +134,30 @@ button{background:none;border:none;cursor:pointer}
   0%{transform:translate3d(4%,5%,0) scale(1.08)}
   50%{transform:translate3d(-6%,-4%,0) scale(1.18)}
   100%{transform:translate3d(3%,-6%,0) scale(1.05)}}
-@media (prefers-reduced-motion:reduce){ .pcard::before,.pcard::after{animation:none} }
-.pcard .nfcic{position:absolute;right:22px;top:22px;font-size:24px;opacity:.95;transform:rotate(90deg)}
+@media (prefers-reduced-motion:reduce){ .cardwrap .glow::before,.cardwrap .glow::after{animation:none} }
+/* 유리판 안의 내용이 광택 레이어 위로 오게 한다 */
+.pcard>*{position:relative;z-index:1}
+.pcard .nfcic{position:absolute;right:22px;top:22px;z-index:1;font-size:24px;opacity:.95;transform:rotate(90deg)}
 .pcard .nm{margin-top:34px;font-size:30px;font-weight:800;letter-spacing:-.03em}
-.pcard .mid{margin-top:auto}
+.pcard .mid{margin-top:auto;text-shadow:0 1px 10px rgba(16,24,40,.28)}
+.pcard .nm{text-shadow:0 1px 10px rgba(16,24,40,.28)}
 .pcard .co{font-size:21px;font-weight:800;letter-spacing:-.03em}
-.pcard .term{margin-top:6px;font-size:14px;opacity:.92}
-.pcard .hr{height:1px;background:rgba(255,255,255,.45);margin:18px 0 14px}
+.pcard .term{margin-top:6px;font-size:14px;color:rgba(255,255,255,.92)}
+.pcard .hr{height:1px;background:rgba(255,255,255,.4);margin:18px 0 14px}
 .pcard .rows{display:flex;gap:16px}
 .pcard .rw{flex:1}
-.pcard .rw .k{font-size:12px;opacity:.9}
+.pcard .rw .k{font-size:12px;color:rgba(255,255,255,.88)}
 .pcard .rw .v{margin-top:4px;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
-.pcard .asof{margin-top:16px;font-size:12px;opacity:.82}
+.pcard .asof{margin-top:16px;font-size:12px;color:rgba(255,255,255,.82)}
 /* 캡처 방지 안내 띠 */
-.pcard .warn{position:absolute;left:0;right:0;bottom:0;height:26px;background:rgba(255,255,255,.16);
+.pcard .warn{position:absolute;left:0;right:0;bottom:0;height:26px;background:rgba(255,255,255,.2);
   display:flex;align-items:center;overflow:hidden;font-size:10px;font-weight:600;color:rgba(255,255,255,.92)}
 .pcard .warn div{display:flex;gap:26px;white-space:nowrap;padding-left:12px;animation:mar 16s linear infinite}
 .pcard .warn span{display:inline-flex;align-items:center;gap:4px}
 @keyframes mar{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.pcard.off{filter:saturate(.5);opacity:.9}
-.pcard .st{position:absolute;left:24px;top:24px;display:inline-flex;align-items:center;height:26px;
+.cardwrap.off .glow{filter:blur(26px) saturate(.45);opacity:.8}
+.cardwrap.off .pcard{opacity:.92}
+.pcard .st{position:absolute;left:24px;top:24px;z-index:1;display:inline-flex;align-items:center;height:26px;
   padding:0 11px;border-radius:1000px;background:rgba(255,255,255,.24);font-size:11px;font-weight:800}
 .dots{position:relative;z-index:1;display:flex;gap:6px;justify-content:center;margin-top:16px}
 .dots span{width:6px;height:6px;border-radius:6px;background:#D7DAE1;transition:.2s}
