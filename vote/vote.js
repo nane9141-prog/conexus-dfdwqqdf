@@ -176,6 +176,14 @@
     if (!el) return 0;
     return el.offsetLeft - (deck.clientWidth - el.offsetWidth) / 2;
   }
+  function nearestCardFrom(sl) {
+    var deck = $('#deck'), best = 0, gap = Infinity;
+    for (var i = 0; i < deck.children.length; i++) {
+      var g = Math.abs(sl - cardPos(i));
+      if (g < gap) { gap = g; best = i; }
+    }
+    return best;
+  }
   function nearestCard() {
     var deck = $('#deck'), best = 0, gap = Infinity;
     for (var i = 0; i < deck.children.length; i++) {
@@ -190,12 +198,12 @@
     i = Math.max(0, Math.min(deck.children.length - 1, i));
     var from = deck.scrollLeft, to = cardPos(i), d = to - from;
     if (Math.abs(d) < 1) { markCenter(); return; }
-    var t0 = 0, dur = Math.min(620, 260 + Math.abs(d) * 0.55);
+    var t0 = 0, dur = Math.min(1000, 420 + Math.abs(d) * 0.9);
     deck.classList.add('glide');
     function step(t) {
       if (!t0) t0 = t;
       var p = Math.min(1, (t - t0) / dur);
-      var e = 1 - Math.pow(1 - p, 4);            /* easeOutQuart */
+      var e = 1 - Math.pow(1 - p, 3);            /* easeOutCubic — 천천히 안착 */
       deck.scrollLeft = from + d * e;
       markCenter();
       if (p < 1) requestAnimationFrame(step);
@@ -229,9 +237,16 @@
       down = false; deck.classList.remove('grab');
       if (moved > 6) {
         deck.dataset.drag = '1'; setTimeout(function () { delete deck.dataset.drag; }, 0);
-        var cur = nearestCard();
-        /* 빠르게 튕기면 한 장 넘기고, 천천히 놓으면 가까운 카드로 붙는다 */
-        var next = Math.abs(vx) > 0.45 ? cur + (vx < 0 ? 1 : -1) : cur;
+        /* 한 장 넘기려면 카드 폭의 45% 이상 끌거나 확실히 빠르게 튕겨야 한다 */
+        var w = deck.children[0] ? deck.children[0].offsetWidth : 300;
+        var from = nearestCard(), base = Math.round(sl / 1) , cur = from;
+        var moveX = deck.scrollLeft - sl;
+        var next = cur;
+        if (Math.abs(moveX) > w * 0.45 || Math.abs(vx) > 1.1) {
+          next = Math.round(sl / 1) >= 0 ? nearestCardFrom(sl) + (moveX > 0 ? 1 : -1) : cur;
+        } else {
+          next = nearestCardFrom(sl);
+        }
         glideTo(next);
       }
     });
