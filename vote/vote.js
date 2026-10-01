@@ -314,11 +314,12 @@
 
   /* ══ 4. 의안 투표 ════════════════════════════ */
   var PICK = {};                                  /* 일반·양립불가 선택 */
+  var AUTO = {};                                  /* 양립불가에서 자동으로 채운 줄 */
   var CUMV = {};                                  /* 집중투표 후보별 주식 수 */
   $('#vBack').addEventListener('click', function () { drawList(); show('#scrList'); });
 
   function openVote(no) {
-    CURAG = no; PICK = {}; CUMV = {};
+    CURAG = no; PICK = {}; CUMV = {}; AUTO = {};
     var saved = myVote(no);
     if (saved) { PICK = saved.picks || (saved.pick ? { _: saved.pick } : {}); CUMV = saved.cum || {}; }
     drawVote();
@@ -412,6 +413,16 @@
       + '<div class="r rest"><span class="k">잔여 의결권</span>'
       + '<span class="v">' + (used > pool ? '-' + cm(used - pool) : cm(pool - used)) + ' 주</span></div></div>';
   }
+  /* 화면의 모든 찬반기 줄을 PICK 기준으로 다시 칠한다 */
+  function paintPicks() {
+    $$('#voteBd .ch3').forEach(function (row) {
+      var key = row.dataset.k;
+      row.classList.toggle('has', !!PICK[key]);
+      row.querySelectorAll('[data-c]').forEach(function (o) {
+        o.classList.toggle('on', PICK[key] === o.dataset.c);
+      });
+    });
+  }
   function bindPick(k) {
     $$('#voteBd .ch3').forEach(function (row) {
       row.querySelectorAll('[data-c]').forEach(function (b) {
@@ -419,10 +430,27 @@
           var key = row.dataset.k, c = b.dataset.c;
           /* 같은 버튼을 다시 누르면 선택 해제 */
           if (PICK[key] === c) delete PICK[key]; else PICK[key] = c;
-          row.classList.toggle('has', !!PICK[key]);
-          row.querySelectorAll('[data-c]').forEach(function (o) {
-            o.classList.toggle('on', PICK[key] === o.dataset.c);
-          });
+          delete AUTO[key];                       /* 직접 고른 줄은 자동 표시를 뗀다 */
+
+          /* 양립불가 — 함께 가결될 수 없으므로 한 쪽을 찬성하면 나머지는 반대가 된다.
+             기권은 예외라 다른 줄을 건드리지 않는다. */
+          if (k === 'excl' && c === '찬성') {
+            if (PICK[key] === '찬성') {
+              $$('#voteBd .ch3').forEach(function (o) {
+                var ok = o.dataset.k;
+                if (ok === key) return;
+                if (PICK[ok] === '기권') return;   /* 기권은 그대로 둔다 */
+                PICK[ok] = '반대'; AUTO[ok] = 1;
+              });
+            } else {
+              /* 찬성을 풀면 따라 들어갔던 반대도 같이 푼다 */
+              $$('#voteBd .ch3').forEach(function (o) {
+                var ok = o.dataset.k;
+                if (ok !== key && AUTO[ok]) { delete PICK[ok]; delete AUTO[ok]; }
+              });
+            }
+          }
+          paintPicks();
           syncGo(k);
         });
       });
