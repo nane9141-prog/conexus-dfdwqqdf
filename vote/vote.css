@@ -514,9 +514,22 @@ html{-webkit-text-size-adjust:100%}
 .btn.dark:active{background:#000}
 
 /* 암호 입력 화면의 Face ID 타일 (iOS 잠금 해제와 같은 자리) */
-.pinface{margin:26px auto 0;width:112px;height:112px;border-radius:16px;background:#F2F3F5;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
-  color:#6B7078;font-size:13px;font-weight:600;letter-spacing:-.01em}
+.pinface{margin:30px auto 0;width:124px;height:124px;border-radius:18px;background:#F2F3F5;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+  color:#6B7078;font-size:13px;font-weight:600;letter-spacing:-.01em;transition:background .25s ease}
 .pinface[hidden]{display:none}
-.pinface .ficon{width:46px;height:46px;color:#8A8F99}
 .pinface:active{background:#E8EAEE}
+.pinface .pfic{position:relative;width:52px;height:52px;display:flex;align-items:center;justify-content:center}
+.pinface .ficon{width:52px;height:52px;color:#8A8F99;transition:color .25s ease}
+.pinface .fchk{position:absolute;width:30px;height:24px;opacity:0;pointer-events:none}
+.pinface .fchk path{fill:none;stroke:#1DB954;stroke-width:7;stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:88;stroke-dashoffset:88}
+/* 스캔 중 — 모서리가 조여졌다 펴지길 3번 */
+.pinface.scan .ficon{color:#0071F3;animation:fscan .6s ease-in-out 3 alternate}
+/* 인증 완료 — 윤곽은 옅은 초록으로 물러나고 체크가 그려진다 */
+.pinface.ok{background:#E9F8F0}
+.pinface.ok .ficon{color:#1DB954;opacity:.3;animation:fpop .4s cubic-bezier(.34,1.56,.64,1) forwards}
+.pinface.ok .fchk{opacity:1}
+.pinface.ok .fchk path{animation:fdraw .4s ease-out .1s forwards}
+.pinface.ok .pft{color:#1DB954}
+@media (prefers-reduced-motion:reduce){ .pinface.scan .ficon,.pinface.ok .ficon,.pinface.ok .fchk path{animation:none} }

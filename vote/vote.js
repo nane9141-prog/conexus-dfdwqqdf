@@ -593,10 +593,34 @@
   function faceAuth(done) {
     if (faceBusy) return;
     faceBusy = true;
-    var ov = $('#faceOv'), box = ov.querySelector('.facebox');
+    /* 암호 입력 화면이 떠 있으면 그 화면의 Face ID 자리에서 바로 처리한다 */
+    if ($('#scrPin').classList.contains('on') && !$('#pinFace').hidden) facePin(done);
+    else faceOverlay(done);
+  }
+  function facePin(done) {
+    var t = $('#pinFace');
+    t.classList.remove('ok');
+    t.classList.add('scan');
+    $('#pinFaceT').textContent = 'Face ID';
+    $('#pinD').innerHTML = '얼굴을 화면에 맞춰 주세요.';
+    setTimeout(function () {
+      t.classList.remove('scan');
+      t.classList.add('ok');
+      $('#pinFaceT').textContent = '인증 완료';
+      $('#pinD').innerHTML = ME.nm + ' 님 본인 확인이 끝났습니다.';
+      buzz([20, 40, 20]);
+      setTimeout(function () {
+        t.classList.remove('ok');
+        $('#pinFaceT').textContent = 'Face ID';
+        faceBusy = false;
+        done();
+      }, 800);
+    }, 1800);
+  }
+  /* 암호 화면을 거치지 않고 부른 경우 — 전체 화면 연출 */
+  function faceOverlay(done) {
+    var ov = $('#faceOv'), box = ov.querySelector('.facebox'), ic = $('#faceIc');
     box.classList.remove('ok');
-    /* 애니메이션을 처음부터 다시 돌리려면 노드를 한 번 갈아 끼워야 한다 */
-    var ic = $('#faceIc');
     ic.style.animation = 'none'; void ic.offsetWidth; ic.style.animation = '';
     $('#faceT').textContent = 'Face ID';
     $('#faceD').textContent = '얼굴을 화면에 맞춰 주세요';
@@ -606,11 +630,7 @@
       $('#faceT').textContent = '인증 완료';
       $('#faceD').textContent = ME.nm + ' 님 본인 확인이 끝났습니다';
       buzz([20, 40, 20]);
-      setTimeout(function () {
-        ov.classList.remove('on');
-        faceBusy = false;
-        done();
-      }, 900);
+      setTimeout(function () { ov.classList.remove('on'); faceBusy = false; done(); }, 900);
     }, 1800);
   }
 
