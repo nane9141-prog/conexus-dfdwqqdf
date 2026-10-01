@@ -129,7 +129,7 @@ button{background:none;border:none;cursor:pointer}
 /* 카드는 남는 세로 공간의 가운데에 놓는다 */
 .deckwrap{flex:1;min-height:0;display:flex;align-items:center}
 .deck{position:relative;z-index:1;width:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;
-  display:flex;gap:12px;padding:26px 32px 30px;cursor:grab;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  display:flex;gap:6px;padding:26px 32px 30px;cursor:grab;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .deck::-webkit-scrollbar{display:none}
 .deck.grab{cursor:grabbing;scroll-snap-type:none;user-select:none}
 /* 가운데 카드만 원래 크기, 옆 카드는 살짝 줄여 오른쪽에 걸치게 */
@@ -146,12 +146,12 @@ button{background:none;border:none;cursor:pointer}
 .pcard .mid{margin-top:auto}
 .pcard .co{font-size:21px;font-weight:800;letter-spacing:-.03em}
 .pcard .term{margin-top:6px;font-size:14px;opacity:.92}
-.pcard .hr{height:1px;background:rgba(255,255,255,.45);margin:18px 0 14px}
+.pcard .hr{height:1px;background:rgba(255,255,255,.45);margin:24px 0}
 .pcard .rows{display:flex;gap:16px}
 .pcard .rw{flex:1}
 .pcard .rw .k{font-size:12px;opacity:.9}
 .pcard .rw .v{margin-top:4px;font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
-.pcard .asof{margin-top:16px;font-size:12px;opacity:.82}
+.pcard .asof{margin-top:16px;margin-bottom:8px;font-size:12px;opacity:.82}
 /* 캡처 방지 안내 띠 */
 .pcard .warn{position:absolute;left:0;right:0;bottom:0;height:26px;background:rgba(255,255,255,.2);
   display:flex;align-items:center;overflow:hidden;font-size:10px;font-weight:600;color:rgba(255,255,255,.92)}

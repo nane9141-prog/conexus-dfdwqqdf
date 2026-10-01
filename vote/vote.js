@@ -20,10 +20,10 @@
       g: ['#3D5AFE', '#7A4DFF', '#2E9BFF', '#63C2FF'] },
     { key: 'naver', co: '네이버', term: '제27기 정기주주총회',
       sh: 20000, seat: 'B061', asof: '2026년 9월 14일 기준', live: false,
-      g: ['#0FA968', '#12B76A', '#37C7A0', '#7BE3B4'] },
+      g: ['#00C853', '#00E6A8', '#76FF03', '#C6FF4D'] },
     { key: 'kakaobank', co: '카카오뱅크', term: '제10기 정기주주총회',
       sh: 1200, seat: 'C412', asof: '2026년 9월 14일 기준', live: false,
-      g: ['#FF9E1B', '#FF7A3D', '#FFC24D', '#FFD97A'] }
+      g: ['#FF6A00', '#FFC400', '#FF2D55', '#FFD166'] }
   ];
   var CUR = null, CURAG = null;
 
