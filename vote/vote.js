@@ -380,8 +380,11 @@
         + '<input inputmode="numeric" data-cd="' + esc(c.no) + '" placeholder="주식 수" value="'
         + (CUMV[c.no] || '') + '"></div>';
     }).join('')
-      + '<div class="cumsum' + (used > pool ? ' over' : '') + '" id="cumSum"><span class="k">배분한 의결권</span>'
-      + '<span class="v">' + cm(used) + ' / ' + cm(pool) + '</span></div>';
+      + '<div class="cumsum' + (used > pool ? ' over' : '') + '" id="cumSum">'
+      + '<div class="r used"><span class="k">배분한 의결권</span>'
+      + '<span class="v">' + cm(used) + ' / ' + cm(pool) + '</span></div>'
+      + '<div class="r rest"><span class="k">잔여 의결권</span>'
+      + '<span class="v">' + (used > pool ? '-' + cm(used - pool) : cm(pool - used)) + ' 주</span></div></div>';
   }
   function bindPick(k) {
     $$('#voteBd .ch3').forEach(function (row) {
@@ -408,7 +411,9 @@
         var el = $('#cumSum');
         if (el) {
           el.classList.toggle('over', used > pool);
-          el.querySelector('.v').textContent = cm(used) + ' / ' + cm(pool);
+          el.querySelector('.used .v').textContent = cm(used) + ' / ' + cm(pool);
+          el.querySelector('.rest .v').textContent =
+            (used > pool ? '-' + cm(used - pool) : cm(pool - used)) + ' 주';
         }
         syncGo('cum');
       });
@@ -428,6 +433,15 @@
       ok = Object.keys(PICK).length >= need;
       same = saved && JSON.stringify(saved.picks || {}) === JSON.stringify(PICK);
     }
+    /* 집중투표는 버튼 위에 남은 의결권을 보여준다 (초과하면 빨간색) */
+    var rem = $('#vRem');
+    if (k === 'cum') {
+      var dd = detail(CURAG), pl = CUR.sh * (dd.directors || 2);
+      var us = Object.keys(CUMV).reduce(function (s2, x) { return s2 + (+CUMV[x] || 0); }, 0);
+      rem.hidden = false;
+      rem.classList.toggle('over', us > pl);
+      rem.textContent = us > pl ? cm(us - pl) + '주 초과' : cm(pl - us) + '주';
+    } else rem.hidden = true;
     go.textContent = saved ? '투표 변경하기' : '투표하기';
     go.disabled = !ok || !!same;
     var f = $('.vfoot'), old = f.querySelector('.vdone');

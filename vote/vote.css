@@ -278,13 +278,20 @@ button{background:none;border:none;cursor:pointer}
   font-size:15px;font-weight:700;outline:none;background:#F7F8FA}
 .cand input:focus{border-color:var(--ink);background:#fff}
 .cand input::placeholder{color:#B4B8C0;font-weight:500}
-.cumsum{margin-top:12px;display:flex;align-items:center;gap:8px;padding:12px 14px;border-radius:10px;
-  background:#fff;font-size:13px}
-.cumsum .k{color:#5B6070}
-.cumsum .v{margin-left:auto;font-weight:800;font-variant-numeric:tabular-nums}
-.cumsum.over .v{color:var(--red)}
+.cumsum{margin-top:12px;background:#fff;border-radius:12px;padding:16px 20px;
+  display:flex;flex-direction:column;gap:8px}
+.cumsum .r{display:flex;align-items:center;gap:8px;font-size:14px;line-height:22px;letter-spacing:-.01em}
+.cumsum .k{flex:none;color:#6B7078;white-space:nowrap}
+.cumsum .v{margin-left:auto;font-weight:700;color:#151419;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cumsum .r.rest .v{color:#0071F3}
+.cumsum.over .r.used .v,.cumsum.over .r.rest .v{color:#E9081B}
 /* 하단 */
-.vfoot{flex:none;padding:12px 20px calc(14px + var(--sa-bot));background:#fff}
+.vfoot{flex:none;padding:16px 20px calc(20px + var(--sa-bot));
+  background:linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 10%, #fff 100%)}
+.vrem{margin-bottom:8px;text-align:center;font-size:12px;font-weight:500;line-height:18px;
+  letter-spacing:-.01em;color:#0071F3}
+.vrem[hidden]{display:none}
+.vrem.over{color:#E9081B}
 .vnote{margin-top:10px;text-align:center;font-size:12px;color:#9AA0A8}
 .vdone{margin:0 0 10px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;
   font-weight:700;color:var(--grn)}
