@@ -272,13 +272,10 @@ button{background:none;border:none;cursor:pointer}
 
 /* ── 내역 ────────────────────────────────────── */
 .hlist{padding:6px 0 calc(20px + var(--sa-bot))}
-.hday{margin:14px 16px 10px;height:34px;border-radius:1000px;background:#F4F5F7;display:flex;
-  align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#5B6070}
 .hrow{display:flex;align-items:flex-end;gap:10px;padding:14px 20px;width:100%;text-align:left}
 .hrow .c{flex:1;min-width:0}
 .hrow .co{font-size:17px;font-weight:800;letter-spacing:-.02em}
 .hrow .tm{margin-top:5px;font-size:14px;color:#5B6070}
-.hrow .n{flex:none;font-size:12px;color:#8A8F99;font-weight:600;padding-bottom:2px}
 
 /* ── 설정 ────────────────────────────────────── */
 .sgrp{padding:20px 16px}
@@ -372,3 +369,66 @@ button{background:none;border:none;cursor:pointer}
   transform:translateY(-160%);transition:transform .32s cubic-bezier(.22,1,.36,1)}
 .alertbar.on{transform:none}
 .alertbar i{font-size:20px;flex:none}
+
+/* ── 내역 · 빈 화면 ─────────────────────────── */
+.hempty{flex:1;min-height:58vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:0 32px;text-align:center}
+.hempty img{width:150px;height:auto;display:block}
+.hempty .t{margin-top:18px;font-size:15px;font-weight:600;color:#6B7078;letter-spacing:-.02em}
+.hempty .d{margin-top:10px;font-size:12px;line-height:18px;color:#A0A4AC;letter-spacing:-.02em}
+
+/* ── 내역 · 날짜 묶음 (스크롤 시 상단 고정) ──── */
+.hday{position:sticky;top:0;z-index:2;margin:0;padding:14px 20px 8px;background:#fff;
+  font-size:13px;font-weight:700;color:#6B7078;letter-spacing:-.02em}
+.hrow .n{flex:none;font-size:12px;color:#8A8F99;font-weight:600;padding-bottom:2px}
+.hrow:active{background:#F7F8FA}
+.hrow .cv{flex:none;font-size:20px;color:#C9CCD3;padding-bottom:1px}
+
+/* ── 내역 상세 ──────────────────────────────── */
+#scrHdet{background:#F3F4F6}
+/* 내 투표현황 탭 — 가로 스와이프 */
+.hfil{flex:none;display:flex;gap:8px;align-items:center;padding:12px 0 12px 20px;background:#F3F4F6;
+  overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.hfil::-webkit-scrollbar{display:none}
+.hfil button{flex:none;display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 12px;
+  border-radius:20px;background:transparent;color:#9BA0A8;
+  font-size:14px;font-weight:700;letter-spacing:-.01em;white-space:nowrap}
+.hfil button.on{background:#fff;color:#151419}
+.hfil button .c{font-weight:700}
+/* 카드 묶음 */
+.hdbd{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column;gap:12px;padding:12px 20px calc(24px + var(--sa-bot));background:#F3F4F6}
+.vcard{background:#fff;border-radius:12px;padding:20px}
+.vcard .hd{display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700;color:#6B7078;
+  letter-spacing:-.01em;line-height:18px}
+.vcard .hd .no{flex:1;min-width:0}
+.vcard .hd .cnt{flex:none;font-weight:500}
+.vcard .ttl{margin-top:4px;font-size:16px;font-weight:700;line-height:24px;color:#151419;letter-spacing:-.01em}
+.vcard .meta{margin-top:12px;display:flex;align-items:center;gap:8px}
+.vcard .meta .col{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.vrow{display:flex;align-items:center;gap:8px;font-size:14px;line-height:22px;letter-spacing:-.01em}
+.vrow .k{flex:none;width:64px;color:#6B7078}
+.vrow .v{font-weight:700;color:#151419;display:inline-flex;align-items:center;gap:2px}
+.vrow .v.pass{color:#0071F3}
+.vrow .v.fail{color:#E9081B}
+.vrow .v.gray{color:#6B7078}
+.vrow .v.yes{color:#0071F3}
+.vrow .v.no{color:#E9081B}
+.vrow .v i{font-size:16px;color:#A0A4AC}
+.vcard .cv{flex:none;font-size:24px;color:#C9CCD3;line-height:1}
+/* 하위 의안 */
+.vkids{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+.vkid{border:1px solid #EEF0F2;border-radius:8px;padding:20px;background:#fff}
+.vkid .hd .no{font-size:12px}
+.vfold{margin-top:8px;width:100%;height:34px;border-radius:8px;background:#F3F4F6;
+  display:flex;align-items:center;justify-content:center;gap:2px;
+  font-size:12px;font-weight:500;color:#6B7078;letter-spacing:-.01em}
+.vfold i{font-size:18px}
+.vcard.fold .vkids{display:none}
+/* 특수 유형 툴팁 */
+.vtip{position:absolute;z-index:120;max-width:252px;padding:12px 14px;border-radius:10px;
+  background:#2A2D33;color:#fff;font-size:12px;line-height:18px;letter-spacing:-.01em;
+  box-shadow:0 8px 24px rgba(16,24,40,.26);opacity:0;transform:translateY(4px);
+  transition:opacity .16s ease,transform .16s ease;pointer-events:none}
+.vtip.on{opacity:1;transform:translateY(0)}
+.vtip b{display:block;margin-bottom:4px;font-size:13px;font-weight:700}

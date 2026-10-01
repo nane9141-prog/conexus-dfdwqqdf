@@ -9,7 +9,7 @@
 <link rel="icon" href="../kudos-favicon.png">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
-<link rel="stylesheet" href="vote.css?v=32">
+<link rel="stylesheet" href="vote.css?v=33">
 </head>
 <body>
 <div id="phone">
@@ -63,6 +63,18 @@
   <section class="scr" id="scrHist">
     <div class="tb"><h1>현장 투표 내역</h1></div>
     <div class="bd plain"><div class="hlist" id="histBd"></div></div>
+  </section>
+
+  <!-- ══ 내역 상세 ══ -->
+  <section class="scr" id="scrHdet">
+    <div class="tb line">
+      <button class="ic bk" id="hdBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1 id="hdTitle">주주총회</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="hfil" id="hdFil"></div>
+    <div class="hdbd" id="hdBd"></div>
   </section>
 
   <!-- ══ 설정 ══ -->
@@ -133,6 +145,6 @@
 </div>
 
 <script src="../cx-data.js?v=1"></script>
-<script src="vote.js?v=32"></script>
+<script src="vote.js?v=33"></script>
 </body>
 </html>

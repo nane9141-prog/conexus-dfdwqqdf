@@ -512,25 +512,188 @@
   }
 
   /* ══ 내역 ════════════════════════════════════ */
-  function drawHist() {
-    var v = votes(), U = units();
-    var n = U.filter(function (a) { return v[a.no]; }).length;
-    var rows = CARDS.map(function (c) {
-      return { co: c.co, term: c.term, n: c.key === 'kudos' ? n : 0, tot: U.length };
-    });
-    $('#histBd').innerHTML =
-      '<div class="hday">2026년 9월 29일</div>'
-      + rows.map(function (r) {
-          return '<button class="hrow" type="button"><div class="c">'
-            + '<div class="co">' + esc(r.co) + '</div><div class="tm">' + esc(r.term) + '</div></div>'
-            + '<span class="n">투표 ' + r.n + ' / ' + r.tot + '건</span></button>';
-        }).join('')
-      + '<div class="hday">2026년 3월 12일</div>'
-      + '<button class="hrow" type="button"><div class="c"><div class="co">신세계</div>'
-      + '<div class="tm">제 9기 정기 주주총회</div></div><span class="n">투표 6 / 6건</span></button>'
-      + '<button class="hrow" type="button"><div class="c"><div class="co">기아</div>'
-      + '<div class="tm">제 9기 정기 주주총회</div></div><span class="n">투표 5 / 5건</span></button>';
+  /* ══ 내역 ════════════════════════════════════ */
+  /* 지난 주총은 데모용 고정 데이터, 큐더스전자는 실제 투표 기록에서 만든다 */
+  var PASTAG = {
+    신세계: [
+      { no: '제 1호 의안', nm: '제51기 연결 및 별도 재무제표\n(이익잉여금처분계산서 포함) 승인의 건', res: '가결', my: '찬성' },
+      { no: '제 2호 의안', nm: '정관 일부 변경의 건', res: '가결', my: '찬성' },
+      { no: '제 3호 의안', nm: '사외이사 선임의 건', res: '부결', my: '반대' },
+      { no: '제 4호 의안', nm: '감사위원회 위원 선임의 건', res: '가결', my: '기권' },
+      { no: '제 5호 의안', nm: '이사 보수한도 승인의 건', res: '가결', my: '찬성' },
+      { no: '제 6호 의안', nm: '집중투표에 의한 이사 3인 선임의 건', res: '집중투표', sp: 'cum',
+        kids: [
+          { no: '제 6-1호 의안', nm: '사내이사 후보 A 선임의 건', res: '가결', my: '찬성' },
+          { no: '제 6-2호 의안', nm: '사외이사 후보 B 선임의 건', res: '부결', my: '반대' }
+        ] }
+    ],
+    기아: [
+      { no: '제 1호 의안', nm: '제9기 재무제표 승인의 건', res: '가결', my: '찬성' },
+      { no: '제 2호 의안', nm: '정관 일부 변경의 건', res: '가결', my: '찬성' },
+      { no: '제 3호 의안', nm: '이사 선임의 건', res: '분리의안', sp: 'excl',
+        kids: [
+          { no: '제 3-1호 의안', nm: '회사 제안 후보 선임의 건', res: '가결', my: '찬성' },
+          { no: '제 3-2호 의안', nm: '주주 제안 후보 선임의 건', res: '부결', my: '반대' }
+        ] },
+      { no: '제 4호 의안', nm: '감사위원 선임의 건', res: '가결', my: '중립' },
+      { no: '제 5호 의안', nm: '이사 보수한도 승인의 건', res: '가결', my: '불통일행사' }
+    ]
+  };
+  var HIST = [
+    { d: '2026-09-29', co: (M.org || '큐더스전자'), term: (M.name || '제10기 정기주주총회'), live: true },
+    { d: '2026-03-12', co: '신세계', term: '제 9기 정기 주주총회', items: PASTAG['신세계'] },
+    { d: '2026-03-12', co: '기아', term: '제 9기 정기 주주총회', items: PASTAG['기아'] },
+    { d: '2026-03-05', co: '네이버', term: '제 27기 정기 주주총회', items: [] }
+  ];
+  var SPTIP = {
+    cum: { t: '집중투표', d: '선임할 이사 수만큼의 의결권을 특정 후보에게 몰아서 행사할 수 있는 방식입니다. 개별 찬반 대신 후보별 배분 결과가 표시됩니다.' },
+    excl: { t: '분리·양립불가 의안', d: '함께 가결될 수 없는 의안들이 묶인 유형입니다. 하위 의안 중 득표가 높은 안건만 가결되어, 상위에는 유형만 표시됩니다.' },
+    uni: { t: '불통일행사', d: '보유 주식을 나누어 서로 다른 의견으로 행사한 경우입니다. 찬성·반대 수량이 함께 집계됩니다.' },
+    part: { t: '일부선임', d: '후보 전원이 아닌 일부만 선임된 결과입니다.' }
+  };
+
+  function hdate(s) {
+    var p = s.split('-');
+    return p[0] + '년 ' + (+p[1]) + '월 ' + (+p[2]) + '일';
   }
+  /* 큐더스전자 — 실제 의안·내 표·집계 결과로 상세 항목을 만든다 */
+  function liveItems() {
+    return agenda().filter(function (a) { return !a.header; }).map(function (a) {
+      var k = kindOf(a.no);
+      var kids = (a.children || []).map(function (c) {
+        return { no: c.no, nm: c.nm, res: (LIVE.done && LIVE.done[c.no]) || null,
+                 my: (myVote(c.no) || {}).pick || null };
+      });
+      return { no: a.no, nm: a.nm, kids: kids,
+        sp: k === 'cum' ? 'cum' : k === 'excl' ? 'excl' : null,
+        res: (LIVE.done && LIVE.done[a.no]) || (k === 'cum' ? '집중투표' : k === 'excl' ? '분리의안' : null),
+        my: (myVote(a.no) || {}).pick || null };
+    });
+  }
+  function itemsOf(h) { return h.live ? liveItems() : (h.items || []); }
+
+  function drawHist() {
+    var body = $('#histBd');
+    var rows = HIST.slice().sort(function (a, b) { return a.d < b.d ? 1 : -1; });
+    if (!rows.length) { body.innerHTML = emptyHtml(); return; }
+    var html = '', day = '';
+    rows.forEach(function (h, i) {
+      if (h.d !== day) { day = h.d; html += '<div class="hday">' + hdate(h.d) + '</div>'; }
+      var it = itemsOf(h);
+      var done = it.filter(function (x) { return x.my; }).length;
+      html += '<button class="hrow" type="button" data-h="' + i + '"><div class="c">'
+        + '<div class="co">' + esc(h.co) + '</div><div class="tm">' + esc(h.term) + '</div></div>'
+        + '<span class="n">투표 ' + done + ' / ' + it.length + '건</span>'
+        + '<i class="ph ph-caret-right cv"></i></button>';
+    });
+    body.innerHTML = html;
+    body.querySelectorAll('[data-h]').forEach(function (b) {
+      b.addEventListener('click', function () { openHdet(rows[+b.dataset.h]); });
+    });
+  }
+  function emptyHtml() {
+    return '<div class="hempty"><img src="hist-empty.png" alt="">'
+      + '<div class="t">현장 투표 내역이 없습니다</div>'
+      + '<div class="d">* 현장 투표 내역은 주주총회 다음 날부터 목록에 제공되며, 1개월간 확인이 가능합니다.</div></div>';
+  }
+
+  /* ── 상세 ───────────────────────────────────── */
+  var HD = null, HDFIL = '전체';
+  function openHdet(h) {
+    HD = h; HDFIL = '전체';
+    $('#hdTitle').textContent = h.co + ' ' + h.term;
+    drawHdet();
+    show('#scrHdet', 'hist');
+  }
+  $('#hdBack').addEventListener('click', function () { drawHist(); show('#scrHist', 'hist'); });
+
+  function drawHdet() {
+    var it = itemsOf(HD);
+    if (!it.length) { $('#hdFil').innerHTML = ''; $('#hdBd').innerHTML = emptyHtml(); return; }
+    /* 내 투표현황 탭 — 내가 고른 값으로만 집계 */
+    var cnt = {};
+    function tally(x) { if (x.my) cnt[x.my] = (cnt[x.my] || 0) + 1; (x.kids || []).forEach(tally); }
+    it.forEach(tally);
+    var keys = ['찬성', '반대', '기권', '중립', '불통일행사'].filter(function (k) { return cnt[k]; });
+    var tot = keys.reduce(function (s, k) { return s + cnt[k]; }, 0);
+    $('#hdFil').innerHTML = [['전체', tot]].concat(keys.map(function (k) { return [k, cnt[k]]; }))
+      .map(function (p) {
+        return '<button type="button" data-f="' + p[0] + '"' + (HDFIL === p[0] ? ' class="on"' : '') + '>'
+          + p[0] + '<span class="c">' + p[1] + '</span></button>';
+      }).join('');
+    $('#hdFil').querySelectorAll('[data-f]').forEach(function (b) {
+      b.addEventListener('click', function () { HDFIL = b.dataset.f; drawHdet(); });
+    });
+
+    var show2 = it.filter(function (x) {
+      if (HDFIL === '전체') return true;
+      if (x.my === HDFIL) return true;
+      return (x.kids || []).some(function (k) { return k.my === HDFIL; });
+    });
+    $('#hdBd').innerHTML = show2.map(vcardHtml).join('')
+      || '<div class="hempty"><div class="t">해당하는 투표 내역이 없습니다</div></div>';
+    bindHdet();
+  }
+  function resCls(r) { return r === '가결' ? 'pass' : r === '부결' ? 'fail' : r ? 'gray' : 'gray'; }
+  function myCls(m) { return m === '찬성' ? 'yes' : m === '반대' ? 'no' : 'gray'; }
+  function vrow(k, v, cls, tip) {
+    return '<div class="vrow"><span class="k">' + k + '</span><span class="v ' + cls + '">' + esc(v || '-')
+      + (tip ? '<i class="ph ph-info" data-tip="' + tip + '"></i>' : '') + '</span></div>';
+  }
+  function vcardHtml(x, i) {
+    var kids = x.kids || [], has = kids.length > 0;
+    var h = '<div class="vcard' + (has ? ' fold' : '') + '" data-i="' + i + '">'
+      + '<div class="hd"><span class="no">' + esc(x.no) + '</span>'
+      + (has ? '<span class="cnt">의안 ' + kids.length + '건</span>' : '') + '</div>'
+      + '<div class="ttl">' + esc(x.nm).replace(/\n/g, '<br>') + '</div>'
+      + '<div class="meta"><div class="col">'
+      + vrow('가결 여부', x.res, resCls(x.res), x.sp ? x.sp : '')
+      + (x.sp ? '' : vrow('내 의견', x.my, myCls(x.my), x.my === '불통일행사' ? 'uni' : ''))
+      + '</div><i class="ph ph-caret-right cv"></i></div>';
+    if (has) {
+      h += '<div class="vkids">' + kids.map(function (k) {
+        return '<div class="vkid"><div class="hd"><span class="no">' + esc(k.no) + '</span></div>'
+          + '<div class="ttl">' + esc(k.nm).replace(/\n/g, '<br>') + '</div>'
+          + '<div class="meta"><div class="col">'
+          + vrow('가결여부', k.res, resCls(k.res))
+          + vrow('내 의견', k.my, myCls(k.my))
+          + '</div><i class="ph ph-caret-right cv"></i></div></div>';
+      }).join('') + '</div>'
+      + '<button class="vfold" type="button">하위의안 펼치기<i class="ph ph-caret-down"></i></button>';
+    }
+    return h + '</div>';
+  }
+  function bindHdet() {
+    $('#hdBd').querySelectorAll('.vfold').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var card = b.closest('.vcard'), on = card.classList.toggle('fold');
+        b.innerHTML = (on ? '하위의안 펼치기' : '하위의안 접기')
+          + '<i class="ph ph-caret-' + (on ? 'down' : 'up') + '"></i>';
+      });
+    });
+    $('#hdBd').querySelectorAll('[data-tip]').forEach(function (ic) {
+      ic.addEventListener('click', function (e) { e.stopPropagation(); openTip(ic); });
+    });
+  }
+  /* 특수투표 유형 툴팁 */
+  var tipEl = null;
+  function openTip(ic) {
+    closeTip();
+    var t = SPTIP[ic.dataset.tip]; if (!t) return;
+    tipEl = document.createElement('div');
+    tipEl.className = 'vtip';
+    tipEl.innerHTML = '<b>' + t.t + '</b>' + t.d;
+    $('#phone').appendChild(tipEl);
+    var r = ic.getBoundingClientRect(), p = $('#phone').getBoundingClientRect();
+    var left = Math.min(Math.max(12, r.left - p.left - 10), p.width - tipEl.offsetWidth - 12);
+    var top = r.bottom - p.top + 8;
+    if (top + tipEl.offsetHeight > p.height - 20) top = r.top - p.top - tipEl.offsetHeight - 8;
+    tipEl.style.left = left + 'px'; tipEl.style.top = top + 'px';
+    requestAnimationFrame(function () { tipEl && tipEl.classList.add('on'); });
+    setTimeout(function () { document.addEventListener('click', closeTip, { once: true }); }, 0);
+  }
+  function closeTip() { if (tipEl) { tipEl.remove(); tipEl = null; } }
 
   /* ══ 설정 ════════════════════════════════════ */
   var SET = { bio: false, noti: true };
