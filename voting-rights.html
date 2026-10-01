@@ -425,6 +425,9 @@
 <link rel="stylesheet" href="cx-checkbox.css?v=2">
 <style>
   /* 현장 파트너 앱에서 올라온 건 표시 */
+  /* 앱에서 막 들어온 행 — 잠깐만 옅게 깜빡인다 */
+  #vrHolderTbl tr.fresh{animation:vrFresh 2.4s ease-out 1}
+  @keyframes vrFresh{0%{background:#E8F3FF}60%{background:#F3F8FF}100%{background:transparent}}
   .appmark{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:1000px;
     background:#EBF4FF;border:1px solid #B2D5FF;color:#0071F3;font-size:11px;font-weight:700;
     vertical-align:middle;margin-right:2px}
@@ -758,40 +761,81 @@
     host.innerHTML=AGX.table('vrAgBody'); AGX.render(document.getElementById('vrAgBody'), {});
   })();
 
-  /* 실시간 주주 확보 현황 — 회사 권고와 다르게 표기한 칸을 주황으로, 하단에 총 주주수·주식수
-     현장 파트너 앱이 올린 위임 완료 건은 맨 위에 '앱 수집' 으로 꽂는다. */
+  /* 실시간 주주 확보 현황 — 표 전체가 수집 앱이 올린 건이다.
+     앱에서 위임을 마치면 그 행이 맨 위(최신순)로 들어오고, 회사 권고와 다른 칸은 주황으로 표시한다. */
   (function(){
     var t=document.getElementById('vrHolderTbl'); if(!t) return;
-    (function(){
-      var v={}; try{ v=JSON.parse(localStorage.getItem('cx.collect')||'{}'); }catch(e){}
-      var R=(v.rows||[]); if(!R.length) return;
-      var ncol=t.tHead.rows[0].cells.length;
-      var pro='<span class="opb for"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>찬성</span>';
-      R.slice().reverse().forEach(function(r,ri){
-        var tr=t.tBodies[0].insertRow(0);
-        var born=19500000+((r.i*7919)%500000);
-        var cells=['<span class="appmark">앱 수집</span> '+(r.at||'').slice(5),
-                   mask(r.nm), '<span class="num">'+(+r.sh).toLocaleString('en-US')+'</span>',
-                   String(born).slice(0,8), (2026-+String(born).slice(0,4))+'세',
-                   pro,pro,pro,pro,
-                   (+r.sh*2).toLocaleString('en-US'), (+r.sh*2).toLocaleString('en-US')];
-        for(var i=0;i<ncol;i++){
-          var td=tr.insertCell(i);
-          td.className=(i===2||i>=9)?'num':(i===0?'mut':(i>=5&&i<=8)||i===3?'c':'');
-          if(i===3) td.className='mut c';
-          td.innerHTML=cells[i]==null?'':String(cells[i]).replace(/^<span class="num">|<\/span>$/g,'');
-        }
-      });
-      function mask(n){ n=String(n||''); return n.length<3?n:n[0]+'*'+n.slice(2); }
-    })();
-    var REC={'1':'찬성','2-1':'찬성','2-2':'찬성','3':'찬성'};   /* 회사 권고(데모: 회사 의안은 모두 찬성 권고) — 주주제안 의안이 생기면 '반대'로 */
+    var REC={'1':'찬성','2-1':'찬성','2-2':'찬성','3':'찬성'};   /* 회사 권고(데모: 회사 의안은 모두 찬성 권고) */
     var hd=Array.prototype.map.call(t.tHead.rows[0].cells,function(c){return c.textContent.trim();});
-    var sh=hd.indexOf('보유주식수'), sum=0, rows=t.tBodies[0].rows;
-    Array.prototype.forEach.call(rows,function(r){
-      sum+=+r.cells[sh].textContent.replace(/\D/g,'');
-      hd.forEach(function(h,i){ if(REC[h]&&r.cells[i].textContent.trim()!==REC[h]) r.cells[i].classList.add('diff'); });
-    });
-    document.getElementById('vrHolderCnt').textContent='총 '+rows.length+'명 · '+sum.toLocaleString('en-US')+'주';
+    var SHCOL=hd.indexOf('보유주식수'), NCOL=t.tHead.rows[0].cells.length;
+
+    function opb(v){
+      return v==='반대'
+        ? '<span class="opb against"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>반대</span>'
+        : v==='기권'
+        ? '<span class="opb">기권</span>'
+        : '<span class="opb for"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>찬성</span>';
+    }
+    function mask(n){ n=String(n||''); return n.length<3?n:n[0]+'*'+n.slice(2); }
+    function cm(n){ return (+n||0).toLocaleString('en-US'); }
+
+    /* 앱이 올린 건 — 수집 시각 최신순 */
+    function appRows(){
+      var v={},px={};
+      try{ v=JSON.parse(localStorage.getItem('cx.collect')||'{}'); }catch(e){}
+      try{ px=JSON.parse(localStorage.getItem('cx.app.px')||'{}'); }catch(e){}
+      return (v.rows||[]).slice().sort(function(a,b){
+        return String(b.at||'').localeCompare(String(a.at||''));
+      }).map(function(r){
+        var vt=(px[r.i]||{}).votes||{};
+        return { r:r, vt:vt };
+      });
+    }
+    function syncApp(){
+      var tb=t.tBodies[0];
+      Array.prototype.slice.call(tb.querySelectorAll('tr[data-app]')).forEach(function(tr){ tr.remove(); });
+      var seen={};
+      Array.prototype.slice.call(tb.rows).forEach(function(tr){ seen[tr.dataset.k||'']=1; });
+      appRows().reverse().forEach(function(o){          /* 맨 위에 꽂으므로 역순으로 넣는다 */
+        var r=o.r, vt=o.vt;
+        var tr=tb.insertRow(0);
+        tr.dataset.app='1'; tr.dataset.k='a'+r.i;
+        var born=19500000+((r.i*7919)%500000);
+        var cells=[(r.at||'').slice(5), mask(r.nm), cm(r.sh),
+                   String(born).slice(0,8), (2026-+String(born).slice(0,4))+'세',
+                   opb(vt[0]),opb(vt[1]),opb(vt[2]),opb(vt[3]),
+                   cm(+r.sh*2), cm(+r.sh*2)];
+        for(var i=0;i<NCOL;i++){
+          var td=tr.insertCell(i);
+          td.className=(i===2||i>=9)?'num':(i===0?'mut':(i===3?'mut c':((i>=5&&i<=8)?'c':'')));
+          td.innerHTML=cells[i]==null?'':cells[i];
+        }
+        if(!seen['a'+r.i]) tr.classList.add('fresh');   /* 새로 들어온 건만 잠깐 강조 */
+      });
+      paint();
+    }
+    /* 권고와 다른 칸 주황 표시 + 하단 합계 */
+    function paint(){
+      var rows=t.tBodies[0].rows, sum=0;
+      Array.prototype.forEach.call(rows,function(r){
+        sum+=+r.cells[SHCOL].textContent.replace(/\D/g,'');
+        hd.forEach(function(h,i){
+          if(!REC[h]) return;
+          r.cells[i].classList.toggle('diff', r.cells[i].textContent.trim()!==REC[h]);
+        });
+      });
+      document.getElementById('vrHolderCnt').textContent='총 '+rows.length+'명 · '+sum.toLocaleString('en-US')+'주';
+    }
+
+    syncApp();
+    /* 앱에서 위임을 마치면 바로 꽂힌다 — 다른 탭(storage) · 같은 탭(cx-collect) · 안전망 폴링 */
+    window.addEventListener('storage',function(e){ if(e.key==='cx.collect'||e.key==='cx.app.px') syncApp(); });
+    window.addEventListener('cx-collect',syncApp);
+    var last='';
+    setInterval(function(){
+      var now=''; try{ now=localStorage.getItem('cx.collect')||''; }catch(e){}
+      if(now!==last){ last=now; syncApp(); }
+    },1500);
   })();
 
   // 사전 의결권 현황 tabs
