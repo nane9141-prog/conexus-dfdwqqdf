@@ -86,6 +86,9 @@ a{color:inherit;text-decoration:none}
   justify-content:center;gap:4px;padding:4px 0;border-radius:8px;background:#fff;
   color:#CBCDD2;font-size:10px;line-height:16px;font-weight:500;letter-spacing:-.01em}
 .tabbar button i{font-size:28px;line-height:1;display:block}
+/* 탭 아이콘 — 28×28 로 맞추고 색은 버튼이 정한다 */
+.tabbar button i.tbic{width:28px;height:28px;display:flex;align-items:center;justify-content:center}
+.tabbar button i.tbic svg{width:28px;height:28px;display:block;fill:currentColor}
 .tabbar button.on{color:#151419}
 
 /* ── 버튼 ─────────────────────────────────────── */
