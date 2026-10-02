@@ -1993,6 +1993,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
       if(!OC.res[OC.agenda]) OC.res[OC.agenda]={r:resOf(OC.agenda),sec:voteSec,siteN:OC.siteN,siteW:OC.siteW,onlW:OC.onlW};
       OC.res[OC.agenda].said=true;
       renderStage();
+      if(window.cxSync) cxSync.set({done:resMap()});   /* 공표한 순간 시청 화면에 결과가 뜬다 */
       if(window.cxToast) cxToast(CX.util.chip(OC.agenda)+' 표결 결과를 공표했습니다.');
       autoAdv=setTimeout(selectNextAgenda,1600);   /* 공표까지 끝났으니 다음 의안으로 */
     });
@@ -2019,9 +2020,12 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
   OC.hooks=[];
   OC.on=function(fn){ OC.hooks.push(fn); };
   /* 마감한 의안의 판정만 추려 함께 보낸다 — 보는 화면이 지난 결과를 스스로 셈하지 않도록 */
+  /* 시청 화면으로 내보내는 결과 — '결과 공표'를 누른 의안만 담는다.
+     마감만 한 의안은 집계중으로 보이고, 공표해야 가결·부결이 뜬다.
+     (폐기는 표결 결과가 아니라 의장이 고른 결의라 그대로 알린다) */
   function resMap(){
     var m={};
-    for(var k in OC.res) m[k]=OC.res[k].r;
+    for(var k in OC.res) if(OC.res[k].said) m[k]=OC.res[k].r;
     if(OC.decided==='회사') m['제4-2호']='폐기';
     if(OC.decided==='주주') m['제4-1호']='폐기';
     return m;
