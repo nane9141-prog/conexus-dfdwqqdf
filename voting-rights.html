@@ -900,6 +900,26 @@
         7:{op:['찬성','찬성','찬성','반대','찬성'], c41:[2,3], c42:[0,1]},  /* 주주제안 지지 */
         9:{op:['기권','찬성','반대','찬성','반대'], c42:[1,4]}
       };
+      /* 기본 확보 건수는 100명을 채운다 — 명부에서 아직 없는 주주로 행을 보탠다 */
+      (function(){
+        var tb=t.tBodies[0], NEED=100;
+        var have={};
+        Array.prototype.forEach.call(tb.rows,function(r){ have[r.cells[1].textContent.trim()]=1; });
+        var R=((window.CX&&CX.roster)||[]).filter(function(r){ return r.gb==='개인'; })
+              .slice().sort(function(a,b){ return b.sh-a.sh; });
+        for(var n=0; n<R.length && tb.rows.length<NEED; n++){
+          var r=R[n], nm=mask(r.nm);
+          if(have[nm]) continue; have[nm]=1;
+          var born=birth(19500000+((r.i*7919)%500000));
+          var tr=tb.insertRow(-1);
+          var cells=['', nm, cm(r.sh), born, (2026-+born.slice(0,4))+'세'];
+          for(var i2=0;i2<5;i2++){
+            var td=tr.insertCell(i2);
+            td.className=(i2===2)?'num':(i2===0?'mut':(i2===3?'mut c':''));
+            td.textContent=cells[i2];
+          }
+        }
+      })();
       var ROWN=t.tBodies[0].rows.length;
       Array.prototype.forEach.call(t.tBodies[0].rows,function(tr,ri){
         /* 수집일시 — 권유 기간(9/1~9/30) 안에 최신순으로 흩어 놓는다 */
