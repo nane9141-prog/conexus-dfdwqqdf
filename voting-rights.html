@@ -895,17 +895,23 @@
         th.className=(c.kind==='num'?'num':'c'); th.textContent=c.no;
         hr.appendChild(th);
       });
-      /* 회사 권고와 다른 의향 — 시연용으로 다섯 건 섞어 둔다 (행 번호 → 의향) */
-      var DIFF={
-        1:{op:['반대','찬성','찬성','찬성','반대']},
-        2:{c41:[1,2]},                                              /* 집중투표만 다른 건 */
-        3:{op:['찬성','반대','찬성','찬성','반대']},
-        4:{c42:[2,3]},
-        5:{op:['찬성','찬성','기권','찬성','반대']},
-        6:{c41:[3]},                                                /* 한 후보에게 몰아준 건 */
-        7:{op:['찬성','찬성','찬성','반대','찬성'], c41:[2,3], c42:[0,1]},  /* 주주제안 지지 */
-        9:{op:['기권','찬성','반대','찬성','반대'], c42:[1,4]}
-      };
+      /* 한 행의 의안 칸을 다시 그린다. dv 를 주면 회사 권고와 다른 의향이 된다. */
+      function paintVote(tr, dv){
+        var sh=+String(tr.cells[2].textContent||'').replace(/\D/g,'');
+        var tot=sh*2;                                   /* 집중투표 의결권 = 보유주식 × 선임 2인 */
+        while(tr.cells.length>5) tr.deleteCell(5);
+        var ops=((dv&&dv.op)||['찬성','찬성','찬성','찬성','반대']).map(opb);
+        var r41=split2(tot,4), r42=split2(tot,5);       /* 회사 권고 배분 */
+        var a41=alloc(tot,4,dv&&dv.c41), a42=alloc(tot,5,dv&&dv.c42);
+        var vals=ops.concat(a41.map(cm)).concat(a42.map(cm));
+        var recs=[null,null,null,null,null].concat(r41.map(cm)).concat(r42.map(cm));
+        AGC.forEach(function(c,i){
+          var td=tr.insertCell(5+i);
+          td.className=(c.kind==='num'?'num':'c');
+          td.innerHTML=vals[i]==null?'':vals[i];
+          if(c.kind==='num' && recs[i]!=null && vals[i]!==recs[i]) td.classList.add('diff');
+        });
+      }
       /* 기본 확보 건수는 100명을 채운다 — 명부에서 아직 없는 주주로 행을 보탠다 */
       (function(){
         var tb=t.tBodies[0], NEED=100;
@@ -939,22 +945,7 @@
         var bd=birth(tr.cells[3].textContent);
         tr.cells[3].textContent=bd;
         tr.cells[4].textContent=(2026-+bd.slice(0,4))+'세';
-        var sh=+String(tr.cells[2].textContent||'').replace(/\D/g,'');
-        var tot=sh*2;                                     /* 집중투표 의결권 = 보유주식 × 선임 2인 */
-        var dv=DIFF[ri]||null;
-        while(tr.cells.length>5) tr.deleteCell(5);
-        var ops=((dv&&dv.op)||['찬성','찬성','찬성','찬성','반대']).map(opb);
-        var r41=split2(tot,4), r42=split2(tot,5);                   /* 회사 권고 배분 */
-        var a41=alloc(tot,4,dv&&dv.c41), a42=alloc(tot,5,dv&&dv.c42);
-        var vals=ops.concat(a41.map(cm)).concat(a42.map(cm));
-        var recs=[null,null,null,null,null].concat(r41.map(cm)).concat(r42.map(cm));
-        AGC.forEach(function(c,i){
-          var td=tr.insertCell(5+i);
-          td.className=(c.kind==='num'?'num':'c');
-          td.innerHTML=vals[i]==null?'':vals[i];
-          /* 집중투표도 권고 배분과 다르면 표시한다 */
-          if(c.kind==='num' && recs[i]!=null && vals[i]!==recs[i]) td.classList.add('diff');
-        });
+        paintVote(tr, null);
       });
       /* 수집일시 최신순으로 정렬한다 */
       (function(){
@@ -962,6 +953,14 @@
         Array.prototype.slice.call(tb.rows)
           .sort(function(a,b){ return b.cells[0].textContent.localeCompare(a.cells[0].textContent); })
           .forEach(function(r){ tb.appendChild(r); });
+      })();
+      /* 회사 권고와 다른 건 세 명 — 첫 화면에서 바로 보이게 앞쪽에 둔다 */
+      (function(){
+        var tb=t.tBodies[0];
+        [ { at:3,  dv:{ op:['반대','찬성','찬성','찬성','반대'] } },
+          { at:8,  dv:{ op:['찬성','찬성','기권','찬성','반대'], c41:[1,2] } },
+          { at:13, dv:{ op:['찬성','찬성','찬성','반대','찬성'], c41:[2,3] } }
+        ].forEach(function(d){ if(tb.rows[d.at]) paintVote(tb.rows[d.at], d.dv); });
       })();
     })();
     var hd=Array.prototype.map.call(t.tHead.rows[0].cells,function(c){return c.textContent.trim();});
