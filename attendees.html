@@ -470,7 +470,7 @@
           <div class="at-tb-l">
             <select class="selbox" id="atQf" aria-label="검색 기준"><option value="voter">투표권자</option><option value="name">주주명</option><option value="no">주주번호</option><option value="ac">실질계좌번호</option></select>
             <div class="search2"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="atSearch" placeholder="검색어를 입력하세요"></div>
-            <div class="at-chips" id="atChips"><button type="button" class="at-chip on" data-chip="all">전체 <b></b></button><button type="button" class="at-chip" data-chip="sh">주주 <b></b></button><button type="button" class="at-chip" data-chip="non">비주주 <b></b></button></div>
+            <div class="at-chips" id="atChips"><button type="button" class="at-chip on" data-chip="sh">주주 <b></b></button><button type="button" class="at-chip" data-chip="non">비주주 <b></b></button></div>
           </div>
           <div class="at-tb-r">
             <button class="abtn regonly"><i class="ph ph-user-plus" style="font-size:16px"></i>대리인 · 위임주주 등록</button>
@@ -707,10 +707,10 @@
   /* 전자주총 참석자 탭 — 온라인 출석 기준 */
   var CE=['투표권자','주주명','주주번호','대리인','보유주식수','지분율','참석주식수','출석'];
   /* 현장 참석자 탭 + 비주주 칩 — 비주주 전용 컬럼 */
-  var CN=['비주주 구분','참석자명','소속','전화번호','이메일','메모'];
+  var CN=['구분','참석자명','소속','전화번호','이메일','메모'];
   var COLS={reg:C,evote:CE,all:CA,non:CN};
   function ck(){ return (cur==='all'&&chip==='non')?'non':cur; }
-  var NUMC=['보유주식','보유주식수','지분율','참석주식수'], CENC=['비주주 구분','사전투표','참석 신청','현장 참석','앱 사용','의결권 제한','의안별 제한','출석',''];
+  var NUMC=['보유주식','보유주식수','지분율','참석주식수'], CENC=['구분','사전투표','참석 신청','현장 참석','앱 사용','의결권 제한','의안별 제한','출석',''];
   function cls(c){ return NUMC.indexOf(c)>=0?' class="n"':(CENC.indexOf(c)>=0?' class="c"':''); }
   function cellHTML(x,c,gid,k){
     if(c==='보유주식수') c='보유주식';
@@ -729,7 +729,7 @@
       case '앱 사용': return appB(x.app);
       case '의결권 제한': return x.limit==='-'?mu('-'):'<span title="'+x.limit+'">'+x.limit+'</span>';
       case '의안별 제한': return agB(x.ag);
-      case '비주주 구분': return '<span class="atb gray">'+x.kind+'</span>';
+      case '구분': return '<span class="atb gray">'+x.kind+'</span>';
       case '참석자명': return x.name; case '소속': return x.org; case '전화번호': return x.phone; case '이메일': return x.mail;
       case '메모': return x.memo?'<span title="'+x.memo+'">'+x.memo+'</span>':mu('-');
       case '': return '<button type="button" class="at-more" data-more="'+k+'" aria-label="더보기"><i class="ph ph-dots-three"></i></button>';
@@ -748,7 +748,7 @@
       case '현장 참석': return x.site; case '앱 사용': return x.app;
       case '보유주식': return x.hold; case '지분율': return parseFloat(x.ratio); case '참석주식수': return attOf(x);
       case '의결권 제한': return x.limit; case '의안별 제한': return x.ag?'제한':'-';
-      case '비주주 구분': return x.kind; case '참석자명': return x.name; case '소속': return x.org; case '전화번호': return x.phone; case '이메일': return x.mail; case '메모': return x.memo||'-';
+      case '구분': return x.kind; case '참석자명': return x.name; case '소속': return x.org; case '전화번호': return x.phone; case '이메일': return x.mail; case '메모': return x.memo||'-';
     }
     return '';
   }
@@ -762,7 +762,7 @@
       case '현장 참석': return x.site; case '앱 사용': return x.app;
       case '보유주식': return cm(x.hold); case '지분율': return x.ratio; case '참석주식수': return attOf(x)?cm(attOf(x)):'-';
       case '의결권 제한': return x.limit; case '의안별 제한': return x.ag?'제한 '+x.ag.length+'건':'-';
-      case '비주주 구분': return x.kind; case '참석자명': return x.name; case '소속': return x.org; case '전화번호': return x.phone; case '이메일': return x.mail; case '메모': return x.memo||'-';
+      case '구분': return x.kind; case '참석자명': return x.name; case '소속': return x.org; case '전화번호': return x.phone; case '이메일': return x.mail; case '메모': return x.memo||'-';
     }
     return '';
   }
@@ -776,10 +776,10 @@
       var r=(typeof p==='number'&&typeof q==='number')?p-q:String(p).localeCompare(String(q),'ko');
       return r?d*r:a._o-b._o; });
   }
-  var CW={'출석':90,'보유주식수':120,'대리인':96,'주주명':140,'주주번호':140,'사전투표':116,'참석 신청':100,'현장 참석':110,'앱 사용':84,'보유주식':110,'지분율':72,'참석주식수':104,'의결권 제한':150,'의안별 제한':92,'비주주 구분':110,'참석자명':120,'소속':180,'전화번호':140,'이메일':220,'메모':240};
+  var CW={'출석':90,'보유주식수':120,'대리인':96,'주주명':140,'주주번호':140,'사전투표':116,'참석 신청':100,'현장 참석':110,'앱 사용':84,'보유주식':110,'지분율':72,'참석주식수':104,'의결권 제한':150,'의안별 제한':92,'구분':110,'참석자명':120,'소속':180,'전화번호':140,'이메일':220,'메모':240};
   /* 검색은 항상 전체 데이터(D) 기준. reg 탭은 검색 전엔 목록을 감춘다(null 반환) */
   /* 칩은 단일 선택 — 전체(기본) · 주주 · 비주주 */
-  var chip='all';
+  var chip='sh';
   function chipHit(x,k){ return k==='all'||(k==='sh'?!x.nonsh:!!x.nonsh); }
   /* 현장 참석자 탭은 참석(등록)한 인원만 — 미참석은 현장 참석자 등록 탭에서 검색해 등록한다 */
   function base(){ return cur==='all'?D.filter(function(x){ return x.site!=='미참석'; }):D; }
@@ -787,7 +787,7 @@
     var q=(document.getElementById('atSearch').value||'').trim();
     if(cur==='reg' && !q) return null;
     var f=document.getElementById('atQf').value, B=base(), num=f==='no'||f==='ac', nq=num?q.replace(/\D/g,''):q, r=q ? B.filter(function(x){ var v=String(x[f]||''); return (num?v.replace(/\D/g,''):v).indexOf(nq)>=0; }) : B.slice();   /* 검색 기준: 투표권자·주주명·주주번호·실질계좌번호 — 번호는 '-' 없이 숫자로 비교 */
-    if(chip!=='all') r=r.filter(function(x){ return chipHit(x,chip); });
+    r=r.filter(function(x){ return chipHit(x,chip); });
     return r;
   }
   function chipCounts(){ document.querySelectorAll('#atChips .at-chip').forEach(function(b){ var k=b.dataset.chip; b.querySelector('b').textContent=base().filter(function(x){ return chipHit(x,k); }).length; }); }
@@ -840,13 +840,21 @@
   function syncChips(){
     var box=document.getElementById('atChips'), on=(cur==='all');
     box.style.display=on?'':'none';
-    if(!on){ chip='all'; box.querySelectorAll('.at-chip').forEach(function(b){ b.classList.toggle('on',b.dataset.chip==='all'); }); }
+    if(!on){ chip='sh'; box.querySelectorAll('.at-chip').forEach(function(b){ b.classList.toggle('on',b.dataset.chip==='sh'); }); }
   }
   syncChips();
   document.querySelectorAll('.at-tab').forEach(function(t){ t.addEventListener('click',function(){ if(cur!==t.dataset.at) document.getElementById('atSearch').value='';   /* 탭을 옮기면 검색어 초기화 */
     cur=t.dataset.at; page=1; document.querySelectorAll('.at-tab').forEach(function(x){x.classList.toggle('on',x===t);}); document.querySelectorAll('.regonly').forEach(function(b){b.style.display=(cur==='reg')?'':'none';}); syncChips(); render(); }); });
   document.getElementById('atSearch').addEventListener('input',function(){ page=1; render(); });
   document.getElementById('atQf').addEventListener('change',function(){ page=1; render(); });
+  /* 비주주 등록 직후 — 현장 참석자 탭의 비주주 칩으로 옮겨 방금 올린 줄을 보여준다 */
+  window.atShowNon=function(){
+    document.querySelectorAll('.at-tab').forEach(function(t){ t.classList.toggle('on', t.dataset.at==='all'); });
+    cur='all'; chip='non'; page=1;
+    var box=document.getElementById('atChips');
+    box.querySelectorAll('.at-chip').forEach(function(b){ b.classList.toggle('on', b.dataset.chip==='non'); });
+    headTab=null; render();
+  };
   document.getElementById('atChips').addEventListener('click',function(e){ var b=e.target.closest('.at-chip'); if(!b) return; chip=b.dataset.chip; this.querySelectorAll('.at-chip').forEach(function(x){ x.classList.toggle('on',x===b); }); page=1; render(); });
   /* 비주주 정보 패널(조회) — 현장 참석자 탭에서 비주주 행 클릭 */
   var nvX=null, nv=document.getElementById('nvDlg');
@@ -967,7 +975,12 @@
       if(e.target.closest('#nsKind')){ var on=!dd.classList.contains('on'); dd.classList.toggle('on',on); sel.classList.toggle('open',on); return; }
       var k=e.target.closest('[data-kind]');
       if(k){ kind=k.dataset.kind; paintKind(); dd.classList.remove('on'); sel.classList.remove('open'); check(); $('nsName').focus(); return; }
-      if(e.target.closest('#nsOk') && !ok.disabled){ D.push(nonSh($('nsName').value.trim(), kind, $('nsOrg').value.trim(), $('nsPhone').value, '', $('nsMemo').value.trim())); render(); dlg.classList.remove('show'); if(window.cxToast) cxToast('비주주 등록을 완료했습니다.'); return; }
+      if(e.target.closest('#nsOk') && !ok.disabled){
+        D.push(nonSh($('nsName').value.trim(), kind, $('nsOrg').value.trim(), $('nsPhone').value, '', $('nsMemo').value.trim()));
+        dlg.classList.remove('show');
+        if(window.atShowNon) window.atShowNon();   /* 등록한 줄이 바로 보이도록 비주주 칩으로 */
+        else render();
+        if(window.cxToast) cxToast('비주주 등록을 완료했습니다.'); return; }
       if(!e.target.closest('.px-find')){ dd.classList.remove('on'); sel.classList.remove('open'); }
     });
   })();
