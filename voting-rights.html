@@ -340,12 +340,42 @@
       if(t.dataset.vt==='solicit') t.addEventListener('click',function(){ setTimeout(initChart,60); });
     });
     if(document.querySelector('.vr-panel[data-vp="solicit"].active')) setTimeout(initChart,120);
+    /* 권유 기간 · 기준 시각 — 접속한 날짜로 계산한다.
+       기준은 2026-09-20 ~ 2026-10-20, 이미 지난 기간이면 한 달씩 미뤄 늘 진행 중으로 보인다. */
+    function solicitTerm(){
+      var now=new Date();
+      var from=new Date(2026,8,20), to=new Date(2026,9,20);
+      /* 끝난 기간이면 한 달씩 당겨 온다 */
+      var guard=0;
+      while(now>to && guard++<600){
+        from.setMonth(from.getMonth()+1); to.setMonth(to.getMonth()+1);
+      }
+      return { from:from, to:to, now:now };
+    }
+    function paintSolicitMeta(){
+      var t=solicitTerm(), p=function(n){return ('0'+n).slice(-2);};
+      function ymd(d){ return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+      var d0=new Date(t.from.getFullYear(),t.from.getMonth(),t.from.getDate());
+      var d1=new Date(t.to.getFullYear(),t.to.getMonth(),t.to.getDate());
+      var dn=new Date(t.now.getFullYear(),t.now.getMonth(),t.now.getDate());
+      var DAY=86400000;
+      var left=Math.round((d1-dn)/DAY);                 /* 남은 날 */
+      var nth=Math.round((dn-d0)/DAY)+1;                /* 며칠째 */
+      if(nth<1) nth=1;
+      var as=document.getElementById('vrAsOf');
+      if(as) as.textContent=ymd(t.now)+' '+p(t.now.getHours())+':'+p(t.now.getMinutes())+' 기준';
+      var tm=document.getElementById('vrTerm');
+      if(tm) tm.textContent='권유기간 '+ymd(d0)+' ~ '+ymd(d1);
+      var dd=document.getElementById('vrDday');
+      if(dd) dd.textContent=(left>0?'D-'+left:(left===0?'D-DAY':'D+'+(-left)))+' · '+nth+'일차';
+    }
+    paintSolicitMeta();
+    setInterval(paintSolicitMeta, 60000);
     // 새로고침 — 기준 시각 갱신
     (function(){
       var b=document.getElementById('vrRefresh'); if(!b) return;
       b.addEventListener('click',function(){
-        var d=new Date(), p=function(n){return ('0'+n).slice(-2);};
-        document.getElementById('vrAsOf').textContent=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())+' 기준';
+        paintSolicitMeta();
         if(window.cxToast) cxToast('최신 현황을 불러왔습니다.');
       });
     })();
@@ -608,7 +638,7 @@
             <button class="vr-tab" data-vt="solicit">의결권 권유 현황</button>
           </div>
           <div class="vr-meta" data-vm="status"><span class="vr-hint">전자투표/위임장 기간 2026-01-01 ~ 2026-01-07</span><span class="vr-sep"></span><span class="vr-dday">D-10 · 7일차</span></div>
-          <div class="vr-meta" data-vm="solicit" hidden><button type="button" class="vr-refresh" id="vrRefresh"><i class="ph ph-arrow-counter-clockwise"></i>새로고침</button><span class="vr-hint" id="vrAsOf">2026-01-02 12:30 기준</span><span class="vr-sep"></span><span class="vr-hint">권유기간 2026-01-01 ~ 2026-01-07</span><span class="vr-sep"></span><span class="vr-dday">D-5 · 2일차</span></div>
+          <div class="vr-meta" data-vm="solicit" hidden><button type="button" class="vr-refresh" id="vrRefresh"><i class="ph ph-arrow-counter-clockwise"></i>새로고침</button><span class="vr-hint" id="vrAsOf"></span><span class="vr-sep"></span><span class="vr-hint" id="vrTerm"></span><span class="vr-sep"></span><span class="vr-dday" id="vrDday"></span></div>
         </div>
 
         <!-- ===== 현황 ===== -->
