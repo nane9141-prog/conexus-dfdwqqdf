@@ -870,13 +870,25 @@
         th.className=(c.kind==='num'?'num':'c'); th.textContent=c.no;
         hr.appendChild(th);
       });
-      Array.prototype.forEach.call(t.tBodies[0].rows,function(tr){
+      /* 회사 권고와 다른 의향 — 시연용으로 다섯 건 섞어 둔다 (행 번호 → 의향) */
+      var DIFF={
+        1:{op:['반대','찬성','찬성','찬성','반대']},
+        3:{op:['찬성','반대','찬성','찬성','반대']},
+        5:{op:['찬성','찬성','기권','찬성','반대']},
+        7:{op:['찬성','찬성','찬성','반대','찬성'], side:'주주'},   /* 주주제안 지지 — 집중투표도 4-2호로 */
+        9:{op:['기권','찬성','반대','찬성','반대']}
+      };
+      Array.prototype.forEach.call(t.tBodies[0].rows,function(tr,ri){
         var sh=+String(tr.cells[2].textContent||'').replace(/\D/g,'');
         var tot=sh*2;                                     /* 집중투표 의결권 = 보유주식 × 선임 2인 */
+        var dv=DIFF[ri]||null;
         while(tr.cells.length>5) tr.deleteCell(5);
-        var vals=[opb('찬성'),opb('찬성'),opb('찬성'),opb('찬성'),opb('반대')]
-          .concat(split2(tot,4).map(cm))
-          .concat(split2(tot,5).map(cm));
+        var ops=(dv?dv.op:['찬성','찬성','찬성','찬성','반대']).map(opb);
+        var a41=(dv&&dv.side==='주주')?[0,0,0,0]:split2(tot,4);
+        var a42=(dv&&dv.side==='주주')?split2(tot,5):split2(tot,5);
+        var vals=ops
+          .concat(a41.map(cm))
+          .concat(a42.map(cm));
         AGC.forEach(function(c,i){
           var td=tr.insertCell(5+i);
           td.className=(c.kind==='num'?'num':'c');
