@@ -444,6 +444,8 @@
   .rcgrid{display:grid;grid-template-columns:96px 1fr;row-gap:8px;column-gap:12px;font-size:13.5px}
   .rcgrid dt{color:var(--muted-fg)}
   .rcgrid dd{margin:0;font-weight:600}
+  .rcgrid.rcchk{row-gap:12px;align-items:center}
+  .rcdocs{margin-top:16px}
   .rclist{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
   .rclist .r{display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:13.5px}
   .rclist .r+.r{border-top:1px solid var(--border)}
@@ -452,7 +454,7 @@
   .rclist .rcnum{flex:none;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
   .rcok{display:inline-flex;align-items:center;gap:4px;color:#0071f3;font-weight:600}
   .rcok i{font-size:14px}
-  .rcdocs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .rcdocs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
   .rcdocs figure{margin:0}
   .rcdocs figcaption{margin-bottom:6px;font-size:12px;font-weight:700;color:var(--muted-fg)}
   .rcdocs figcaption em{margin-left:4px;font-style:normal;font-weight:600;color:#9aa1ad}
@@ -901,7 +903,7 @@
     /* ── 접수 내역 모달 — 주주명을 누르면 그 건의 접수 내용을 보여준다 ── */
     var AGHD=hd.slice(5);                        /* 표에 있는 의안 칸 전체 — 1 · 2-1 · 2-2 · 3 · 4-1 · 4-2 */
     /* 담당 에이전트 — 앱 접수 건은 로그인한 파트너, 과거 건은 수집 당시 담당자 */
-    var AGENTS=['도지연 · 아이알큐더스','최현우 · 아이알큐더스','윤서진 · 아이알큐더스','한지민 · 아이알큐더스'];
+    var AGENTS=['도지연','최현우','윤서진','한지민'];
     function agentOf(k){ var n=0, t=String(k||''); for(var i=0;i<t.length;i++) n+=t.charCodeAt(i); return AGENTS[n%AGENTS.length]; }
     /* 시연용 전자서명 · 신분증 — 앱에서 올라온 이미지가 없을 때 쓴다 */
     /* 시연용 전자서명 — 주주마다 다른 필체가 나오도록 씨앗값으로 획을 만든다 */
@@ -986,8 +988,8 @@
       h+='</div>';
 
       var sign=p.sign||signFor(k||tr.cells[1].textContent.trim()+tr.cells[0].textContent.trim()), idImg=p.idImg||DEMO_ID;
-      h+='<div class="rcsec">접수 확인</div><dl class="rcgrid">'
-        +'<dt>담당 에이전트</dt><dd>'+esc(app?'도지연 · 아이알큐더스':agentOf(k||tr.cells[1].textContent))+'</dd>'
+      h+='<div class="rcsec">접수 확인</div><dl class="rcgrid rcchk">'
+        +'<dt>담당 에이전트</dt><dd>'+esc(app?'도지연':agentOf(k||tr.cells[1].textContent))+'</dd>'
         +'<dt>전자서명</dt><dd><span class="rcok"><i class="ph-bold ph-check-circle"></i>등록 완료</span></dd>'
         +'<dt>신분증</dt><dd><span class="rcok"><i class="ph-bold ph-check-circle"></i>등록 완료</span></dd>'
         +'</dl>'
