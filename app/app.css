@@ -141,14 +141,13 @@ a{color:inherit;text-decoration:none}
 .lg #lgGo{margin-top:22px;height:52px;font-size:16px}
 .lg .hint{margin-top:auto;padding:12px 14px;border-radius:12px;background:#F7F8FA;color:var(--mut);font-size:12px;line-height:1.6}
 
-/* 체크박스 */
-.cb{width:20px;height:20px;flex:none;border:1px solid var(--bd);border-radius:6px;background:#fff;
+/* 체크박스 — 디자인 파일(appcheckbox1 · 2) */
+.cb{width:24px;height:24px;flex:none;border:0;border-radius:8px;background:#fff;
+  background-image:url("assets/checkbox-off.svg");background-size:24px 24px;
+  background-repeat:no-repeat;background-position:center;
   display:inline-flex;align-items:center;justify-content:center}
-.cb.on{background:var(--blue);border-color:var(--blue);
-  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
-  background-size:15px 15px;background-repeat:no-repeat;background-position:center}
+.cb.on{background-image:url("assets/checkbox-on.svg")}
 .cb.rd{border-radius:1000px}
-.cb.rd.on{background-size:13px 13px}
 
 /* ── 필터 칩 · 검색 ───────────────────────────── */
 /* 필터 칩 줄 — 지도 모드에서는 오른쪽 끝에 검색 아이콘이 붙는다 */
@@ -992,11 +991,10 @@ a{color:inherit;text-decoration:none}
   background:none;font-family:inherit;text-align:left;cursor:pointer}
 .fchk .r:last-child{border-bottom:0}
 .fchk .r .t{font-size:15px;color:#171717}
-.fchk .cb{flex:none;width:22px;height:22px;border:1.5px solid #D4D4D8;border-radius:50%;background:#fff;
-  position:relative;transition:.12s}
-.fchk .cb.on{border-color:#171717;background:#171717}
-.fchk .cb.on::after{content:"";position:absolute;left:6px;top:5px;width:6px;height:10px;
-  border:2px solid #fff;border-left:0;border-top:0;transform:rotate(45deg)}
+.fchk .cb{flex:none;width:24px;height:24px;border:0;border-radius:8px;
+  background-image:url("assets/checkbox-off.svg");background-size:24px 24px;
+  background-repeat:no-repeat;background-position:center}
+.fchk .cb.on{background-image:url("assets/checkbox-on.svg")}
 
 
 /* ══ 즐겨찾기 ══════════════════════════════════ */
