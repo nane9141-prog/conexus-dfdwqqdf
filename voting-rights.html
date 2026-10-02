@@ -453,7 +453,7 @@
   .rclist .no{flex:none;width:76px;color:var(--muted-fg);font-size:12px;font-weight:700}
   .rclist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rclist .rcnum{flex:none;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
-  .rcok{display:inline-flex;align-items:center;gap:4px;color:#0071f3;font-weight:600}
+  .rcok{display:inline-flex;align-items:center;color:#0071f3;font-weight:600}
   .rcok i{font-size:14px}
   .rcdocs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
   .rcdocs figure{margin:0}
@@ -837,6 +837,13 @@
         : '<span class="opb for"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>찬성</span>';
     }
     function mask(n){ n=String(n||''); return n.length<3?n:n[0]+'*'+n.slice(2); }
+    /* 생년월일 — 데모 값이라 월·일이 범위를 벗어나는 경우가 있어 보정한다 */
+    function birth(v){
+      var t=String(v||'').replace(/\D/g,''); if(t.length<8) return t;
+      var y=t.slice(0,4), m=+t.slice(4,6), d=+t.slice(6,8);
+      m=((m-1+1200)%12)+1; d=((d-1+2800)%28)+1;
+      return y+('0'+m).slice(-2)+('0'+d).slice(-2);
+    }
     function cm(n){ return (+n||0).toLocaleString('en-US'); }
     var REC={'제1호':'찬성','제2-1호':'찬성','제2-2호':'찬성','제3-1호':'찬성','제3-2호':'반대'};   /* 회사 권고(데모) */
     /* 의안 칸 — 표결 단위 아래 하위 의안까지 펼친다.
@@ -879,6 +886,9 @@
         9:{op:['기권','찬성','반대','찬성','반대']}
       };
       Array.prototype.forEach.call(t.tBodies[0].rows,function(tr,ri){
+        var bd=birth(tr.cells[3].textContent);
+        tr.cells[3].textContent=bd;
+        tr.cells[4].textContent=(2026-+bd.slice(0,4))+'세';
         var sh=+String(tr.cells[2].textContent||'').replace(/\D/g,'');
         var tot=sh*2;                                     /* 집중투표 의결권 = 보유주식 × 선임 2인 */
         var dv=DIFF[ri]||null;
@@ -923,10 +933,10 @@
         var r=o.r, vt=o.vt;
         var tr=tb.insertRow(0);
         tr.dataset.app='1'; tr.dataset.k='a'+r.i;
-        var born=19500000+((r.i*7919)%500000);
+        var born=birth(19500000+((r.i*7919)%500000));
         var tot=+r.sh*2;
         var cells=[(r.at||'').slice(5), mask(r.nm), cm(r.sh),
-                   String(born).slice(0,8), (2026-+String(born).slice(0,4))+'세',
+                   born, (2026-+born.slice(0,4))+'세',
                    opb(vt[0]),opb(vt[1]),opb(vt[2])]
           .concat(vt[3]==='기권'?[opb('기권'),opb('기권')]
                  :vt[3]==='반대'?[opb('반대'),opb('찬성')]:[opb('찬성'),opb('반대')])
