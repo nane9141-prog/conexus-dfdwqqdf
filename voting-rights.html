@@ -453,6 +453,16 @@
   .rclist .no{flex:none;width:76px;color:var(--muted-fg);font-size:12px;font-weight:700}
   .rclist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rclist .rcnum{flex:none;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+  /* 첨부파일 카드 */
+  .atc{box-sizing:border-box;display:flex;align-items:center;gap:8px;padding:8px 10px;
+    border:1px solid #E5E5E5;border-radius:14px;background:#fff;min-height:52px}
+  .atc .ic{flex:none;width:32px;height:32px;border-radius:8px;background:#F5F5F5;
+    display:flex;align-items:center;justify-content:center}
+  .atc .ic svg{width:16px;height:16px;fill:none;stroke:#171717;stroke-width:1.5;
+    stroke-linecap:round;stroke-linejoin:round}
+  .atc .tx{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+  .atc .tx b{font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.01em;color:#171717}
+  .atc .tx em{font-style:normal;font-size:12px;line-height:16px;letter-spacing:-.01em;color:#737373}
   .rcok{display:inline-flex;align-items:center;color:#0071f3;font-weight:600}
   .rcok i{font-size:14px}
   .rcdocs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
@@ -1061,19 +1071,10 @@
         + '<dt>수집일시</dt><dd>'+esc(tr.cells[0].textContent.trim())+'</dd>'
         + '</dl>';
 
-      h+='<div class="rcsec">의안별 의향</div><div class="rclist">';
-      AGHD.forEach(function(n,i){
-        var cell=tr.cells[5+i]; if(!cell) return;
-        var txt=cell.textContent.trim()||'-';
-        var num=/^[0-9,]+$/.test(txt);
-        var cls=txt==='찬성'?'for':txt==='반대'?'against':'';
-        h+='<div class="r"><span class="no">'+esc(/^제/.test(n)?n:'제'+n+'호')+'</span>'
-          +'<span class="nm">'+esc(agName(n))+'</span>'
-          +(num?'<span class="rcnum">'+esc(txt)+'주</span>'
-               :'<span class="opb '+cls+'">'+esc(txt)+'</span>')
-          +'</div>';
-      });
-      h+='</div>';
+      /* 의안별 의향 표 대신 위임장 전자문서를 첨부 형식으로 보여 준다 */
+      h+='<div class="rcsec">위임장</div>'
+        +'<div class="atc"><span class="ic"><svg viewBox="0 0 24 24"><path d="M14 3H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7l-4-4Z"/><path d="M14 3v4h4"/></svg></span>'
+        +'<span class="tx"><b>위임장.pdf</b><em>pdf・12KB</em></span></div>';
 
       var sign=p.sign||signFor(k||tr.cells[1].textContent.trim()+tr.cells[0].textContent.trim());
       var real=!!p.idImg, idImg=p.idImg||DEMO_ID;   /* 앱에서 올라온 신분증이면 그대로 보여 준다 */
@@ -1130,6 +1131,6 @@
   });
 </script>
 <script src="conexus.js?v=fwk"></script>
-<script src="cx-relay.js?v=4"></script>
+<script src="cx-relay.js?v=5"></script>
 </body>
 </html>

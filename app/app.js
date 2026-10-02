@@ -1780,7 +1780,7 @@
     APP.setState(CUR.i, 'done');
     APP.setProxy(CUR.i, { votes: PX.votes, sign: PX.sign, idImg: PX.idImg, at: CUR.at });
     /* 중계(다른 기기)로도 넘어가도록 가벼운 사본으로 바꿔 둔다 */
-    shrink(PX.idImg, 240, 0.4, true, function (small) {
+    shrink(PX.idImg, 200, 0.35, true, function (small) {
       shrink(PX.sign, 300, 0.5, false, function (sg) {
         APP.setProxy(CUR.i, { votes: PX.votes, sign: sg || PX.sign, idImg: small || PX.idImg, at: CUR.at });
       });

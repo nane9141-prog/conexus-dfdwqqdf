@@ -253,15 +253,15 @@
 
   function build() {
     /* 현장 방문 대상이라 국내 거주 개인 주주만 본다 */
-    var R = (CX.roster || []).filter(function (r) { return r.gb === '개인' && /[가-힣]/.test(r.nm || ''); });
+    var R = (CX.roster || []).filter(function (r) { return r.gb === '개인'; });
     if (!R.length) R = (CX.roster || []).filter(function (r) { return r.gb === '개인'; });
     if (!R.length) R = (CX.roster || []).slice();
     /* 여의도 구역에 배정된 명부 — 보유주식이 큰 개인부터 149명 */
-    R = R.slice().sort(function (a, b) { return b.sh - a.sh; }).slice(0, 399);   /* 전국 분포가 보이도록 표본을 넓혔다 */
+    R = R.slice().sort(function (a, b) { return b.sh - a.sh; }).slice(0, 999);   /* 전국 분포가 보이도록 명부의 개인 주주를 모두 쓴다 */
     /* 시연 타겟(박성용 1,200주)은 보유 규모와 무관하게 반드시 포함해 150명을 맞춘다 */
     if (!R.some(function (r) { return r.i === TARGET; })) {
       var t = (CX.roster || []).filter(function (r) { return r.i === TARGET; })[0];
-      if (t) R.push(t); else R = R.slice(0, 400);
+      if (t) R.push(t); else R = R.slice(0, 1000);
     }
     return R.map(function (r, i) {
       var ad = addrOf(r.i), bn = bornOf(r), lv = liveOf(r.i);
