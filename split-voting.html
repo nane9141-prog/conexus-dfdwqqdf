@@ -197,6 +197,96 @@
   .sdlg-btn{padding:0 10px}
 </style>
 <script src="cx-data.js?v=6"></script>
+<style>
+  /* ── 불통일행사 패널 (개별 등록 · 내역) ───────────────────── */
+  .spl-sheet{width:640px;max-width:96vw}
+  .spl-sheet .sheet-head{align-items:flex-start;padding:22px 24px 18px;border-bottom:1px solid var(--border)}
+  .spl-sheet .sheet-head h3{font-size:17px;font-weight:700}
+  .spl-sheet .sheet-head .sdesc{margin-top:5px;font-size:13px;color:var(--muted-fg)}
+  .spl-sheet .sheet-body{padding:24px;display:flex;flex-direction:column;gap:24px}
+  .spl-sheet .fgrp{display:flex;flex-direction:column;gap:8px}
+  .spl-sheet .flb{font-size:13.5px;font-weight:700;color:var(--ink)}
+  .spl-sheet .flbrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .spl-sheet .minibtn{height:28px;padding:0 12px;border:1px solid var(--border);border-radius:8px;
+    background:#fff;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+  .spl-sheet .minibtn:hover{background:var(--muted)}
+  /* 검색 */
+  .spl-sheet .srow{display:flex;gap:8px}
+  .spl-sheet .srow select{flex:none;width:140px;height:42px;padding:0 10px;border:1px solid var(--border);
+    border-radius:8px;background:#fff;font-family:inherit;font-size:13.5px;cursor:pointer}
+  .spl-sheet .sbox{position:relative;flex:1;min-width:0}
+  .spl-sheet .sbox i{position:absolute;left:12px;top:50%;transform:translateY(-50%);
+    font-size:16px;color:var(--muted-fg);pointer-events:none}
+  .spl-sheet .sbox input{width:100%;height:42px;padding:0 12px 0 34px;border:1px solid var(--border);
+    border-radius:8px;background:#fff;font-family:inherit;font-size:13.5px}
+  .spl-sheet .sbox input:focus{outline:none;border-color:#9A9EA6}
+  .spl-sheet .sug{position:absolute;left:0;right:0;top:46px;z-index:5;max-height:232px;overflow-y:auto;
+    background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow-md)}
+  .spl-sheet .sug[hidden]{display:none}
+  .spl-sheet .sug button{display:flex;align-items:center;gap:8px;width:100%;padding:10px 12px;border:0;
+    background:none;font-family:inherit;font-size:13.5px;text-align:left;cursor:pointer}
+  .spl-sheet .sug button+button{border-top:1px solid var(--border)}
+  .spl-sheet .sug button:hover{background:var(--muted)}
+  .spl-sheet .sug .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+  .spl-sheet .sug .m{flex:none;font-size:12.5px;color:var(--muted-fg)}
+  .spl-sheet .sug .e{padding:14px 12px;font-size:13px;color:var(--muted-fg);text-align:center}
+  /* 선택된 주주 */
+  .spl-sheet .pick{display:flex;align-items:center;gap:10px;padding:12px 14px;border:1px solid var(--border);
+    border-radius:8px;background:var(--muted);font-size:13.5px}
+  .spl-sheet .pick[hidden]{display:none}
+  .spl-sheet .pick .pk{display:flex;align-items:center;gap:8px;min-width:0}
+  .spl-sheet .pick .pk em{font-style:normal;font-size:12.5px;color:var(--muted-fg)}
+  .spl-sheet .pick .pk b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .spl-sheet .pick .bar{width:1px;height:12px;background:#D8DADF;flex:none}
+  .spl-sheet .pick .x{margin-left:auto;flex:none;width:24px;height:24px;border:0;background:none;
+    cursor:pointer;color:var(--muted-fg);font-size:14px}
+  /* 우리사주조합장 */
+  .spl-sheet .esop{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+  .spl-sheet .esop[hidden]{display:none}
+  .spl-sheet .esop .cb{flex:none;width:20px;height:20px;margin-top:1px;border:1.5px solid #C9CDD4;
+    border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;
+    color:#fff;font-size:12px;transition:.12s}
+  .spl-sheet .esop .cb i{opacity:0}
+  .spl-sheet .esop .cb.on{background:var(--ink);border-color:var(--ink)}
+  .spl-sheet .esop .cb.on i{opacity:1}
+  .spl-sheet .esop .c{display:flex;flex-direction:column;gap:4px}
+  .spl-sheet .esop .c b{font-size:13.5px;font-weight:700}
+  .spl-sheet .esop .c span{font-size:12.5px;line-height:1.6;color:var(--muted-fg)}
+  /* 승인 · 거절 세그먼트 */
+  .spl-sheet .seg{display:flex;padding:3px;border:1px solid var(--border);border-radius:10px;background:var(--muted)}
+  .spl-sheet .seg button{flex:1;height:36px;border:0;border-radius:8px;background:none;
+    font-family:inherit;font-size:13.5px;font-weight:600;color:var(--muted-fg);cursor:pointer}
+  .spl-sheet .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(16,24,40,.08)}
+  /* 사유 입력 */
+  .spl-sheet .tawrap{position:relative}
+  .spl-sheet .tawrap textarea{width:100%;height:120px;padding:12px 14px 26px;resize:none;
+    border:1px solid var(--border);border-radius:8px;background:#fff;
+    font-family:inherit;font-size:13.5px;line-height:1.65}
+  .spl-sheet .tawrap textarea:focus{outline:none;border-color:#9A9EA6}
+  .spl-sheet .tawrap textarea[readonly]{background:var(--muted);color:var(--ink)}
+  .spl-sheet .tawrap .cnt{position:absolute;right:12px;bottom:8px;font-size:12px;color:var(--muted-fg)}
+  .spl-sheet .tawrap .cnt[hidden]{display:none}
+  /* 하단 */
+  .spl-foot2{flex-direction:row;gap:10px}
+  .spl-foot2 .sheet-cancel{flex:1}
+  .spl-foot2 .sheet-ok{flex:1;height:44px;border:0;border-radius:10px;background:var(--ink);color:#fff;
+    font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
+  .spl-foot2 .sheet-ok:disabled{background:#D7D9DF;cursor:default}
+  .spl-foot2 .vlast{flex:1;text-align:center;font-size:12.5px;color:var(--muted-fg)}
+  /* 내역 — 개인정보 */
+  .spl-sheet .vbox{border:1px solid var(--border);border-radius:10px;padding:18px 20px;background:var(--muted)}
+  .spl-sheet .vgrid{display:grid;grid-template-columns:92px 1fr;row-gap:9px;column-gap:14px;font-size:13.5px}
+  .spl-sheet .vgrid dt{color:var(--muted-fg)}
+  .spl-sheet .vgrid dd{margin:0;font-weight:600;word-break:break-all}
+  .spl-sheet .vsep{height:1px;background:#E2E4E9;margin:16px 0}
+  .spl-sheet .vrsn .k{font-size:12.5px;color:var(--muted-fg)}
+  .spl-sheet .vrsn p{margin-top:7px;font-size:13.5px;line-height:1.7}
+  .spl-sheet .vst{font-size:14px;font-weight:700}
+  .spl-sheet .vst b{margin-left:6px}
+  .spl-sheet .vst b.ok{color:#0071F3}
+  .spl-sheet .vst b.no{color:#E9081B}
+  .spl-sheet .vnote{font-size:12.5px;color:var(--muted-fg)}
+</style>
 <link rel="stylesheet" href="cx-checkbox.css?v=2">
 </head>
 <body>
@@ -371,6 +461,119 @@
 </script>
 <div class="splmenu" id="splMenu"></div>
 <div class="spl-tip" id="splTip"></div>
+<!-- 불통일행사 개별 등록 패널 -->
+<div class="overlay hidden" id="splRegOv">
+  <aside class="sheet spl-sheet" role="dialog" aria-modal="true" aria-labelledby="splRegT">
+    <div class="sheet-head">
+      <div>
+        <h3 id="splRegT">불통일행사 개별 등록</h3>
+        <div class="sdesc">주주를 선택하고 사유를 입력합니다.</div>
+      </div>
+      <button class="iconbtn sm" type="button" data-reg-close aria-label="닫기"><i class="ph ph-x" style="font-size:16px"></i></button>
+    </div>
+    <div class="sheet-body">
+      <!-- 주주 검색 -->
+      <div class="fgrp">
+        <label class="flb">주주 검색</label>
+        <div class="srow">
+          <select id="splRegBy">
+            <option value="voter">투표권자</option>
+            <option value="name">주주명</option>
+          </select>
+          <div class="sbox">
+            <i class="ph ph-magnifying-glass"></i>
+            <input id="splRegQ" type="text" placeholder="투표권자를 검색해 주세요" autocomplete="off">
+            <div class="sug" id="splRegSug" hidden></div>
+          </div>
+        </div>
+        <div class="pick" id="splRegPick" hidden>
+          <span class="pk"><em>투표권자</em><b id="splPkV"></b></span>
+          <span class="bar"></span>
+          <span class="pk"><em>주주번호</em><b id="splPkNo"></b></span>
+          <span class="bar"></span>
+          <span class="pk"><em>보유주식</em><b id="splPkSh"></b></span>
+          <button class="x" type="button" id="splPkX" aria-label="선택 해제"><i class="ph ph-x"></i></button>
+        </div>
+      </div>
+
+      <!-- 우리사주조합장 — 개인 계좌에서만 -->
+      <label class="esop" id="splEsop" hidden>
+        <span class="cb" id="splEsopCb" role="checkbox" aria-checked="false" tabindex="0"><i class="ph-bold ph-check"></i></span>
+        <span class="c">
+          <b>우리사주조합장</b>
+          <span>불통일행사를 신청하는 경우 체크해주세요. 개인 계좌도 중립 투표를 진행할 수 있게 처리됩니다</span>
+        </span>
+      </label>
+
+      <!-- 처리 -->
+      <div class="fgrp">
+        <label class="flb">불통일행사 처리</label>
+        <div class="seg" id="splRegSt">
+          <button type="button" data-v="승인" class="on">승인</button>
+          <button type="button" data-v="거절">거절</button>
+        </div>
+      </div>
+
+      <!-- 사유 -->
+      <div class="fgrp">
+        <label class="flb" id="splRegRsnLb">사유 입력(선택)</label>
+        <div class="tawrap">
+          <textarea id="splRegRsn" maxlength="200" placeholder="사유를 200자 이내로 입력하세요"></textarea>
+          <span class="cnt"><b id="splRegCnt">0</b>/200</span>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-foot spl-foot2">
+      <button class="sheet-cancel" type="button" data-reg-close>취소</button>
+      <button class="sheet-ok" type="button" id="splRegGo" disabled>등록</button>
+    </div>
+  </aside>
+</div>
+
+<!-- 불통일행사 내역 패널 -->
+<div class="overlay hidden" id="splViewOv">
+  <aside class="sheet spl-sheet" role="dialog" aria-modal="true" aria-labelledby="splViewT">
+    <div class="sheet-head">
+      <h3 id="splViewT">불통일행사 내역</h3>
+      <button class="iconbtn sm" type="button" data-view-close aria-label="닫기"><i class="ph ph-x" style="font-size:16px"></i></button>
+    </div>
+    <div class="sheet-body">
+      <div class="vbox">
+        <dl class="vgrid">
+          <dt>주주명</dt><dd id="svNm"></dd>
+          <dt>투표권자</dt><dd id="svVoter"></dd>
+          <dt>주주번호</dt><dd id="svNo"></dd>
+          <dt>실질계좌번호</dt><dd id="svAcct"></dd>
+          <dt>주소</dt><dd id="svAddr"></dd>
+          <dt>보유주식</dt><dd id="svSh"></dd>
+          <dt>의결권 제한</dt><dd id="svLimit">-</dd>
+        </dl>
+        <div class="vsep"></div>
+        <div class="vrsn"><div class="k">신청 사유</div><p id="svRsn"></p></div>
+      </div>
+
+      <div class="fgrp">
+        <div class="vst">불통일행사 <b id="svSt"></b></div>
+        <div class="vnote">승인, 거절 여부는 변경할 수 없습니다.</div>
+      </div>
+
+      <div class="fgrp" id="svMemoFld">
+        <div class="flbrow">
+          <label class="flb">사유</label>
+          <button class="minibtn" type="button" id="svEdit">변경</button>
+        </div>
+        <div class="tawrap">
+          <textarea id="svMemo" maxlength="200" readonly></textarea>
+          <span class="cnt" hidden><b id="svCnt">0</b>/200</span>
+        </div>
+      </div>
+    </div>
+    <div class="sheet-foot spl-foot2" id="svFoot">
+      <div class="vlast" id="svLast"></div>
+    </div>
+  </aside>
+</div>
+
 <div class="sdlg-ov" id="splDlg">
   <div class="sdlg">
     <div class="sdlg-h"><div class="t" id="splTitle">불통일행사 승인</div><div class="d" id="splDesc">확정 후에는 불통일행사 여부를 되돌릴 수 없습니다.</div><button class="sdlg-x" data-spl-close type="button"><i class="ph ph-x"></i></button></div>
@@ -550,8 +753,8 @@
     cur=byK(btn.closest('tr').dataset.k); if(!cur) return;
     var h='<div class="splmenu-label">불통일행사 처리</div>';
     if(cur.st==='접수') h+='<div class="splmenu-item" data-act="approve"><i class="ph ph-check-circle"></i>승인</div><div class="splmenu-item" data-act="reject"><i class="ph ph-x-circle"></i>거절</div>';
-    else if(cur.st==='거절') h+='<div class="splmenu-item" data-act="edit"><i class="ph ph-pencil-simple-line"></i>사유 변경</div>';
-    else h+='<div class="splmenu-empty">승인 완료된 신청입니다.</div>';
+    if(cur.st!=='접수') h+='<div class="splmenu-item" data-act="view"><i class="ph ph-list-magnifying-glass"></i>불통일행사 내역</div>';
+    if(cur.st==='거절') h+='<div class="splmenu-item" data-act="edit"><i class="ph ph-pencil-simple-line"></i>사유 변경</div>';
     menu.innerHTML=h; menu.classList.add('show');
     var r=btn.getBoundingClientRect(), mh=menu.offsetHeight, mw=menu.offsetWidth||144;
     var left=Math.max(8,r.right-mw), top=r.bottom+4; if(top+mh>window.innerHeight) top=r.top-mh-4;
@@ -560,7 +763,9 @@
   menu.addEventListener('click',function(e){
     e.stopPropagation();
     var it=e.target.closest('.splmenu-item'); if(!it||!cur) return;
-    closeMenu(); openDialog(it.dataset.act,cur);
+    closeMenu();
+    if(it.dataset.act==='view'){ splView(cur); return; }
+    openDialog(it.dataset.act,cur);
   });
   document.addEventListener('click',closeMenu);
   window.addEventListener('scroll',closeMenu,true);
@@ -571,7 +776,7 @@
       memo=document.getElementById('splMemo'), mode=null, target=null;
   function $(id){ return document.getElementById(id); }
   function setChk(on){ chk.classList.toggle('on',on); chk.setAttribute('aria-checked',on?'true':'false'); ok.disabled=(mode!=='edit')&&!on; }
-  function openDialog(m,x){
+  function openDialog(m,x,preset){
     mode=m; target=x;
     var edit=m==='edit', rej=m==='reject';
     $('splNm').textContent=x.name; $('splVoter').textContent=x.voter; $('splNo').textContent=x.no;
@@ -581,7 +786,7 @@
     $('splDesc').textContent=edit?'불통일행사 거절 사유를 변경합니다.':'확정 후에는 불통일행사 여부를 되돌릴 수 없습니다.';
     $('splMemoFld').hidden=!(rej||edit);
     $('splMemoLbl').textContent=edit?'거절 사유':'거절 사유 입력';
-    memo.value=edit?x.memo:'';
+    memo.value=edit?x.memo:(preset||'');
     $('splAlert').hidden=edit;
     chk.hidden=edit; $('splSp').hidden=!edit;
     $('splChkT').textContent='유의사항을 확인했으며, 신청을 '+(rej?'거절':'승인')+' 합니다.';
@@ -607,6 +812,161 @@
     ov.classList.remove('show'); render();
     cxToast(st==='승인'?'불통일행사 신청을 승인했습니다.':'불통일행사 신청을 거절했습니다.');
   });
+
+
+  /* ---------- 불통일행사 개별 등록 패널 ---------- */
+  var regOv=$('splRegOv'), regPick=null, regEsop=false, regSt='승인';
+  function regOpen(){
+    regPick=null; regEsop=false; regSt='승인';
+    $('splRegQ').value=''; $('splRegRsn').value=''; $('splRegCnt').textContent='0';
+    $('splRegPick').hidden=true; $('splRegSug').hidden=true; $('splEsop').hidden=true;
+    $('splEsopCb').classList.remove('on'); $('splEsopCb').setAttribute('aria-checked','false');
+    segPaint(); regSync();
+    regOv.classList.remove('hidden');
+    setTimeout(function(){ $('splRegQ').focus(); },120);
+  }
+  function regClose(){ regOv.classList.add('hidden'); $('splRegSug').hidden=true; }
+  function segPaint(){
+    $('splRegSt').querySelectorAll('button').forEach(function(b){
+      b.classList.toggle('on', b.dataset.v===regSt);
+    });
+    /* 거절이면 사유가 있어야 다음으로 넘어간다 */
+    $('splRegRsnLb').textContent = regSt==='거절' ? '사유 입력' : '사유 입력(선택)';
+  }
+  function regSync(){
+    var rsn=$('splRegRsn').value.trim();
+    $('splRegGo').disabled = !regPick || (regSt==='거절' && !rsn);
+  }
+  /* 검색 — 표에 있는 주주 중에서 고른다 */
+  function regSearch(){
+    var by=$('splRegBy').value, q=$('splRegQ').value.trim(), box=$('splRegSug');
+    if(!q){ box.hidden=true; return; }
+    var seen={}, hit=[];
+    D.forEach(function(x){
+      [x].concat(x.kids||[]).forEach(function(y){
+        var v=String(by==='name'?y.name:y.voter||y.name);
+        if(v.toLowerCase().indexOf(q.toLowerCase())<0) return;
+        if(seen[y.k]) return; seen[y.k]=1; hit.push(y);
+      });
+    });
+    box.innerHTML = hit.length
+      ? hit.slice(0,30).map(function(y){
+          return '<button type="button" data-k="'+y.k+'"><span class="n">'+esc(y.voter||y.name)+'</span>'
+            +'<span class="m">'+esc(y.gb)+' · '+cm(y.sh)+'주</span></button>';
+        }).join('')
+      : '<div class="e">검색 결과가 없습니다.</div>';
+    box.hidden=false;
+  }
+  function regChoose(k){
+    var f=null;
+    D.forEach(function(x){ [x].concat(x.kids||[]).forEach(function(y){ if(String(y.k)===String(k)) f=y; }); });
+    if(!f) return;
+    regPick=f;
+    $('splPkV').textContent=f.voter||f.name;
+    $('splPkNo').textContent=f.no;
+    $('splPkSh').textContent=cm(f.sh);
+    $('splRegPick').hidden=false;
+    $('splRegSug').hidden=true;
+    $('splRegQ').value='';
+    /* 개인 계좌에서만 우리사주조합장 선택지를 보여준다 */
+    $('splEsop').hidden = f.gb!=='개인';
+    if(f.gb!=='개인'){ regEsop=false; $('splEsopCb').classList.remove('on'); }
+    regSync();
+  }
+  $('splReg').addEventListener('click',regOpen);
+  regOv.addEventListener('click',function(e){
+    if(e.target===regOv || e.target.closest('[data-reg-close]')) regClose();
+  });
+  $('splRegBy').addEventListener('change',function(){
+    $('splRegQ').placeholder=(this.value==='name'?'주주명':'투표권자')+'를 검색해 주세요';
+    regSearch();
+  });
+  $('splRegQ').addEventListener('input',regSearch);
+  $('splRegQ').addEventListener('focus',regSearch);
+  $('splRegSug').addEventListener('click',function(e){
+    var b=e.target.closest('[data-k]'); if(b) regChoose(b.dataset.k);
+  });
+  $('splPkX').addEventListener('click',function(){
+    regPick=null; $('splRegPick').hidden=true; $('splEsop').hidden=true; regSync();
+  });
+  $('splEsopCb').addEventListener('click',function(){
+    regEsop=!regEsop; this.classList.toggle('on',regEsop);
+    this.setAttribute('aria-checked',regEsop?'true':'false');
+  });
+  $('splEsopCb').addEventListener('keydown',function(e){
+    if(e.key===' '||e.key==='Enter'){ e.preventDefault(); this.click(); }
+  });
+  $('splRegSt').addEventListener('click',function(e){
+    var b=e.target.closest('[data-v]'); if(!b) return;
+    regSt=b.dataset.v; segPaint(); regSync();
+  });
+  $('splRegRsn').addEventListener('input',function(){
+    $('splRegCnt').textContent=this.value.length; regSync();
+  });
+  /* 등록 — 상태에 따라 승인 · 거절 확인 팝업으로 넘긴다 */
+  $('splRegGo').addEventListener('click',function(){
+    if(this.disabled||!regPick) return;
+    var x=regPick, rsn=$('splRegRsn').value.trim();
+    x.ch='담당자 등록';
+    if(rsn) x.rsn=rsn;
+    if(regEsop) x.esop=true;
+    regClose();
+    openDialog(regSt==='승인'?'approve':'reject', x, rsn);
+  });
+
+  /* ---------- 불통일행사 내역 패널 ---------- */
+  var vwOv=$('splViewOv'), vwTarget=null, vwEditing=false;
+  function vwOpen(x){
+    vwTarget=x; vwEditing=false;
+    $('svNm').textContent=x.name;
+    $('svVoter').textContent=x.voter||x.name;
+    $('svNo').textContent=x.no;
+    $('svAcct').textContent=x.acct;
+    $('svAddr').textContent=x.addr||'서울시 영등포구 국제금융로 8길 2 농협재단빌딩 14층';
+    $('svSh').textContent=cm(x.sh);
+    $('svRsn').textContent=x.rsn||'-';
+    var ok=x.st==='승인';
+    var b=$('svSt'); b.textContent=x.st; b.className=ok?'ok':'no';
+    /* 승인 건은 사유를 바꾸지 않는다 */
+    $('svMemoFld').hidden=ok;
+    $('svMemo').value=x.memo||'';
+    $('svCnt').textContent=String((x.memo||'').length);
+    vwPaint();
+    $('svLast').textContent='마지막 변경 '+(x.dt==='-'?x.at:x.dt)+' · 박지용';
+    vwOv.classList.remove('hidden');
+  }
+  function vwPaint(){
+    var ta=$('svMemo');
+    ta.readOnly=!vwEditing;
+    $('svCnt').parentElement.hidden=!vwEditing;
+    $('svEdit').hidden=vwEditing;
+    var ft=$('svFoot');
+    if(vwEditing){
+      ft.innerHTML='<button class="sheet-cancel" type="button" id="svCancel">취소</button>'
+        +'<button class="sheet-ok" type="button" id="svSave">저장</button>';
+      $('svCancel').addEventListener('click',function(){
+        vwEditing=false; $('svMemo').value=vwTarget.memo||''; vwPaint();
+      });
+      $('svSave').addEventListener('click',function(){
+        vwTarget.memo=$('svMemo').value.trim();
+        vwEditing=false; vwPaint(); render();
+        cxToast('불통일행사 거절 사유를 변경했습니다.');
+      });
+    }else{
+      ft.innerHTML='<div class="vlast" id="svLast"></div>';
+      if(vwTarget) $('svLast').textContent='마지막 변경 '+(vwTarget.dt==='-'?vwTarget.at:vwTarget.dt)+' · 박지용';
+    }
+  }
+  $('svEdit').addEventListener('click',function(){ vwEditing=true; vwPaint(); setTimeout(function(){ $('svMemo').focus(); },60); });
+  $('svMemo').addEventListener('input',function(){ $('svCnt').textContent=this.value.length; });
+  vwOv.addEventListener('click',function(e){
+    if(e.target===vwOv || e.target.closest('[data-view-close]')) vwOv.classList.add('hidden');
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key!=='Escape') return;
+    regClose(); vwOv.classList.add('hidden');
+  });
+  window.splView=vwOpen;
 
   document.getElementById('splConfirm').addEventListener('click',function(){ cxToast('불통일행사 처리 내역을 확정했습니다.'); });
 
