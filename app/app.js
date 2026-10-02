@@ -514,7 +514,9 @@
       var d = String(dueOf(a)).localeCompare(String(dueOf(b)));
       return d || (b.sh - a.sh);
     });
-    else L.sort(function (a, b) {                       /* 거주 가능성 높은 순 — 같으면 여의도역에서 가까운 순 */
+    else L.sort(function (a, b) {                       /* 거주 가능성 높은 순 — 끝난 건은 뒤로, 같으면 여의도역에서 가까운 순 */
+      var da = (a.st === 'done' ? 1 : 0) - (b.st === 'done' ? 1 : 0);
+      if (da) return da;
       var d = (LVW[a.live.nm] == null ? 3 : LVW[a.live.nm]) - (LVW[b.live.nm] == null ? 3 : LVW[b.live.nm]);
       return d || (ydist(a) - ydist(b));
     });
@@ -1061,7 +1063,7 @@
       + (x.st === 'replan' ? visitRow(x) : '')
       + '</div></div>'
 
-      + '<div class="dsec" style="margin-bottom:12px"><div class="h"><b>메모</b>'
+      + '<div class="dsec"><div class="h"><b>메모</b>'
       + '<button class="mbtn" type="button" id="dtMemo"><i class="ph ph-pencil-simple"></i>메모하기</button></div>'
       + memoList(x) + '</div>';
 

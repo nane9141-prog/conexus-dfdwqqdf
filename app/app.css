@@ -518,7 +518,8 @@ a{color:inherit;text-decoration:none}
 #toast .t.on{opacity:1;transform:none}
 
 /* ═══ 주주 상세정보 — 피그마 5148:26384 ═══════════════════════ */
-#scrDetail .bd{background:var(--bg)}
+/* 상세정보 — 바탕은 흰색, 섹션 사이 구분 띠만 기존 배경색 */
+#scrDetail .bd{background:#fff}
 .dt-hd{padding:18px 16px 20px;background:#fff}
 .dt-hd .l1{display:flex;align-items:center;gap:6px}
 .dt-hd .nm{font-size:22px;font-weight:800;letter-spacing:-.03em}
@@ -553,7 +554,7 @@ a{color:inherit;text-decoration:none}
 .adbox .z .more{font-size:12px;font-weight:700;color:var(--blue)}
 .adbox .tx{font-size:13px;color:#4B5058;line-height:1.55}
 /* 구역 */
-.dsec{background:#fff;padding:16px;margin-top:10px}
+.dsec{background:#fff;padding:16px;margin-top:0;border-top:10px solid var(--bg)}
 .dsec .h{display:flex;align-items:center;gap:8px;margin-bottom:12px}
 .dsec .h b{font-size:16px;font-weight:800;flex:1}
 .mbtn{display:inline-flex;align-items:center;gap:5px;height:36px;padding:0 13px;border:1px solid #DDE0E5;
