@@ -171,7 +171,9 @@
   .apanel-h{padding:11px 12px;font-size:14px;font-weight:600;color:#0a0a0a}
   .apanel-ph{padding:24px 12px;font-size:13px;color:#a3a3a3;text-align:center;line-height:1.6}
   .arow{padding:12px;background:#fff;border:1px solid #E5E5E5;border-radius:8px;display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
-  #agTree{padding:2px 8px 8px;flex:1;min-height:0;overflow:auto;scrollbar-width:none;-ms-overflow-style:none}
+  #agTree{padding:16px 0;flex:1;min-height:0;overflow:auto;scrollbar-width:none;-ms-overflow-style:none}
+  /* 왼쪽 의안 패널 — 카드 틀 없이 내용만 */
+  .apanel.agpanel{background:none;border:none;box-shadow:none;overflow:visible}
   #agTree::-webkit-scrollbar{display:none}
   #agTree>.arow:last-child{margin-bottom:0}
   .acat{display:flex;align-items:center;gap:8px;flex-wrap:nowrap}
@@ -1432,13 +1434,12 @@
         <div class="oc-panel on" data-panel="op">
           <div class="nowgrid3">
             <div class="ngleft">
-            <div class="apanel">
+            <div class="apanel agpanel">
               <div class="ivid pre">
                 <div class="ivid-h"><span class="ivid-t"><span class="liv"></span>생중계 · 카카오뱅크 주주총회</span><div class="ivid-act"><button id="pipMute" title="음소거"><i class="ph ph-speaker-simple-high"></i></button><button id="vidPip" title="PIP"><i class="ph ph-picture-in-picture"></i></button><button id="vidFull" title="전체화면"><i class="ph ph-arrows-out"></i></button></div></div>
                 <video id="pipVid" src="kakaobank.mp4" loop playsinline></video>
                 <div class="ivid-pre" id="ividPre"><span class="wait">중계 준비 중</span><img class="lg" id="ividLogo" src="logo-kakaobank.png" alt="" width="40" height="40"><div class="t" data-cx="meeting.name">제10기 정기주주총회</div><div class="t2"><span class="ivid-co">카카오뱅크</span> · 곧 시작합니다</div></div>
               </div>
-              <div class="apanel-h">의안 진행</div>
               <div id="agTree"></div>
             </div>
             <div class="apanel cpanel">
