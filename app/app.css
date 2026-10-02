@@ -761,8 +761,8 @@ a{color:inherit;text-decoration:none}
 .doc .dsign img{max-width:84%;max-height:88px;object-fit:contain}
 .doc .dsign.has{border-style:solid;border-color:#E5E5E5;background:#fff}
 /* 신분증 촬영 — 전체 화면 */
-.camscr{min-height:100%;padding:24px 20px 32px;background:#1C1917;display:flex;flex-direction:column;align-items:center}
-.camscr .ct{margin-top:8px;font-size:16px;font-weight:600;color:#fff;text-align:center}
+.camscr{min-height:100%;padding:24px 20px 32px;background:#fff;display:flex;flex-direction:column;align-items:center}
+.camscr .ct{margin-top:8px;font-size:16px;font-weight:600;color:#171717;text-align:center}
 .camscr .camwrap{width:100%;margin-top:28px;height:auto;aspect-ratio:1.55/1;border-radius:4px;background:#000}
 .camscr .camwrap .guide{position:absolute;inset:-14px;display:block}
 .camscr .camwrap .guide .c{position:absolute;width:30px;height:30px;border:4px solid #FF6B1A}
@@ -770,12 +770,12 @@ a{color:inherit;text-decoration:none}
 .camscr .camwrap .guide .tr{right:0;top:0;border-left:0;border-bottom:0;border-radius:0 4px 0 0}
 .camscr .camwrap .guide .bl{left:0;bottom:0;border-right:0;border-top:0;border-radius:0 0 0 4px}
 .camscr .camwrap .guide .br{right:0;bottom:0;border-left:0;border-top:0;border-radius:0 0 4px 0}
-.camscr .cguide{margin-top:auto;padding-top:40px;font-size:13.5px;line-height:1.7;color:#D6D3D1;text-align:center}
+.camscr .cguide{margin-top:auto;padding-top:40px;font-size:13.5px;line-height:1.7;color:#737373;text-align:center}
 .camscr .cambar{margin-top:32px}
-.camscr .shutter{width:72px;height:72px;background:#fff;border:3px solid #fff;box-shadow:0 0 0 3px rgba(0,0,0,.35)}
+.camscr .shutter{width:72px;height:72px;background:#171717;border:3px solid #fff;box-shadow:0 0 0 3px #171717}
 .camscr .shutter::after{display:none}
-.camscr .alt{background:transparent;border-color:rgba(255,255,255,.5);color:#fff}
-.camscr .camwrap .off{color:#D6D3D1}
+.camscr .alt{background:#fff;border-color:#E5E5E5;color:#171717}
+.camscr .camwrap .off{color:#737373}
 /* 실명 인증 안내 */
 .vfy{padding:28px 20px 32px;text-align:center}
 .vfy .lg{width:88px;height:88px;margin:28px auto 0;
