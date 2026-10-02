@@ -905,14 +905,16 @@
         var tb=t.tBodies[0], NEED=100;
         var have={};
         Array.prototype.forEach.call(tb.rows,function(r){ have[r.cells[1].textContent.trim()]=1; });
-        var R=((window.CX&&CX.roster)||[]).filter(function(r){ return r.gb==='개인'; })
-              .slice().sort(function(a,b){ return b.sh-a.sh; });
-        for(var n=0; n<R.length && tb.rows.length<NEED; n++){
-          var r=R[n], nm=mask(r.nm);
+        /* 이 화면에는 명부가 없으므로 같은 규칙으로 이름을 만들어 쓴다 */
+        var SUR='김이박최정강조윤장임한오서신권황안송류전홍고문양손배백허유남심노정하곽성차주우구민'.split('');
+        var LAST='수연준서우진현호민아윤지성훈경재희원영희석철숙은기용희찬규'.split('');
+        for(var n=0; n<2000 && tb.rows.length<NEED; n++){
+          var nm=SUR[(n*7+3)%SUR.length]+'*'+LAST[(n*11+5)%LAST.length];
           if(have[nm]) continue; have[nm]=1;
-          var born=birth(19500000+((r.i*7919)%500000));
+          var sh=Math.round(2400000/(1+n*0.11)/100)*100 + ((n*977)%900)*10;
+          var born=birth(19500000+(((n+7)*7919)%500000));
           var tr=tb.insertRow(-1);
-          var cells=['', nm, cm(r.sh), born, (2026-+born.slice(0,4))+'세'];
+          var cells=['', nm, cm(sh), born, (2026-+born.slice(0,4))+'세'];
           for(var i2=0;i2<5;i2++){
             var td=tr.insertCell(i2);
             td.className=(i2===2)?'num':(i2===0?'mut':(i2===3?'mut c':''));
