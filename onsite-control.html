@@ -4790,7 +4790,16 @@ if(window.OC&&OC.fire) OC.fire();
       alertSet('dlyInfo', '연기 상정 불가', '제1호 의안 표결이 이미 시작되어 연기를 상정할 수 없습니다.');
       $('dlyInfo').className = 'alrt destructive';
       dlyBlocked = true;
-    } else dlyBlocked = false;
+      /* 상정할 수 없으니 아래 입력 항목은 모두 감추고 안내만 남긴다 */
+      $('dlyWhenF').style.display = 'none';
+      $('dlyVoteF').style.display = 'none';
+      $('dlyWarn').style.display = 'none';
+      var rf = $('dlyBody').closest('.dlg-field'); if (rf) rf.style.display = 'none';
+      ck.style.display = 'none';
+    } else {
+      dlyBlocked = false;
+      var rf2 = $('dlyBody').closest('.dlg-field'); if (rf2) rf2.style.display = '';
+    }
     ck.classList.remove('on');
     dlyOkSync();
   }
