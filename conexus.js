@@ -910,7 +910,10 @@ window.cxFitCols = function (tbl) {
    진행 상황(cx.oc) · 현장 참석 등록(cx.att) · 시청 화면 접수분(cx.qna) · 시계(cx.clock) · 송출(cx.live) · 대시보드 상태 */
 window.CX = window.CX || {};
 CX.resetMeeting = function () {
-  ['cx.oc', 'cx.att', 'cx.qna', 'cx.clock', 'cx.live', 'cx.pass.my', 'cxDayState'].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+  ['cx.oc', 'cx.att', 'cx.qna', 'cx.clock', 'cx.live', 'cx.pass.my', 'cxDayState',
+   /* 의결권 수집 앱 · 현장투표 앱이 쌓아 둔 시연 데이터도 함께 비운다 */
+   'cx.collect', 'cx.app.book', 'cx.app.noti', 'cx.app.px', 'cx.app.hist', 'cx.onsite'
+  ].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
 };
 window.cxClock = cxChannel('cx.clock');
 
