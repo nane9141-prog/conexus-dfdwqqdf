@@ -924,7 +924,12 @@
   });
   to.addEventListener('click',function(e){ if(!e.target.closest('#tagSel,#tagList')) tagOpen(false); });
   chk.addEventListener('click',function(){ chk.classList.toggle('on'); ok.disabled=!(chk.classList.contains('on')&&!selT.classList.contains('ph')); });
-  ok.addEventListener('click',function(){ if(!tagPick) return; var t=document.getElementById('tagId'); t.textContent=tagPick; t.className='tagid set'; to.classList.remove('on'); });
+  ok.addEventListener('click',function(){
+    if(!tagPick) return;
+    var t=document.getElementById('tagId'); t.textContent=tagPick; t.className='tagid set';
+    to.classList.remove('on');
+    if(window.pxRepaint) window.pxRepaint();   /* 열려 있던 대리인 모달의 안내 박스를 감춘다 */
+  });
   // 비주주 등록 다이얼로그(비주주 등록 버튼)
   (function(){
     var dlg=document.getElementById('nsDlg'); if(!dlg) return;
@@ -986,6 +991,7 @@
         !(useApp==='사용' && document.getElementById('tagId').classList.contains('unset'));
       var ok=document.getElementById('pxOk'); ok.disabled=!(who&&holders.length); ok.textContent='위임주주 '+holders.length+'명 등록';
     }
+    window.pxRepaint=paint;   /* 태그 ID 설정이 끝나면 안내를 다시 계산한다 */
     function closeDd(except){ dlg.querySelectorAll('[data-dd].on').forEach(function(d){ if(d!==except){ d.classList.remove('on'); d.parentNode.querySelector('.px-sel').classList.remove('open'); } }); }
     function suggest(f){
       var q=f.querySelector('input').value.trim(), dd=f.querySelector('[data-dd]'), k=f.querySelector('.px-sel').dataset.k;
