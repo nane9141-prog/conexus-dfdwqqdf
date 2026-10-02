@@ -539,7 +539,8 @@
     function once() { if (fired) return; fired = true; done(); }
     pinAuth = function () { faceAuth(function () { leavePin(); once(); }); };
     openPin('check', once);
-    if (SET.bio) pinAuth();
+    /* 비밀번호 화면이 먼저 보이고, 잠시 뒤 Face ID 가 올라온다 */
+    if (SET.bio) setTimeout(function () { if ($('#scrPin').classList.contains('on')) pinAuth(); }, 520);
   }
   function leavePin() { if ($('#scrPin').classList.contains('on')) { pinDone = null; show('#scrVote'); } }
   $('#pinFace').addEventListener('click', function () { if (pinAuth) pinAuth(); });
