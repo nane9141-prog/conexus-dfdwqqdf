@@ -4535,13 +4535,13 @@ if(window.OC&&OC.fire) OC.fire();
       /* 동의는 질의 목록이 아니라 동의 탭으로 */
       if(x.kind==='수정동의' && x.via==='발언'){   /* 발언으로 신청 — 발언과 같은 대기열 흐름 */
         var SP=window.SPEECHES;
-        SP.push({id:x.id, ag:m[0], sub:m[1], name:x.name, t:x.t||'개인', sh:x.sh||0, tm:x.tm, kind:'수정동의',
-          amend:true, via:'발언', amtype:x.amtype||'금액 조정', r:x.q, st:'대기', inq:false, seq:SP.length, qord:0});
+        SP.unshift({id:x.id, ag:m[0], sub:m[1], name:x.name, t:x.t||'개인', sh:x.sh||0, tm:x.tm, kind:'수정동의',
+          amend:true, via:'발언', amtype:x.amtype||'금액 조정', r:x.q, st:'대기', inq:false, seq:0, qord:0});
         got++; return;
       }
       if(x.kind==='발언'){                         /* 발언 신청 — 발언 대기 목록 */
-        window.SPEECHES.push({id:x.id, ag:m[0], sub:m[1], name:x.name, t:x.t||'개인', sh:x.sh||0, tm:x.tm,
-          kind:'발언', st:'대기', r:x.q});
+        window.SPEECHES.unshift({id:x.id, ag:m[0], sub:m[1], name:x.name, t:x.t||'개인', sh:x.sh||0, tm:x.tm,
+          kind:'발언', st:'대기', r:x.q});   /* 최신 접수가 맨 위 */
         got++; return;
       }
       if(x.kind==='수정동의'){                     /* 질의로 접수 — 답변 흐름 + 수정안 표결 */
