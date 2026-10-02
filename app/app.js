@@ -1889,12 +1889,6 @@
       + '<div class="li"><i class="ph ph-info"></i><span class="t">버전 정보</span><span class="r">v.2.0.1</span></div>'
       + '</div>'
 
-      + '<div class="grp"><div class="gh">지도</div>'
-      + '<button class="li" type="button" id="setKey"><i class="ph ph-map-pin-line"></i>'
-      + '<span class="t">네이버 지도 Client ID</span>'
-      + '<span class="r' + (naverKey() ? ' hi' : '') + '">' + (naverKey() ? '연결됨' : '미등록') + '</span>'
-      + '<i class="ph ph-caret-right"></i></button></div>'
-
       + '<div class="grp"><button class="li" type="button" id="setReset"><i class="ph ph-arrow-counter-clockwise"></i>'
       + '<span class="t">시연 데이터 초기화</span><i class="ph ph-caret-right"></i></button>'
       + '<button class="li" type="button" id="setOut"><i class="ph ph-sign-out"></i>'
@@ -1905,26 +1899,6 @@
       + '<span class="t">알림 설정</span><span class="r">' + notiOn() + '개 켜짐</span><i class="ph ph-caret-right"></i></button>';
     $('#setNotiBtn').addEventListener('click', openNoti);
     $('#setProfile').addEventListener('click', openProfile);
-    $('#setKey').addEventListener('click', function () {
-      sheet({
-        title: '네이버 지도 Client ID',
-        body: '<input id="nkIn" placeholder="네이버 클라우드 콘솔에서 발급받은 Client ID" '
-          + 'style="width:100%;height:48px;padding:0 14px;border:1px solid #E5E5E5;border-radius:12px;outline:none" '
-          + 'value="' + esc(naverKey()) + '">'
-          + '<div style="margin-top:12px;font-size:12px;line-height:1.6">'
-          + 'Maps 애플리케이션에 <b style="color:#171717">Dynamic Map</b> 을 켜고, Web 서비스 URL 에 '
-          + '<b style="color:#171717">' + esc(location.origin) + '</b> 을 등록해야 합니다. '
-          + '비워 두면 키가 필요 없는 기본 지도로 표시됩니다.</div>',
-        foot: '<button class="btn gh" type="button" data-ovx>취소</button><button class="btn" type="button" id="nkOk">저장</button>',
-        after: function (bx) {
-          bx.querySelector('#nkOk').addEventListener('click', function () {
-            var v = bx.querySelector('#nkIn').value.trim();
-            try { v ? localStorage.setItem('cx.app.navkey', v) : localStorage.removeItem('cx.app.navkey'); } catch (e) {}
-            location.reload();
-          });
-        }
-      });
-    });
     $('#setReset').addEventListener('click', function () {
       sheet({
         mid: true, title: '시연 데이터 초기화',
