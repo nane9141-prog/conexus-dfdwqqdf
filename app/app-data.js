@@ -308,7 +308,10 @@
     var done = APP.list().filter(function (x) { return x.st === 'done'; });
     s.done = done.length;
     s.doneShares = done.reduce(function (a, x) { return a + x.sh; }, 0);
-    s.rows = done.slice(0, 60).map(function (x) {
+    /* 최근에 받은 위임부터 담는다 — 방금 등록한 건이 빠지지 않게 */
+    s.rows = done.slice().sort(function (a, b) {
+      return String(b.at || '').localeCompare(String(a.at || ''));
+    }).slice(0, 100).map(function (x) {
       return { i: x.i, nm: x.name, sh: x.sh, at: x.at, addr: x.area };
     });
     try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
