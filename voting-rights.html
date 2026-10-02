@@ -256,7 +256,13 @@
   /* 공통 규칙이 좁은 화면에서 표 틀에 min-width 를 걸어 페이지가 통째로 밀린다 —
      이 카드는 카드 안에서만 가로로 스크롤되게 예외로 둔다 */
   @media (max-width:1100px){ .tbl-wrap.xscroll{min-width:0} }
-  .solfoot .pgr{display:flex;align-items:center;gap:12px;color:#1f1c18}
+  .solfoot .pgr{display:flex;align-items:center;gap:4px;color:#1f1c18}
+  .solfoot .pgr button{height:28px;min-width:28px;padding:0 8px;border:1px solid var(--border);
+    border-radius:8px;background:#fff;font-family:inherit;font-size:13px;color:#525252;cursor:pointer}
+  .solfoot .pgr button:hover{background:var(--muted)}
+  .solfoot .pgr button.on{border-color:#171717;background:#171717;color:#fff}
+  .solfoot .pgr button[disabled]{opacity:.4;cursor:default}
+  .solfoot .pgr button i{font-size:14px}
   .solfoot .pgr i{font-size:16px;color:#a3a3a3}
   @media(max-width:1200px){.vr-kpi.c5{grid-template-columns:repeat(3,1fr)}}
   .chart-tip{position:absolute;z-index:60;pointer-events:none;transform:translate(-50%,calc(-100% - 12px));background:#fff;box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:8px;opacity:0;transition:opacity .12s ease}
@@ -775,7 +781,7 @@
                 <div class="rcft"><button type="button" class="rcclose" id="rcClose">닫기</button></div>
               </div>
             </div>
-            <div class="solfoot"><span id="vrHolderCnt"></span><span class="pgr" aria-label="페이지"><i class="ph ph-caret-line-left"></i><i class="ph ph-caret-left"></i><span>1</span><i class="ph ph-caret-right"></i><i class="ph ph-caret-line-right"></i></span></div>
+            <div class="solfoot"><span id="vrHolderCnt"></span><span class="pgr" id="vrPgr" aria-label="페이지"></span></div>
           </div>
         </div>
       </div>
@@ -1016,7 +1022,36 @@
         });
       });
       document.getElementById('vrHolderCnt').textContent='총 '+rows.length+'명 · '+sum.toLocaleString('en-US')+'주';
+      page(); 
       if(typeof markNames==='function') markNames();
+    }
+
+    /* ── 페이지 넘기기 ─────────────────────────────── */
+    var PG=1, PSIZE=20;
+    function page(){
+      var all=Array.prototype.slice.call(t.tBodies[0].rows);
+      var max=Math.max(1, Math.ceil(all.length/PSIZE));
+      if(PG>max) PG=max;
+      all.forEach(function(r,i){ r.style.display=(i>=(PG-1)*PSIZE && i<PG*PSIZE)?'':'none'; });
+      var box=document.getElementById('vrPgr'); if(!box) return;
+      var from=Math.max(1, Math.min(PG-2, max-4)), to=Math.min(max, from+4);
+      var h='<button type="button" data-pg="first"'+(PG<=1?' disabled':'')+'><i class="ph ph-caret-line-left"></i></button>'
+        +'<button type="button" data-pg="prev"'+(PG<=1?' disabled':'')+'><i class="ph ph-caret-left"></i></button>';
+      for(var n=from;n<=to;n++) h+='<button type="button" data-pg="'+n+'"'+(n===PG?' class="on"':'')+'>'+n+'</button>';
+      h+='<button type="button" data-pg="next"'+(PG>=max?' disabled':'')+'><i class="ph ph-caret-right"></i></button>'
+        +'<button type="button" data-pg="last"'+(PG>=max?' disabled':'')+'><i class="ph ph-caret-line-right"></i></button>';
+      box.innerHTML=h;
+      box.querySelectorAll('[data-pg]').forEach(function(b){
+        b.addEventListener('click',function(){
+          if(b.disabled) return;
+          var v=b.dataset.pg;
+          if(v==='first') PG=1; else if(v==='prev') PG=Math.max(1,PG-1);
+          else if(v==='next') PG=Math.min(max,PG+1); else if(v==='last') PG=max;
+          else PG=+v;
+          page();
+          var wrap=t.closest('.tbl-wrap'); if(wrap) wrap.scrollTop=0;
+        });
+      });
     }
 
     /* ── 접수 내역 모달 — 주주명을 누르면 그 건의 접수 내용을 보여준다 ── */
