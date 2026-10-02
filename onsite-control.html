@@ -376,6 +376,25 @@
   .vqclock{display:inline-flex;align-items:center;gap:4px;flex:none;font-size:12px;font-weight:600;
     color:#0A0A0A;font-variant-numeric:tabular-nums}
   .vqclock .d{width:6px;height:6px;border-radius:50%;background:#0A0A0A;animation:otblink 1.3s ease-in-out infinite}
+  /* 의사진행 동의 접수 알림 — 화면 오른쪽 위에 쌓인다 */
+  .prn{position:fixed;right:20px;top:72px;z-index:3000;display:flex;flex-direction:column;gap:8px;
+    max-width:380px;pointer-events:none}
+  .prn .n{pointer-events:auto;display:flex;gap:10px;align-items:flex-start;padding:12px 14px;
+    border:1px solid rgba(220,38,38,.25);border-radius:12px;background:#fff;cursor:pointer;
+    box-shadow:0 10px 30px rgba(16,24,40,.16);animation:prnIn .18s ease-out}
+  .prn .n:hover{border-color:#E9081B}
+  .prn .n .ic{flex:none;width:28px;height:28px;border-radius:50%;background:rgba(220,38,38,.1);
+    display:flex;align-items:center;justify-content:center;color:#E9081B}
+  .prn .n .ic svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+  .prn .n .b{min-width:0}
+  .prn .n .t{font-size:14px;font-weight:600;color:#0A0A0A}
+  .prn .n .d{margin-top:3px;font-size:13px;line-height:1.5;color:#737373;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .prn .n .go{margin-top:6px;font-size:12px;font-weight:600;color:#E9081B}
+  .prn .n .x{margin-left:auto;flex:none;width:20px;height:20px;border:0;background:none;padding:0;
+    cursor:pointer;color:#A3A3A3}
+  .prn .n .x svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+  @keyframes prnIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
   /* 호스트 알림 바 상태 */
   .vqhost.mute{background:#FAFAFA;border-color:var(--border)}
   .vqhost.mute .t{color:#737373}
@@ -552,6 +571,8 @@
   .dlg-x{position:absolute;right:16px;top:16px;width:16px;height:16px;border:none;background:none;cursor:pointer;opacity:.7;padding:0}
   .dlg-x svg{width:16px;height:16px;fill:none;stroke:#000;stroke-width:2;stroke-linecap:round}
   .dlg-btn.red{border-color:transparent;background:rgba(220,38,38,.1);color:#E9081B}
+  .dlg-btn.danger{border-color:#E9081B;background:#E9081B;color:#fff}
+  .dlg-btn.danger:hover{background:#D10718;border-color:#D10718}
   /* 배경 없는 안내 줄 — 경고가 아니라 설명이다 */
   .dlg-note{display:flex;align-items:flex-start;gap:8px;font-size:14px;line-height:20px;letter-spacing:-.01em;font-weight:500;color:#0A0A0A}
   .dlg-note svg{width:16px;height:16px;flex:none;margin-top:2px;fill:none;stroke:#0A0A0A;stroke-width:1.33;stroke-linecap:round}
@@ -701,6 +722,7 @@
   .qmhead{display:flex;align-items:stretch;gap:0;box-sizing:border-box;height:40px;padding:3px 12px 0 3px;border-bottom:1px solid #E5E5E5;flex:none;background:transparent}
   .qmhead button[data-qm]{height:auto;margin-bottom:-1px;padding:4px 12px;border:none;background:none;border-bottom:2px solid transparent;font-family:inherit;font-size:14px;line-height:20px;font-weight:500;letter-spacing:-.01em;color:#737373;cursor:pointer}
   .qmhead button[data-qm].on{color:#0A0A0A;border-bottom-color:#171717}
+  #qmBody tr.hit>td{background:#FFF1DD;transition:background .4s}
   /* 오른쪽 — 다운로드 · 표 도구(28px) */
   .qmhead .vbtn,.qmhead .cx-tools{align-self:center}
   .qmhead .cx-tools{margin-left:8px}
@@ -1643,6 +1665,7 @@
   </div>
 </div>
 
+<div class="prn" id="prNoti"></div>
 <!-- 총회 지연 — 연기 · 속행 · 정회 · 휴회 (연기·속행은 보통결의 표결을 새로 만든다) -->
 <div class="ovl" id="dlyOvl">
   <div class="dlg" style="width:480px">
@@ -1706,7 +1729,7 @@
     <div class="dlg-f">
       <label class="ckrow" id="dlyvAgree"><span class="ckbox"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>위 안내를 확인했으며 표결을 진행합니다.</label>
       <button class="dlg-btn" id="dlyvCancel" type="button">취소</button>
-      <button class="dlg-btn dark" id="dlyvOk" type="button">표결 진행</button>
+      <button class="dlg-btn danger" id="dlyvOk" type="button">표결 진행</button>
     </div>
   </div>
 </div>
@@ -2863,6 +2886,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
     var st0=e.target.closest('[data-qmstart]'); if(st0){ e.stopPropagation(); if(window.SPQ) SPQ.start(st0.dataset.qmstart); return; }
     var amq=e.target.closest('[data-amvq]');
     if(amq){ e.stopPropagation(); var ax=byId(amq.dataset.amvq);
+      if(window.qmPrOpen && qmPrOpen(ax)) return;
       if(ax && window.openAmend) openAmend({no:'제'+(ax.sub||ax.ag)+'호', who:ax.name, body:ax.r||ax.q, lock:true, amtype:ax.amtype, sh:ax.sh});
       return; }
     if(fin){ var id=fin.dataset.fin; accPick=undefined; if(window.SPQ) SPQ.end(id);
@@ -2913,6 +2937,17 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
     acc.classList.add('on');
   }
   window.__qmRepaint=function(){ render(); };
+  /* 알림에서 호출 — 질의·발언 관리 > 동의 탭을 열고 해당 건을 고른다 */
+  window.qmFocus=function(id){
+    var ot=document.querySelector('.oc-tab[data-tab="qa"]'); if(ot) ot.click();
+    var tb=document.querySelector('#qmTabs button[data-qm="a"]'); if(tb) tb.click();
+    selId=id; render();
+    setTimeout(function(){
+      var tr=document.querySelector('#qmBody tr[data-id="'+id+'"]');
+      if(tr){ tr.scrollIntoView({block:'center'}); tr.classList.add('hit');
+        setTimeout(function(){ tr.classList.remove('hit'); },1600); }
+    },60);
+  };
 
   document.getElementById('qmTabs').addEventListener('click',function(e){
     var b=e.target.closest('button[data-qm]'); if(!b) return;
@@ -2962,6 +2997,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
     if(a.dataset.act==='add' && selId){ toggleQ(selId); return; }
     if(a.dataset.act==='amend' && selId && window.openAmend){
       var f=null; SPEECHES.concat(QUESTIONS).forEach(function(y){ if(y.id===selId) f=y; });
+      if(window.qmPrOpen && qmPrOpen(f)) return;
       if(f) openAmend({no:'제'+(f.sub||f.ag)+'호',who:f.name,title:'',body:f.r||f.q,lock:true,amtype:f.amtype,sh:f.sh});
     }
   });
@@ -4373,6 +4409,20 @@ function toggleMute(id){
     var t=e.target.closest('[data-chair]'); if(!t) return;
     var c=t.closest('.vqmsg').querySelector('[data-cnt]'); if(c) c.textContent=t.value.length;
   });
+  /* 의사진행 동의 — 수정안 등록 대신 총회 지연 흐름으로 보낸다 */
+  var PRMAP={'총회 연기':'postpone','총회 속행':'continue','정회 요청':'recess',
+             '심의 중단 요청':'recess','심의 재개 요청':'continue','휴회 요청':'adjourn'};
+  function prKind(amtype){
+    var t=String(amtype||'').replace(/^의사진행\s*·\s*/,'').trim();
+    return /^의사진행/.test(amtype||'') ? (PRMAP[t]||null) : null;
+  }
+  /* 의사진행 동의면 총회 지연 모달을 사유까지 채워서 연다. 처리했으면 true */
+  function prOpen(x){
+    if(!x) return false;
+    var v=prKind(x.amtype); if(!v || !window.openDelayFor) return false;
+    openDelayFor(v, x.name, String(x.amtype||'').replace(/^의사진행\s*·\s*/,''), x.q||x.r||'');
+    return true;
+  }
   cl.addEventListener('click',function(e){
     var mu=e.target.closest('[data-mute]'); if(mu){ e.stopPropagation(); toggleMute(mu.dataset.mute); return; }
     var chip=e.target.closest('.mc-chip'); if(chip){ var ta=chip.closest('.mc-ans').querySelector('.mc-ta'); var tt=TPL[+chip.getAttribute('data-tpl')].t; ta.value=tt; ta.focus(); return; }
@@ -4395,11 +4445,13 @@ function toggleMute(id){
       openRow=null; render(); return; }
     var avt=e.target.closest('[data-amvote]'); if(avt){ var vid_=avt.getAttribute('data-amvote');
       var vx=amAll().filter(function(x){return x.id===vid_;})[0];
+      if(prOpen(vx)) return;
       if(vx&&window.openAmend) openAmend({no:unitOf(vx), who:vx.name, body:vx.r, lock:true, amtype:vx.amtype, sh:vx.sh,
         done:function(no){ vx.upNo=no; render(); if(window.cxToast) cxToast('수정안 표결을 등록했습니다.'); }});
       return; }
     var au=e.target.closest('[data-amup]'); if(au){ var aid=au.closest('.mcard').getAttribute('data-id');
       var ax=amAll().filter(function(x){return x.id===aid;})[0];
+      if(prOpen(ax)) return;
       if(ax&&window.openAmend) openAmend({no:unitOf(ax), who:ax.name, body:isQ(ax)?ax.q:ax.r, lock:true, amtype:ax.amtype, sh:ax.sh,
         done:function(no){ ax.upNo=no; render(); if(window.cxToast) cxToast('수정안 표결을 등록했습니다.'); }});
       return; }
@@ -4533,6 +4585,7 @@ if(window.OC&&OC.fire) OC.fire();
       seen[x.id]=1;
       var m=MAP[x.ag]||['1',''];
       /* 동의는 질의 목록이 아니라 동의 탭으로 */
+      if(/^의사진행/.test(x.amtype||'')) prNotify(x);   /* 의사진행 동의는 바로 알린다 */
       if(x.kind==='수정동의' && x.via==='발언'){   /* 발언으로 신청 — 발언과 같은 대기열 흐름 */
         var SP=window.SPEECHES;
         SP.unshift({id:x.id, ag:m[0], sub:m[1], name:x.name, t:x.t||'개인', sh:x.sh||0, tm:x.tm, kind:'수정동의',
@@ -4556,9 +4609,27 @@ if(window.OC&&OC.fire) OC.fire();
     });
     if(got) (window.QAREPAINT||[]).forEach(function(f){ try{ f(); }catch(e){} });
   }
+  /* 의사진행 동의 알림 — 누르면 질의·발언 관리 > 동의 탭의 그 건으로 간다 */
+  var prFirst=true;
+  function prNotify(x){
+    if(prFirst) return;                     /* 화면을 처음 열며 다시 읽은 건은 알리지 않는다 */
+    var box=document.getElementById('prNoti'); if(!box) return;
+    var el=document.createElement('div'); el.className='n';
+    el.innerHTML='<span class="ic"><svg viewBox="0 0 24 24"><path d="M12 9v4.5"/><circle cx="12" cy="17" r=".9" fill="currentColor" stroke="none"/>'
+      +'<path d="M10.3 4.2 2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z"/></svg></span>'
+      +'<div class="b"><div class="t">의사진행 동의 접수 · '+esc(String(x.amtype||'').replace(/^의사진행\s*·\s*/,''))+'</div>'
+      +'<div class="d">'+esc(x.name||'')+' 님 — '+esc(x.q||'')+'</div>'
+      +'<div class="go">동의 탭에서 확인하기 →</div></div>'
+      +'<button class="x" type="button" title="닫기"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>';
+    el.querySelector('.x').addEventListener('click',function(ev){ ev.stopPropagation(); el.remove(); });
+    el.addEventListener('click',function(){ el.remove(); if(window.qmFocus) qmFocus(x.id); });
+    box.appendChild(el);
+    setTimeout(function(){ if(el.parentNode) el.remove(); },20000);
+  }
+  function esc(t){ return String(t==null?'':t).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
   window.addEventListener('storage',function(e){ if(e.key===CH) take(); });
   /* 시청 화면에서 접수된 질의 · 발언 · 동의는 새로 열어도 그대로 다시 받는다 — 총회 종료 시 초기화 */
-  take();
+  take(); prFirst=false;
 })();</script>
 <script>
 /* 총회 제어 드롭다운 — 지연/종료를 한 버튼으로 묶는다.
@@ -4738,6 +4809,33 @@ if(window.OC&&OC.fire) OC.fire();
   new MutationObserver(function () { if ($('dlyOvl').classList.contains('on')) setDly(dlyV); })
     .observe($('dlyOvl'), { attributes: true, attributeFilter: ['class'] });
 
+  /* 의사진행 동의에서 바로 여는 입구 — 탭을 맞추고 사유를 채워 둔다 */
+  window.openDelayFor = function (v, who, type, body) {
+    if (!DLY[v]) return;
+    setDly(v);
+    $('dlyBody').value = (who ? who + ' 주주의 의사진행 동의' : '의사진행 동의')
+      + (type ? ' — ' + type : '') + (body ? '\n' + body : '');
+    var box = $('dlyBody').closest('.am-tbox');
+    if (box) box.querySelector('.cnt').textContent = $('dlyBody').value.length + '/280';
+    if (DLY[v].vote) {
+      $('dlyTitle').value = DLY[v].title || '';
+      $('dlyDesc2').value = DLY[v].body || '';
+      var b2 = $('dlyDesc2').closest('.am-tbox');
+      if (b2) b2.querySelector('.cnt').textContent = $('dlyDesc2').value.length + '/280';
+    }
+    $('dlyOvl').classList.add('on');
+  };
+  window.qmPrOpen = function (x) {
+    if (!x) return false;
+    var t = String(x.amtype || ''); if (!/^의사진행/.test(t)) return false;
+    var k = t.replace(/^의사진행\s*·\s*/, '').trim();
+    var MAP = { '총회 연기': 'postpone', '총회 속행': 'continue', '정회 요청': 'recess',
+                '심의 중단 요청': 'recess', '심의 재개 요청': 'continue', '휴회 요청': 'adjourn' };
+    if (!MAP[k]) return false;
+    openDelayFor(MAP[k], x.name, k, x.q || x.r || '');
+    return true;
+  };
+
   var dlyDraft = null;
   $('dlyOk').addEventListener('click', function () {
     if (this.disabled) return;
@@ -4755,7 +4853,7 @@ if(window.OC&&OC.fire) OC.fire();
     $('dlyvWho').innerHTML =
       '<div class="amrow"><div class="amf"><b>처리 방식</b>' + m.nm + '</div>'
       + '<span class="amsep"></span><div class="amf"><b>의안 종류</b>보통결의</div>'
-      + '<span class="amsep"></span><div class="amf"><b>재개 일시</b>' + (dlyDraft.when || '미정') + '</div></div>'
+      + '<div class="amf"><b>재개 일시</b>' + (dlyDraft.when || '미정') + '</div></div>'
       + '<div class="amf amt"><b>표결 의안명</b>' + esc(dlyDraft.title) + '</div>'
       + (dlyDraft.body ? '<div class="amf amb"><b>내용</b><span>' + esc(dlyDraft.body) + '</span></div>' : '')
       + (dlyDraft.why ? '<div class="amf amb"><b>사유</b><span>' + esc(dlyDraft.why) + '</span></div>' : '');
