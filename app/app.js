@@ -1687,42 +1687,59 @@
   function pxDoc() {
     var A = pxAgenda();
     A.forEach(function (a, i) { if (!PX.votes[i]) PX.votes[i] = '찬성'; });
+    var M = (window.CX && CX.meeting) || {};
+    var camp = (APP.CAMPAIGNS || []).filter(function (c) { return c.id === CUR.camp; })[0] || {};
+    var org = CUR.org || M.org || '';
+    var term = camp.term || M.name || '';
+    var d = new Date();
+    var ymd = d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + d.getHours() + '시';
+    var mdate = (M.dateText || (d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일'));
+    var sh = cm(CUR.sh);
+    /* 주민번호 — 생년월일 앞 6자리만 보이고 뒤는 가린다 */
+    var rrn = String(CUR.born || '').replace(/\D/g, '').slice(2) + '-' + (CUR.sex === '남성' ? '1' : '2') + '******';
+
     $('#pxBd').innerHTML = '<div class="pxwrap">'
       + '<div class="pxh">위임장을 확인하고<br>서명해 주세요</div>'
-      + '<div class="pxd">' + esc(CUR.name) + ' 님께 내용을 보여 드린 뒤 서명란에 직접 서명받아 주세요.</div>'
-      + '<div class="doc">'
-      + '<div class="dt">의결권 대리행사 위임장</div>'
-      + '<div class="dr"><span class="k">주주</span><span class="v">' + esc(CUR.name) + '</span></div>'
-      + '<div class="dr"><span class="k">위임 주식수</span><span class="v">' + cm(CUR.sh) + '주</span></div>'
-      + '<div class="dr"><span class="k">수임인</span><span class="v">아이알큐더스</span></div>'
-      + '<div class="dr"><span class="k">의안</span><span class="v">' + A.length + '건 (회사 권고안)</span></div>'
-      + '<p class="dp">본인은 위 주식에 대한 의결권을 수임인에게 위임하며, 상기 주주총회의 모든 의안에 대하여 '
-      + '대리행사할 권한을 부여합니다. 위임 내용은 전자문서로 보관됩니다.</p>'
-      + '<div class="dsign' + (PX.sign ? ' has' : '') + '" id="docSign" role="button">'
-      + '<span class="lb">서명란</span>'
+      + '<div class="pxd">' + esc(CUR.name) + ' 님께 내용을 보여 드린 뒤 주주명 서명란에 직접 서명받아 주세요.</div>'
+      + '<div class="pdoc">'
+      + '<h4>위 임 장</h4>'
+      + '<p class="lead">본인은 ' + esc(mdate) + '에 개최하는 ' + esc(org) + '의 ' + esc(term) + '에서 '
+      + '권유자 ㈜아이알큐더스가 지정하는 (정재원, 신원표) 중 1인을 그 대리인으로 정하고 '
+      + '다음의 내용과 같이 찬반표시에 따라 의결권을 행사할 것을 위임합니다.</p>'
+      + '<div class="dash">- 다 음 -</div>'
+      + '<ol class="nums">'
+      + '<li>소유 주식수 : <b>' + sh + '</b>주</li>'
+      + '<li>의결권 있는 주식수 : <b>' + sh + '</b>주</li>'
+      + '<li>위임할 주식수 : <b>' + sh + '</b>주</li>'
+      + '<li>주주총회 목적사항 및 목적사항별 찬반 여부'
+      + '<table class="ptbl"><thead><tr><th class="c w1">의안</th><th>주주총회 목적사항</th>'
+      + '<th class="c w2">찬성</th><th class="c w2">반대</th></tr></thead><tbody>'
+      + A.map(function (a, i) {
+          return '<tr><td class="c">' + esc(String(a.no).replace(/[^0-9-]/g, '')) + '</td>'
+            + '<td>' + esc(a.nm) + '</td>'
+            + '<td class="c"><span class="mk">✓</span></td><td class="c"></td></tr>';
+        }).join('')
+      + '</tbody></table></li>'
+      + '<li>새로 상정된 안건이나 변경·수정 안건 등에 대한 의결권의 행사 위임'
+      + '<p class="sub">· 주주총회 시 새로이 상정된 안건이나 각호 의안에 대한 수정안이 상정될 경우에는 '
+      + '대리인이 주주의 의사표시가 위 4번 항목에서 표시된 찬반의 취지에 합치된다고 합리적으로 판단되는 바에 따라 '
+      + '의결권을 행사할 것을 위임합니다.</p>'
+      + '<p class="sub">· 다만, 아래의 명시적으로 지시한 사항에 대해서는 주주가 주주총회 전까지 별도의 의사표시가 없는 한 '
+      + '아래의 지시한 대로 의결권을 행사하겠습니다.</p>'
+      + '<table class="ptbl"><thead><tr><th class="c w3">항 목</th><th>지시내용</th></tr></thead>'
+      + '<tbody><tr><td class="c">-</td><td>&nbsp;</td></tr></tbody></table></li>'
+      + '</ol>'
+      + '<div class="sign">'
+      + '<div class="sr"><span class="k">주주명</span><span class="v">' + esc(CUR.name) + '</span>'
+      + '<span class="sbox' + (PX.sign ? ' has' : '') + '" id="docSign" role="button">'
       + (PX.sign ? '<img src="' + PX.sign + '" alt="전자서명">'
-                 : '<span class="ph2"><i class="ph ph-pencil-simple-line"></i>눌러서 서명하기</span>')
+                 : '<span class="ph2"><i class="ph ph-pencil-simple-line"></i>서명 또는 날인</span>')
+      + '</span></div>'
+      + '<div class="sr"><span class="k">주민번호</span><span class="v">' + esc(rrn) + '</span></div>'
+      + '<div class="sr"><span class="k">위임일자 및 시간</span><span class="v">' + esc(ymd) + '</span></div>'
       + '</div></div></div>';
     $('#docSign').addEventListener('click', function () { PX.step = 2; pxDraw(); });
     pxNextBtn('다음', !!PX.sign, function () { PX.step = 3; pxDraw(); });
-  }
-
-  /* 3) 실명 인증 안내 */
-  function pxVerify() {
-    var M = (window.CX && CX.meeting) || {};
-    $('#pxBd').innerHTML = '<div class="vfy">'
-      + '<div class="lg"><img src="' + (APP.logoOf ? APP.logoOf(CUR.org) : 'assets/logo-kudoselectric.png') + '" alt="' + esc(CUR.org || '') + '"></div>'
-      + '<div class="h">신분증으로 실명을 인증해 주세요</div>'
-      + '<div class="d">신분증이 없다면 사업자등록증, 법인인감증명서, 명함 등 기타 서류로도 인증할 수 있습니다.</div>'
-      + '<div class="bx"><div class="bt">신분증 정보는 주주총회 종료 후 안전하게 폐기됩니다</div>'
-      + '<div class="r"><span class="k">사용 목적</span><span class="v">' + esc((CUR.org || M.org || '') + ' ' + (M.name || '')) + '</span></div>'
-      + '<div class="r"><span class="k">개최 일시</span><span class="v">' + esc(M.dateText || '') + '</span></div>'
-      + '<div class="r"><span class="k">파기 시점</span><span class="v">주주총회 종료 후 영구 폐기</span></div>'
-      + '</div></div>';
-    var alt = $('#pxAlt');
-    alt.hidden = false;
-    alt.onclick = function () { toast('기타 서류 인증은 운영팀 확인 후 처리됩니다'); };
-    pxNextBtn('신분증 인증', true, function () { PX.step = 4; pxDraw(); });
   }
 
   /* 3) 전자서명 — 캔버스에 직접 그린다 */
@@ -1770,9 +1787,57 @@
   }
 
   /* 4) 신분증 촬영 — 앱 안 카메라 + 가이드 프레임 */
-  var CAM = { stream: null };
+  var CAM = { stream: null, timer: null };
   function camStop() {
+    if (CAM.timer) { clearInterval(CAM.timer); CAM.timer = null; }
     if (CAM.stream) { CAM.stream.getTracks().forEach(function (t) { t.stop(); }); CAM.stream = null; }
+  }
+
+  /* 가이드 테두리 안이 카드로 가득 차고 흔들림이 멎으면 스스로 찍는다.
+     테두리 쪽 밝기 변화(모서리)와 가운데 영역의 안정도를 같이 본다. */
+  function autoShot(v, fire) {
+    var cv = document.createElement('canvas'), W = 64, H = 40;
+    cv.width = W; cv.height = H;
+    var g = cv.getContext('2d', { willReadFrequently: true });
+    var prev = null, steady = 0, done = false;
+    function hint(t, ok) {
+      var el = $('#camW') && $('#camW').querySelector('.ahint');
+      if (!el) return;
+      el.textContent = t; el.classList.toggle('ok', !!ok);
+    }
+    CAM.timer = setInterval(function () {
+      if (done || !CAM.stream || !v.videoWidth) return;
+      /* 가이드 테두리와 같은 비율(1.55:1)로 가운데를 잘라 본다 */
+      var vw = v.videoWidth, vh = v.videoHeight;
+      var cw = Math.min(vw, vh * 1.55), ch = cw / 1.55;
+      g.drawImage(v, (vw - cw) / 2, (vh - ch) / 2, cw, ch, 0, 0, W, H);
+      var d = g.getImageData(0, 0, W, H).data, lum = new Float32Array(W * H);
+      for (var i = 0, n = 0; i < d.length; i += 4, n++) {
+        lum[n] = (d[i] * 0.299 + d[i + 1] * 0.587 + d[i + 2] * 0.114) / 255;
+      }
+      /* 가운데가 충분히 밝고(카드가 들어옴) 테두리와 대비가 있어야 한다 */
+      var cSum = 0, cN = 0, eSum = 0, eN = 0;
+      for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) {
+        var val = lum[y * W + x];
+        var edge = (x < 4 || x > W - 5 || y < 3 || y > H - 4);
+        if (edge) { eSum += val; eN++; } else { cSum += val; cN++; }
+      }
+      var cAvg = cSum / cN, eAvg = eSum / eN, contrast = Math.abs(cAvg - eAvg);
+      /* 흔들림 — 직전 프레임과의 차이 */
+      var diff = 0;
+      if (prev) { for (var k = 0; k < lum.length; k++) diff += Math.abs(lum[k] - prev[k]); diff /= lum.length; }
+      prev = lum;
+      var filled = cAvg > 0.28 && contrast > 0.045;
+      var still = prev && diff < 0.022;
+      if (filled && still) { steady++; } else { steady = 0; }
+      if (steady >= 4) {                       /* 약 0.8초 유지되면 촬영 */
+        done = true; hint('촬영합니다', true);
+        var fr = $('#camW'); if (fr) fr.classList.add('flash');
+        setTimeout(function () { fire(); }, 260);
+        return;
+      }
+      hint(filled ? (still ? '인식 중…' : '잠시 멈춰 주세요') : '테두리 안에 신분증을 맞춰 주세요', filled && still);
+    }, 200);
   }
   function pxCam() {
     $('#pxBd').innerHTML = '<div class="camscr' + (PX.idImg ? ' shot' : '') + '">'
@@ -1782,7 +1847,8 @@
           ? '<img src="' + PX.idImg + '" alt="촬영한 신분증">'
           : '<video id="camV" playsinline muted autoplay></video>'
             + '<div class="guide"><span class="c tl"></span><span class="c tr"></span>'
-            + '<span class="c bl"></span><span class="c br"></span></div>')
+            + '<span class="c bl"></span><span class="c br"></span></div>'
+            + '<div class="ahint">테두리 안에 신분증을 맞춰 주세요</div>')
       + '</div>'
       + '<div class="cguide">어두운 배경에서 촬영해 주세요.<br>빛이 반사되지 않도록 방향을 조정해 주세요.</div>'
       + (PX.idImg
@@ -1810,8 +1876,7 @@
         + '카메라를 사용할 수 없습니다.<br>앨범에서 신분증 사진을 선택해 주세요.</div>';
       var sh = $('#camShot'); if (sh) sh.onclick = function () { $('#camFile').click(); };
     }
-    $('#camShot').addEventListener('click', function () {
-      if (!CAM.stream) { $('#camFile').click(); return; }
+    function shoot() {
       var w = v.videoWidth, h = v.videoHeight; if (!w) return;
       var c = document.createElement('canvas');
       var scale = Math.min(1, 1024 / w);
@@ -1819,7 +1884,12 @@
       c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
       PX.idImg = c.toDataURL('image/jpeg', 0.7);      /* 1024px · 품질 0.7 로 줄여 저장 */
       camStop(); pxDraw();
+    }
+    $('#camShot').addEventListener('click', function () {
+      if (!CAM.stream) { $('#camFile').click(); return; }
+      shoot();
     });
+    autoShot(v, shoot);
     $('#camFile').addEventListener('change', function () {
       var f = this.files && this.files[0]; if (!f) return;
       var fr = new FileReader();
