@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=70">
+<link rel="stylesheet" href="app.css?v=71">
 </head>
 <body>
 <div id="phone">
@@ -101,7 +101,7 @@
     <div class="bd plain"><div class="acc" id="flAcc"></div></div>
     <div class="dt-ft">
       <button class="btn gh" id="flReset" type="button">초기화</button>
-      <button class="btn" id="flApply" type="button">조건 적용하기</button>
+      <button class="btn" id="flApply" type="button">선택 완료</button>
     </div>
   </section>
 
@@ -206,6 +206,26 @@
       <button class="ic" id="pfOut" type="button" aria-label="로그아웃"><i class="ph ph-sign-out"></i></button>
     </div>
     <div class="bd" id="pfBd"></div>
+  </section>
+
+  <!-- ══ 즐겨찾기 ══ -->
+  <section class="scr" id="scrBook">
+    <div class="tb">
+      <button class="ic bk" id="bkBack2" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>즐겨찾기</h1>
+      <span class="sp"></span>
+      <button class="ic" id="bkMark" type="button" aria-label="관심 주주"><i class="ph-fill ph-bookmark-simple"></i></button>
+      <button class="ic" id="bkMap" type="button" aria-label="지도 보기"><i class="ph ph-map-trifold"></i></button>
+    </div>
+    <div class="bktabs" id="bkTabs">
+      <button type="button" data-bt="save" class="on">저장한 주주</button>
+      <button type="button" data-bt="reco">추천 주주</button>
+    </div>
+    <div class="lsmeta">
+      <button class="srt" id="bkSort" type="button"><span>거주 가능성 높은 순</span><i class="ph ph-caret-up-down"></i></button>
+      <span><b id="bkCnt">0</b>건</span>
+    </div>
+    <div class="bd plain"><div class="list" id="bkList"></div></div>
   </section>
 
   <!-- ══ 정산 내역 ══ -->
@@ -328,6 +348,6 @@
 <script src="../cx-roster.js?v=r9"></script>
 <script src="../cx-relay.js?v=5"></script>
 <script src="app-data.js?v=18"></script>
-<script src="app.js?v=70"></script>
+<script src="app.js?v=71"></script>
 </body>
 </html>

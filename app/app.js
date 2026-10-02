@@ -86,7 +86,7 @@
   })();
 
   /* ══ 수집 — 주주 목록 ════════════════════════ */
-  var F = { st: [], bookOnly: false, q: '', sort: 'date' };
+  var F = { st: [], bookOnly: false, q: '', sort: 'live' };
   var BOOK = (function () { try { return JSON.parse(localStorage.getItem('cx.app.book') || '[]'); } catch (e) { return []; } })();
   function saveBook() { try { localStorage.setItem('cx.app.book', JSON.stringify(BOOK)); } catch (e) {} }
 
@@ -198,8 +198,7 @@
     return [
       { k: 'co', t: '기업 선택', d: '조회할 대상 기업을 선택해 주세요.',
         sum: DRAFT.co.length ? DRAFT.co.join(', ') : '',
-        body: '<button class="fsel" id="fCo" type="button" style="text-align:left">'
-          + (DRAFT.co.length ? esc(DRAFT.co.join(', ')) : '기업을 선택해 주세요') + '</button>' },
+        body: coBody() },
       { k: 'st', t: '방문 진행상태', d: '방문할 대상의 진행상태를 선택해주세요.',
         sum: DRAFT.st.map(function (v) { return ST[v].nm; }).join(', '),
         body: chipRow('st', '전체', ST_FILTER, true, function (v) { return ST[v].nm; }) },
@@ -218,14 +217,23 @@
       { k: 'gb', t: '주주 유형', d: '개인 및 법인 주주를 구분하여 검색할 수 있습니다.',
         sum: DRAFT.gbs.join(', '),
         body: chipRow('gbs', '전체', ['개인', '법인'], true) },
-      { k: 'sex', t: '성별 및 연령대', d: '주주의 성별과 연령대를 설정해 주세요.',
-        sum: DRAFT.sex.concat([DRAFT.ageFrom, DRAFT.ageTo].filter(Boolean).join('~')).filter(Boolean).join(', '),
-        body: chipRow('sex', '전체', ['남성', '여성'], true) + ageSlider() },
       { k: 'bld', t: '건물 유형', d: '단독주택 또는 아파트 등 거주 중인 건물 형태를 선택해 주세요.',
         sum: DRAFT.bld.join(', '),
         body: chipRow('bld', '전체', ['집합건물', '단독건물'], true) }
     ];
   }
+  /* 기업 선택 — 체크 목록 */
+  function coBody() {
+    var L = APP.liveCompanies(), all = L.length && L.every(function (c) { return DRAFT.co.indexOf(c) >= 0; });
+    return '<div class="fchk"><button class="r" type="button" data-coall>'
+      + '<span class="cb' + (all ? ' on' : '') + '"></span><span class="t">전체선택</span></button>'
+      + L.map(function (c) {
+          return '<button class="r" type="button" data-co="' + esc(c) + '">'
+            + '<span class="cb' + (DRAFT.co.indexOf(c) >= 0 ? ' on' : '') + '"></span>'
+            + '<span class="t">' + esc(c) + '</span></button>';
+        }).join('') + '</div>';
+  }
+
   /* 보유 주식 — 보유주식수 · 지분율 두 방식을 같은 모양으로 쓴다 */
   function pc(v) { return (Math.round(v * 10000) / 10000) + ''; }
   function shSum(mx) {
@@ -274,23 +282,39 @@
       + '</div>';
   }
 
+  var FTAB = 'co';
   function drawFilter() {
-    var el = $('#flAcc');
-    el.innerHTML = FSECS().map(function (s) {
-      return '<div class="sec' + (OPEN[s.k] ? ' open' : '') + '" data-sec="' + s.k + '">'
-        + '<div class="hd" role="button" tabindex="0"><div class="c">'
-        + '<div class="t">' + s.t + '</div>'
-        + '<div class="s' + (s.sum ? ' on' : '') + '">' + esc(s.sum || s.d) + '</div></div>'
-        + '<span class="cv"><i class="ph ph-caret-down"></i></span></div>'
-        + '<div class="bdy">' + s.body + '</div></div>';
-    }).join('');
+    var el = $('#flAcc'), secs = FSECS();
+    if (!secs.some(function (x) { return x.k === FTAB; })) FTAB = secs[0].k;
+    var cur = secs.filter(function (x) { return x.k === FTAB; })[0];
+    el.innerHTML = '<div class="ftabs" id="fTabs">'
+      + secs.map(function (x) {
+          return '<button type="button" data-ft="' + x.k + '"' + (x.k === FTAB ? ' class="on"' : '') + '>' + x.t + '</button>';
+        }).join('') + '</div>'
+      + '<div class="fpane"><div class="fd">' + esc(cur.sum || cur.d) + '</div>' + cur.body + '</div>';
 
-    el.querySelectorAll('.hd').forEach(function (h) {
-      h.addEventListener('click', function () {
-        var k = h.closest('.sec').dataset.sec;
-        OPEN[k] = !OPEN[k]; drawFilter();
+    el.querySelectorAll('[data-ft]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        FTAB = b.dataset.ft; drawFilter();
+        var t = $('#fTabs'), on = t && t.querySelector('.on');
+        if (on) on.scrollIntoView({ block: 'nearest', inline: 'center' });
       });
     });
+    el.querySelectorAll('[data-co]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var v = b.dataset.co, i = DRAFT.co.indexOf(v);
+        if (i >= 0) DRAFT.co.splice(i, 1); else DRAFT.co.push(v);
+        drawFilter();
+      });
+    });
+    (function () {
+      var b = el.querySelector('[data-coall]'); if (!b) return;
+      b.addEventListener('click', function () {
+        var L = APP.liveCompanies();
+        DRAFT.co = L.every(function (c) { return DRAFT.co.indexOf(c) >= 0; }) ? [] : L.slice();
+        drawFilter();
+      });
+    })();
     el.querySelectorAll('[data-fk]').forEach(function (b) {
       b.addEventListener('click', function () {
         var k = b.dataset.fk, v = b.dataset.fv;
@@ -474,13 +498,24 @@
       if (!advPass(x)) return false;
       return true;
     });
+    var LVW = { '거주 가능성 높음': 0, '거주 가능성 보통': 1, '거주 가능성 낮음': 2 };
+    function dueOf(x) {
+      var c = (APP.CAMPAIGNS || []).filter(function (c) { return c.id === x.camp; })[0];
+      return c ? c.due : '9999-12-31';
+    }
     if (F.sort === 'sh') L.sort(function (a, b) { return b.sh - a.sh; });
-    else if (F.sort === 'nm') L.sort(function (a, b) { return a.name.localeCompare(b.name, 'ko'); });
-    else if (F.sort === 'near') L.sort(function (a, b) { return dist(a) - dist(b); });
+    else if (F.sort === 'due') L.sort(function (a, b) {
+      var d = String(dueOf(a)).localeCompare(String(dueOf(b)));
+      return d || (b.sh - a.sh);
+    });
+    else L.sort(function (a, b) {                       /* 거주 가능성 높은 순 — 같으면 보유 주식 많은 순 */
+      var d = (LVW[a.live.nm] == null ? 3 : LVW[a.live.nm]) - (LVW[b.live.nm] == null ? 3 : LVW[b.live.nm]);
+      return d || (b.sh - a.sh);
+    });
     return L;
   }
 
-  var SORTS = [{ k: 'date', nm: '권유일 입력 순' }, { k: 'sh', nm: '보유 주식 많은 순' }, { k: 'nm', nm: '이름 순' }, { k: 'near', nm: '내 위치에서 가까운 순' }];
+  var SORTS = [{ k: 'live', nm: '거주 가능성 높은 순' }, { k: 'due', nm: '권유일 임박 순' }, { k: 'sh', nm: '보유 주식 많은 순' }];
   $('#btnSort').addEventListener('click', function () {
     sheet({
       title: '정렬', body: '<div style="padding:4px 0 8px">' + SORTS.map(function (s) {
@@ -501,9 +536,55 @@
   });
   /* 목록·지도 어느 쪽을 보고 있든 필터 결과를 같이 갱신한다 */
   function refresh() { MAPMODE ? (drawChips(), paintMarkers()) : drawList(); }
-  $('#btnBook').addEventListener('click', function () {
-    F.bookOnly = !F.bookOnly; refresh();
-    toast(F.bookOnly ? '관심 주주만 보고 있습니다' : '전체 주주를 보고 있습니다');
+  $('#btnBook').addEventListener('click', function () { openBook(); });
+
+  /* ══ 즐겨찾기 — 저장한 주주 · 추천 주주 ══════════════ */
+  var BKTAB = 'save', BKSORT = 'live';
+  function bkRows() {
+    var L = APP.list();
+    if (BKTAB === 'save') L = L.filter(function (x) { return BOOK.indexOf(x.i) >= 0; });
+    else L = L.filter(function (x) {
+      return BOOK.indexOf(x.i) < 0 && x.live.k === 'high' && x.st !== 'done';
+    }).slice(0, 30);
+    var W = { high: 0, mid: 1, low: 2 };
+    if (BKSORT === 'sh') L.sort(function (a, b) { return b.sh - a.sh; });
+    else if (BKSORT === 'near') L.sort(function (a, b) { return dist(a) - dist(b); });
+    else L.sort(function (a, b) { return (W[a.live.k] - W[b.live.k]) || (b.sh - a.sh); });
+    return L;
+  }
+  var BKSORTS = [{ k: 'live', nm: '거주 가능성 높은 순' }, { k: 'near', nm: '가까운 순' }, { k: 'sh', nm: '보유 주식 많은 순' }];
+  function drawBook() {
+    var L = bkRows();
+    $('#bkCnt').textContent = cm(L.length);
+    $('#bkSort').querySelector('span').textContent =
+      (BKSORTS.filter(function (s) { return s.k === BKSORT; })[0] || BKSORTS[0]).nm;
+    $('#bkList').innerHTML = L.length ? L.map(cardHtml).join('')
+      : '<div class="bkempty"><i class="ph ph-bookmark-simple"></i>'
+        + (BKTAB === 'save' ? '저장한 주주가 없습니다.<br>목록에서 북마크를 눌러 추가해 주세요.' : '추천할 주주가 없습니다.')
+        + '</div>';
+    bindCards($('#bkList'));
+  }
+  function openBook() { drawBook(); show('#scrBook'); $('#tabbar').hidden = false; }
+  $('#bkBack2').addEventListener('click', function () { goTab('list'); });
+  $('#bkMark').addEventListener('click', function () { BKTAB = 'save'; paintBkTabs(); drawBook(); });
+  $('#bkMap').addEventListener('click', function () { goTab('list'); if (!MAPMODE) $('#btnMap').click(); });
+  function paintBkTabs() {
+    $$('#bkTabs button').forEach(function (b) { b.classList.toggle('on', b.dataset.bt === BKTAB); });
+  }
+  $$('#bkTabs button').forEach(function (b) {
+    b.addEventListener('click', function () { BKTAB = b.dataset.bt; paintBkTabs(); drawBook(); });
+  });
+  $('#bkSort').addEventListener('click', function () {
+    sheet({
+      title: '정렬', body: '<div style="padding:4px 0 8px">' + BKSORTS.map(function (s) {
+        return '<button class="opt" type="button" data-bsrt="' + s.k + '"><span class="cb rd' + (BKSORT === s.k ? ' on' : '') + '"></span><span class="sp">' + s.nm + '</span></button>';
+      }).join('') + '</div>',
+      after: function (bx) {
+        bx.querySelectorAll('[data-bsrt]').forEach(function (b) {
+          b.addEventListener('click', function () { BKSORT = b.dataset.bsrt; closeSheet(); drawBook(); });
+        });
+      }
+    });
   });
 
   function liveBg(x) {
