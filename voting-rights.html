@@ -937,7 +937,7 @@
           td.innerHTML=vals[i]==null?'':vals[i];
           if(c.kind==='num' && recs[i]!=null && vals[i]!==recs[i]) td.classList.add('diff');
         });
-      }
+      };
       /* 기본 확보 건수는 100명을 채운다 — 명부에서 아직 없는 주주로 행을 보탠다 */
       (function(){
         var tb=t.tBodies[0], NEED=100;
