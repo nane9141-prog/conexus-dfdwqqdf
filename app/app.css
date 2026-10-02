@@ -978,12 +978,12 @@ a{color:inherit;text-decoration:none}
 
 
 /* ══ 상세 조건 — 탭 ══════════════════════════════ */
-.ftabs{display:flex;gap:4px;padding:0 16px;border-bottom:1px solid #EEF0F2;overflow-x:auto;
+.ftabs{display:flex;gap:18px;margin-top:8px;padding:0 20px;border-bottom:1px solid #EEF0F2;overflow-x:auto;
   scrollbar-width:none;-ms-overflow-style:none}
 .ftabs::-webkit-scrollbar{display:none}
 .ftabs{cursor:grab;-webkit-user-select:none;user-select:none}
 .ftabs:active{cursor:grabbing}
-.ftabs button{flex:none;height:44px;padding:0 8px;border:0;background:none;border-bottom:2px solid transparent;
+.ftabs button{flex:none;height:48px;padding:0 2px;border:0;background:none;border-bottom:2px solid transparent;
   font-family:inherit;font-size:14px;font-weight:500;color:#8A8F99;white-space:nowrap;cursor:pointer}
 .ftabs button.on{color:#171717;font-weight:700;border-bottom-color:#171717}
 .fpane{padding:18px 16px 24px}

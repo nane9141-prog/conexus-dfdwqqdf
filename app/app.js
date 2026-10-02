@@ -500,6 +500,11 @@
       return true;
     });
     var LVW = { '거주 가능성 높음': 0, '거주 가능성 보통': 1, '거주 가능성 낮음': 2 };
+    /* 담당 구역 기준점 — 여의도역 */
+    function ydist(x) {
+      var dy = (x.lat - 37.52156) * 111, dx = (x.lng - 126.92430) * 88;
+      return Math.sqrt(dy * dy + dx * dx);
+    }
     function dueOf(x) {
       var c = (APP.CAMPAIGNS || []).filter(function (c) { return c.id === x.camp; })[0];
       return c ? c.due : '9999-12-31';
@@ -509,9 +514,9 @@
       var d = String(dueOf(a)).localeCompare(String(dueOf(b)));
       return d || (b.sh - a.sh);
     });
-    else L.sort(function (a, b) {                       /* 거주 가능성 높은 순 — 같으면 보유 주식 많은 순 */
+    else L.sort(function (a, b) {                       /* 거주 가능성 높은 순 — 같으면 여의도역에서 가까운 순 */
       var d = (LVW[a.live.nm] == null ? 3 : LVW[a.live.nm]) - (LVW[b.live.nm] == null ? 3 : LVW[b.live.nm]);
-      return d || (b.sh - a.sh);
+      return d || (ydist(a) - ydist(b));
     });
     return L;
   }
