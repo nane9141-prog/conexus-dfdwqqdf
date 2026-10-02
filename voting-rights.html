@@ -1075,7 +1075,8 @@
       });
       h+='</div>';
 
-      var sign=p.sign||signFor(k||tr.cells[1].textContent.trim()+tr.cells[0].textContent.trim()), idImg=p.idImg||DEMO_ID;
+      var sign=p.sign||signFor(k||tr.cells[1].textContent.trim()+tr.cells[0].textContent.trim());
+      var real=!!p.idImg, idImg=p.idImg||DEMO_ID;   /* 앱에서 올라온 신분증이면 그대로 보여 준다 */
       h+='<div class="rcsec">접수 확인</div><dl class="rcgrid rcchk">'
         +'<dt>담당 에이전트</dt><dd>'+esc(app?'도지연':agentOf(k||tr.cells[1].textContent))+'</dd>'
         +'<dt>전자서명</dt><dd><span class="rcok"><i class="ph-bold ph-check-circle"></i>등록 완료</span></dd>'
@@ -1083,12 +1084,12 @@
         +'</dl>'
         +'<div class="rcdocs">'
         +'<figure><figcaption>전자서명</figcaption><div class="im sg"><img src="'+sign+'" alt="전자서명"></div></figure>'
-        +'<figure><figcaption>신분증 <em>마스킹 처리</em></figcaption>'
-        +'<div class="im msk"><img src="'+idImg+'" alt="신분증 (마스킹 처리됨)">'
-        +'<span class="lk"><span class="bd">'
+        +'<figure><figcaption>신분증'+(real?'':' <em>마스킹 처리</em>')+'</figcaption>'
+        +'<div class="im'+(real?'':' msk')+'"><img src="'+idImg+'" alt="신분증">'
+        +(real?'':'<span class="lk"><span class="bd">'
         +'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">'
         +'<path d="M12 2.6a4.6 4.6 0 0 0-4.6 4.6V10H7a2.4 2.4 0 0 0-2.4 2.4v6.2A2.4 2.4 0 0 0 7 21h10a2.4 2.4 0 0 0 2.4-2.4v-6.2A2.4 2.4 0 0 0 17 10h-.4V7.2A4.6 4.6 0 0 0 12 2.6Zm0 2a2.6 2.6 0 0 1 2.6 2.6V10H9.4V7.2A2.6 2.6 0 0 1 12 4.6Zm0 9.1a1.5 1.5 0 0 1 .8 2.8v1.3a.8.8 0 0 1-1.6 0v-1.3a1.5 1.5 0 0 1 .8-2.8Z" fill="#fff"/>'
-        +'</svg></span></span></div></figure>'
+        +'</svg></span></span>')+'</div></figure>'
         +'</div>';
       document.getElementById('rcBd').innerHTML=h;
       document.getElementById('rcOv').classList.remove('hidden');
