@@ -360,7 +360,7 @@
         document.getElementById('gHoldB').style.width=p1+'%';
         document.getElementById('gVoteB').style.width=p2+'%';
         set('gSumA',cm(got)); set('gSumB',cm(GOAL));
-        set('gLegIrk',cm(irkAll)+'주'+(APPSH?' <span class="appmark">앱 +'+cm(APPSH)+'</span>':'')); set('gLegCo',cm(co)+'주'); set('gLegLeft',cm(left)+'주');
+        set('gLegIrk',cm(irkAll)+'주'); set('gLegCo',cm(co)+'주'); set('gLegLeft',cm(left)+'주');
         set('gPieV',p1.toFixed(1)+'%');
         /* 12시부터 기업 예상 확보(회색→검정) → IRK 확보(연파랑→파랑) → 잔여 */
         var a=Math.min(co/GOAL*100,100), b=Math.min(irkAll/GOAL*100,100-a);
@@ -449,6 +449,16 @@
   .rclist .r+.r{border-top:1px solid var(--border)}
   .rclist .no{flex:none;width:52px;color:var(--muted-fg);font-size:12px;font-weight:700}
   .rclist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rclist .rcnum{flex:none;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
+  .rcok{display:inline-flex;align-items:center;gap:4px;color:#0071f3;font-weight:600}
+  .rcok i{font-size:14px}
+  .rcdocs{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+  .rcdocs figure{margin:0}
+  .rcdocs figcaption{margin-bottom:6px;font-size:12px;font-weight:700;color:var(--muted-fg)}
+  .rcdocs .im{border:1px solid var(--border);border-radius:var(--r-md);background:#fff;overflow:hidden;
+    height:136px;display:flex;align-items:center;justify-content:center;padding:8px}
+  .rcdocs .im.sg{background:#fbfbfc}
+  .rcdocs .im img{max-width:100%;max-height:100%;object-fit:contain}
   .rcft{padding:12px 20px 16px;border-top:1px solid var(--border)}
   .rcclose{width:100%;height:42px;border-radius:var(--r-md);border:1px solid var(--border);
     background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
@@ -876,7 +886,33 @@
     }
 
     /* ── 접수 내역 모달 — 주주명을 누르면 그 건의 접수 내용을 보여준다 ── */
-    var AGHD=hd.slice(5,9);                      /* 표의 의안 칸 이름: 1 · 2-1 · 2-2 · 3 */
+    var AGHD=hd.slice(5);                        /* 표에 있는 의안 칸 전체 — 1 · 2-1 · 2-2 · 3 · 4-1 · 4-2 */
+    /* 담당 에이전트 — 앱 접수 건은 로그인한 파트너, 과거 건은 수집 당시 담당자 */
+    var AGENTS=['도지연 · 아이알큐더스','최현우 · 아이알큐더스','윤서진 · 아이알큐더스','한지민 · 아이알큐더스'];
+    function agentOf(k){ var n=0, t=String(k||''); for(var i=0;i<t.length;i++) n+=t.charCodeAt(i); return AGENTS[n%AGENTS.length]; }
+    /* 시연용 전자서명 · 신분증 — 앱에서 올라온 이미지가 없을 때 쓴다 */
+    var DEMO_SIGN='data:image/svg+xml;utf8,'+encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 110">'
+      +'<rect width="320" height="110" fill="#fff"/>'
+      +'<path d="M26 78c14-30 26-46 34-46 9 0 7 28 14 28 8 0 14-34 24-34 9 0 6 36 15 36 8 0 15-22 24-22 10 0 9 20 18 20 11 0 20-26 33-26 12 0 17 16 28 16 9 0 16-8 22-16" '
+      +'fill="none" stroke="#111827" stroke-width="3.4" stroke-linecap="round"/>'
+      +'<path d="M232 84c16 4 32 3 46-4" fill="none" stroke="#111827" stroke-width="2.4" stroke-linecap="round"/>'
+      +'</svg>');
+    var DEMO_ID='data:image/svg+xml;utf8,'+encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 264">'
+      +'<rect width="420" height="264" rx="14" fill="#EEF1F6"/>'
+      +'<rect x="14" y="14" width="392" height="236" rx="10" fill="#fff" stroke="#D6DBE4"/>'
+      +'<text x="34" y="52" font-family="sans-serif" font-size="17" font-weight="700" fill="#1F2937">주민등록증</text>'
+      +'<rect x="34" y="72" width="96" height="120" rx="6" fill="#DDE3EC"/>'
+      +'<circle cx="82" cy="112" r="21" fill="#BCC5D3"/>'
+      +'<path d="M52 176c6-20 16-30 30-30s24 10 30 30z" fill="#BCC5D3"/>'
+      +'<rect x="150" y="80" width="150" height="13" rx="4" fill="#CFD6E0"/>'
+      +'<rect x="150" y="108" width="196" height="11" rx="4" fill="#E2E7EE"/>'
+      +'<rect x="150" y="130" width="168" height="11" rx="4" fill="#E2E7EE"/>'
+      +'<rect x="150" y="152" width="184" height="11" rx="4" fill="#E2E7EE"/>'
+      +'<rect x="150" y="174" width="120" height="11" rx="4" fill="#E2E7EE"/>'
+      +'<text x="34" y="222" font-family="sans-serif" font-size="12" fill="#8A93A2">시연용 샘플 이미지 · 개인정보 비식별 처리</text>'
+      +'</svg>');
     function agName(n){
       var A=(window.CX&&CX.agenda)||[];
       var f=null;
@@ -907,25 +943,28 @@
 
       h+='<div class="rcsec">의안별 의향</div><div class="rclist">';
       AGHD.forEach(function(n,i){
-        var txt=tr.cells[5+i].textContent.trim()||'-';
+        var cell=tr.cells[5+i]; if(!cell) return;
+        var txt=cell.textContent.trim()||'-';
+        var num=/^[0-9,]+$/.test(txt);
         var cls=txt==='찬성'?'for':txt==='반대'?'against':'';
         h+='<div class="r"><span class="no">제'+esc(n)+'호</span>'
           +'<span class="nm">'+esc(agName(n))+'</span>'
-          +'<span class="opb '+cls+'">'+esc(txt)+'</span></div>';
+          +(num?'<span class="rcnum">'+esc(txt)+'주</span>'
+               :'<span class="opb '+cls+'">'+esc(txt)+'</span>')
+          +'</div>';
       });
       h+='</div>';
 
-      if(app){
-        h+='<div class="rcsec">접수 확인</div><dl class="rcgrid">'
-          +'<dt>접수 경로</dt><dd>현장 파트너 수집 앱</dd>'
-          +'<dt>전자서명</dt><dd>'+(p.sign?'완료':'미등록')+'</dd>'
-          +'<dt>신분증</dt><dd>'+(p.idImg?'촬영 완료':'미등록')+'</dd>'
-          +'</dl>';
-        if(p.sign) h+='<div class="rcsec">전자서명</div>'
-          +'<div class="rclist" style="padding:12px;text-align:center">'
-          +'<img src="'+p.sign+'" alt="전자서명" style="max-width:100%;max-height:120px">'
-          +'</div>';
-      }
+      var sign=p.sign||DEMO_SIGN, idImg=p.idImg||DEMO_ID;
+      h+='<div class="rcsec">접수 확인</div><dl class="rcgrid">'
+        +'<dt>담당 에이전트</dt><dd>'+esc(app?'도지연 · 아이알큐더스':agentOf(k||tr.cells[1].textContent))+'</dd>'
+        +'<dt>전자서명</dt><dd><span class="rcok"><i class="ph-bold ph-check-circle"></i>등록 완료</span></dd>'
+        +'<dt>신분증</dt><dd><span class="rcok"><i class="ph-bold ph-check-circle"></i>등록 완료</span></dd>'
+        +'</dl>'
+        +'<div class="rcdocs">'
+        +'<figure><figcaption>전자서명</figcaption><div class="im sg"><img src="'+sign+'" alt="전자서명"></div></figure>'
+        +'<figure><figcaption>신분증</figcaption><div class="im"><img src="'+idImg+'" alt="신분증"></div></figure>'
+        +'</div>';
       document.getElementById('rcBd').innerHTML=h;
       document.getElementById('rcOv').classList.remove('hidden');
     }
