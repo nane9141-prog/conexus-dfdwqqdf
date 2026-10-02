@@ -248,7 +248,7 @@
   .agcard .sec-head .d{font-size:14px;margin-top:6px}
   .agcard .db-tblc{border:none;border-radius:0;box-shadow:none}
   /* 실시간 주주 확보 현황 — 회사 권고와 다른 표기 칸 (Figma 756:25068) */
-  .tbl td.c.diff{background:#FFF1DD}
+  .tbl td.c.diff,.tbl td.num.diff{background:#FFF1DD}
   /* 칸이 많은 표 — 화면이 좁아지면 가로로 스크롤한다(칸이 눌리지 않게) */
   .tbl-wrap.xscroll{overflow-x:auto;overflow-y:hidden}
   .tbl-wrap.xscroll>table{min-width:1760px}
@@ -859,14 +859,16 @@
       });
       return out;
     })();
-    /* 집중투표 — 앞선 의향대로 1·2번 후보에게 의결권을 반씩 주고 나머지는 0 */
-    function split2(total,cnt){
+    /* 집중투표 — 고른 후보 둘에게 의결권을 반씩 주고 나머지는 0 (기본은 1·2번 후보) */
+    function alloc(total,cnt,idx){
       var out=[],i,h=Math.floor(total/2);
       for(i=0;i<cnt;i++) out.push(0);
-      if(cnt>0) out[0]=h;
-      if(cnt>1) out[1]=total-h;
+      idx=idx||[0,1];
+      if(idx.length===1){ out[idx[0]]=total; }
+      else{ out[idx[0]]=h; out[idx[1]]=total-h; }
       return out;
     }
+    function split2(total,cnt){ return alloc(total,cnt,[0,1]); }
     /* 표 머리와 기존 행을 새 의안 칸 수에 맞춰 다시 짠다 */
     (function(){
       var hr=t.tHead.rows[0];
@@ -880,10 +882,13 @@
       /* 회사 권고와 다른 의향 — 시연용으로 다섯 건 섞어 둔다 (행 번호 → 의향) */
       var DIFF={
         1:{op:['반대','찬성','찬성','찬성','반대']},
+        2:{c41:[1,2]},                                              /* 집중투표만 다른 건 */
         3:{op:['찬성','반대','찬성','찬성','반대']},
+        4:{c42:[2,3]},
         5:{op:['찬성','찬성','기권','찬성','반대']},
-        7:{op:['찬성','찬성','찬성','반대','찬성'], side:'주주'},   /* 주주제안 지지 — 집중투표도 4-2호로 */
-        9:{op:['기권','찬성','반대','찬성','반대']}
+        6:{c41:[3]},                                                /* 한 후보에게 몰아준 건 */
+        7:{op:['찬성','찬성','찬성','반대','찬성'], c41:[2,3], c42:[0,1]},  /* 주주제안 지지 */
+        9:{op:['기권','찬성','반대','찬성','반대'], c42:[1,4]}
       };
       Array.prototype.forEach.call(t.tBodies[0].rows,function(tr,ri){
         var bd=birth(tr.cells[3].textContent);
@@ -894,15 +899,16 @@
         var dv=DIFF[ri]||null;
         while(tr.cells.length>5) tr.deleteCell(5);
         var ops=(dv?dv.op:['찬성','찬성','찬성','찬성','반대']).map(opb);
-        var a41=(dv&&dv.side==='주주')?[0,0,0,0]:split2(tot,4);
-        var a42=(dv&&dv.side==='주주')?split2(tot,5):split2(tot,5);
-        var vals=ops
-          .concat(a41.map(cm))
-          .concat(a42.map(cm));
+        var r41=split2(tot,4), r42=split2(tot,5);                   /* 회사 권고 배분 */
+        var a41=alloc(tot,4,dv&&dv.c41), a42=alloc(tot,5,dv&&dv.c42);
+        var vals=ops.concat(a41.map(cm)).concat(a42.map(cm));
+        var recs=[null,null,null,null,null].concat(r41.map(cm)).concat(r42.map(cm));
         AGC.forEach(function(c,i){
           var td=tr.insertCell(5+i);
           td.className=(c.kind==='num'?'num':'c');
           td.innerHTML=vals[i]==null?'':vals[i];
+          /* 집중투표도 권고 배분과 다르면 표시한다 */
+          if(c.kind==='num' && recs[i]!=null && vals[i]!==recs[i]) td.classList.add('diff');
         });
       });
     })();
