@@ -293,6 +293,7 @@
         }).join('') + '</div>'
       + '<div class="fpane"><div class="fd">' + esc(cur.sum || cur.d) + '</div>' + cur.body + '</div>';
 
+    dragScroll($('#fTabs'));
     el.querySelectorAll('[data-ft]').forEach(function (b) {
       b.addEventListener('click', function () {
         FTAB = b.dataset.ft; drawFilter();
@@ -2346,10 +2347,34 @@
     $('#fqBd').querySelectorAll('[data-fc]').forEach(function (b) {
       b.addEventListener('click', function () { FQC = (FQC === b.dataset.fc) ? '' : b.dataset.fc; fqDraw(); });
     });
+    dragScroll($('#fqBd').querySelector('.fq-c'));
     var q = $('#fqQ');
     q.addEventListener('input', function () { FQQ = this.value; var p = this.selectionStart; fqDraw(); var n = $('#fqQ'); n.focus(); try { n.setSelectionRange(p, p); } catch (e) {} });
   }
   $('#fqBack').addEventListener('click', function () { goTab('set'); });
+
+  /* 가로로 넘치는 줄 — 마우스로 끌어서 볼 수 있게. 끈 뒤의 클릭은 삼킨다. */
+  function dragScroll(el) {
+    if (!el || el.__drag) return; el.__drag = 1;
+    var down = false, moved = 0, x0 = 0, l0 = 0;
+    el.addEventListener('pointerdown', function (e) {
+      if (el.scrollWidth <= el.clientWidth) return;
+      down = true; moved = 0; x0 = e.clientX; l0 = el.scrollLeft;
+    });
+    el.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var d = e.clientX - x0;
+      if (Math.abs(d) > 3) moved = Math.max(moved, Math.abs(d));
+      el.scrollLeft = l0 - d;
+    });
+    function up() { down = false; setTimeout(function () { moved = 0; }, 0); }
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    el.addEventListener('pointerleave', up);
+    el.addEventListener('click', function (e) {
+      if (moved > 6) { e.stopPropagation(); e.preventDefault(); }
+    }, true);
+  }
 
   /* 필터 칩 줄 — 넘칠 때 마우스로 끌어서 볼 수 있게. 끈 뒤의 클릭은 삼킨다. */
   (function () {
