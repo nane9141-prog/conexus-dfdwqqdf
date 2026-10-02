@@ -777,8 +777,8 @@ a{color:inherit;text-decoration:none}
 .camscr .alt{background:#fff;border-color:#E5E5E5;color:#171717}
 .camscr .camwrap .off{color:#737373}
 /* 실명 인증 안내 */
-.vfy{padding:8px 20px 32px;text-align:center;overflow:visible}
-.vfy .lg{width:88px;height:88px;margin:28px auto 0;flex:none;
+.vfy{padding:36px 20px 32px;text-align:center;overflow:visible}
+.vfy .lg{width:88px;height:88px;margin:0 auto;flex:none;
   display:flex;align-items:center;justify-content:center}
 .vfy .lg img{max-width:88px;max-height:88px;width:auto;height:auto;object-fit:contain;display:block}
 .vfy .h{margin-top:28px;font-size:17px;font-weight:700;color:#171717}

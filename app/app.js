@@ -1617,11 +1617,11 @@
   function pxVerify() {
     var M = (window.CX && CX.meeting) || {};
     $('#pxBd').innerHTML = '<div class="vfy">'
-      + '<div class="lg"><img src="assets/logo-kakaobank.png" alt="' + esc(M.org || '') + '"></div>'
+      + '<div class="lg"><img src="' + (APP.logoOf ? APP.logoOf(CUR.org) : 'assets/logo-kudoselectric.png') + '" alt="' + esc(CUR.org || '') + '"></div>'
       + '<div class="h">신분증으로 실명을 인증해 주세요</div>'
       + '<div class="d">신분증이 없다면 사업자등록증, 법인인감증명서, 명함 등 기타 서류로도 인증할 수 있습니다.</div>'
       + '<div class="bx"><div class="bt">신분증 정보는 주주총회 종료 후 안전하게 폐기됩니다</div>'
-      + '<div class="r"><span class="k">사용 목적</span><span class="v">' + esc((M.org || '') + ' ' + (M.name || '')) + '</span></div>'
+      + '<div class="r"><span class="k">사용 목적</span><span class="v">' + esc((CUR.org || M.org || '') + ' ' + (M.name || '')) + '</span></div>'
       + '<div class="r"><span class="k">개최 일시</span><span class="v">' + esc(M.dateText || '') + '</span></div>'
       + '<div class="r"><span class="k">파기 시점</span><span class="v">주주총회 종료 후 영구 폐기</span></div>'
       + '</div></div>';

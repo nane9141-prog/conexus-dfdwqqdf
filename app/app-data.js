@@ -20,6 +20,15 @@
 
   /* 기업 목록 — 주주PASS 시청 페이지가 쓰는 기업 리스트와 같은 이름을 쓴다 */
   /* 상세 조건의 기업 선택은 지금 권유가 진행중인 기업만 보여 준다 (아래 CAMPAIGNS 에서 뽑는다) */
+  /* 기업 로고 — 주주PASS 시청 페이지와 같은 파일을 쓴다 */
+  APP.LOGO = {
+    '큐더스전자': 'logo-kudoselectric.png', '카카오뱅크': 'logo-kakaobank.png',
+    '네이버': 'logo-naver.png', '한미반도체': 'logo-hanmi.png',
+    '한화에어로스페이스': 'logo-hanwha-aero.png', '무신사': 'logo-musinsa.png',
+    '농심': 'logo-nongshim.png', 'GS': 'logo-gs.png'
+  };
+  APP.logoOf = function (org) { return 'assets/' + (APP.LOGO[org] || 'logo-kudoselectric.png'); };
+
   APP.liveCompanies = function () {
     return APP.CAMPAIGNS.filter(function (c) { return c.state === 'live'; })
       .map(function (c) { return c.org; });
@@ -56,6 +65,27 @@
     { zip: '06958', gu: '동작구', dong: '노량진동', road: '노량진로', lat: 37.5130, lng: 126.9420,
       apt: ['신동아리버파크', '쌍용예가', '삼익아파트'] }
   ];
+  /* 전국 — 지도를 멀리 당겨 보면 지역별 분포와 수치를 볼 수 있도록 주요 도시를 깔아 둔다 */
+  var NATION = [
+    { si: '부산광역시', gu: '해운대구', dong: '우동',   road: '센텀남대로', lat: 35.1696, lng: 129.1306, zip: '48058', apt: ['트럼프월드', '경동제이드', '두산위브'] },
+    { si: '대구광역시', gu: '수성구',   dong: '범어동', road: '달구벌대로', lat: 35.8580, lng: 128.6260, zip: '42111', apt: ['두산위브더제니스', '범어숲화성파크드림', '수성SK리더스뷰'] },
+    { si: '인천광역시', gu: '연수구',   dong: '송도동', road: '컨벤시아대로', lat: 37.3860, lng: 126.6430, zip: '21998', apt: ['더샵퍼스트월드', '송도센트럴파크', '글로벌캠퍼스푸르지오'] },
+    { si: '광주광역시', gu: '서구',     dong: '치평동', road: '상무중앙로', lat: 35.1520, lng: 126.8510, zip: '61947', apt: ['상무자이', '금호타운', '한국아델리움'] },
+    { si: '대전광역시', gu: '유성구',   dong: '도룡동', road: '대덕대로', lat: 36.3920, lng: 127.3970, zip: '34142', apt: ['스마트시티', '도룡포레미소지움', 'SK뷰'] },
+    { si: '울산광역시', gu: '남구',     dong: '삼산동', road: '삼산로',   lat: 35.5380, lng: 129.3380, zip: '44705', apt: ['벽산아파트', '현대홈타운', '삼산코아루'] },
+    { si: '세종특별자치시', gu: '',     dong: '도담동', road: '도움1로',  lat: 36.5090, lng: 127.2560, zip: '30099', apt: ['도램마을', '새뜸마을', '가재마을'] },
+    { si: '경기도', gu: '수원시 영통구', dong: '이의동', road: '광교중앙로', lat: 37.2990, lng: 127.0460, zip: '16514', apt: ['자연앤힐스테이트', '광교아이파크', '중흥S클래스'] },
+    { si: '경기도', gu: '성남시 분당구', dong: '정자동', road: '정자일로', lat: 37.3660, lng: 127.1080, zip: '13561', apt: ['파크뷰', '아이파크분당', '한솔마을'] },
+    { si: '경기도', gu: '고양시 일산동구', dong: '장항동', road: '호수로', lat: 37.6580, lng: 126.7700, zip: '10401', apt: ['호수마을', '백마마을', '밤가시마을'] },
+    { si: '경기도', gu: '용인시 수지구', dong: '동천동', road: '수지로',  lat: 37.3340, lng: 127.0970, zip: '16827', apt: ['래미안이스트팰리스', '동천자이', '현대홈타운'] },
+    { si: '충청북도', gu: '청주시 흥덕구', dong: '복대동', road: '직지대로', lat: 36.6350, lng: 127.4320, zip: '28375', apt: ['지웰시티', '신영지웰', '두산위브'] },
+    { si: '충청남도', gu: '천안시 서북구', dong: '불당동', road: '불당대로', lat: 36.8180, lng: 127.1070, zip: '31157', apt: ['지웰더샵', '호반써밋', '파크밸리'] },
+    { si: '전라북도', gu: '전주시 덕진구', dong: '송천동', road: '기린대로', lat: 35.8530, lng: 127.1220, zip: '54321', apt: ['에코시티더샵', '포레나', '하늘채'] },
+    { si: '경상북도', gu: '포항시 남구', dong: '대잠동', road: '중흥로',   lat: 36.0120, lng: 129.3470, zip: '37673', apt: ['자이', '중흥S클래스', '우방신천지'] },
+    { si: '경상남도', gu: '창원시 성산구', dong: '상남동', road: '중앙대로', lat: 35.2270, lng: 128.6810, zip: '51495', apt: ['토월성원', '한성', '트리비앙'] },
+    { si: '강원특별자치도', gu: '춘천시', dong: '온의동', road: '공지로',  lat: 37.8690, lng: 127.7200, zip: '24409', apt: ['e편한세상', '롯데캐슬스카이클래스', '현진에버빌'] },
+    { si: '제주특별자치도', gu: '제주시', dong: '노형동', road: '노형로',  lat: 33.4820, lng: 126.4800, zip: '63088', apt: ['아이파크', '중흥S클래스', '해모로'] }
+  ];
   /* 시연 타겟 — 박성용(큐더스전자 1,200주)은 여의도 브라이튼 거주로 고정한다 */
   var TARGET = 894;
   var TARGET_ADDR = {
@@ -74,6 +104,21 @@
 
   function addrOf(i) {
     if (i === TARGET) return TARGET_ADDR;
+    /* 담당 구역(여의도 일대) 65% · 전국 35% — 지도를 당겨 보면 전국 분포가 보인다 */
+    var far = rnd(i, 21) >= 0.65;
+    if (far) {
+      var n = NATION[Math.floor(rnd(i, 22) * NATION.length) % NATION.length];
+      var no2 = 10 + Math.floor(rnd(i, 23) * 180);
+      var dg = 101 + Math.floor(rnd(i, 24) * 15);
+      var h2 = 101 + Math.floor(rnd(i, 25) * 20) * 10 + Math.floor(rnd(i, 26) * 4);
+      return {
+        zip: n.zip,
+        full: n.si + ' ' + (n.gu ? n.gu + ' ' : '') + n.road + ' ' + no2 + ' ' + pick(n.apt, i, 27) + ' ' + dg + '동 ' + h2 + '호',
+        short: n.si + ' ' + (n.gu || n.dong),
+        lat: n.lat + (rnd(i, 28) - 0.5) * 0.09,
+        lng: n.lng + (rnd(i, 29) - 0.5) * 0.11
+      };
+    }
     /* 여의도 안쪽(0~4번 구역)에 3/4, 인접 생활권에 1/4 */
     var inside = rnd(i, 8) < 0.76;
     var pool = inside ? AREAS.slice(0, 5) : AREAS.slice(5);
@@ -212,11 +257,11 @@
     if (!R.length) R = (CX.roster || []).filter(function (r) { return r.gb === '개인'; });
     if (!R.length) R = (CX.roster || []).slice();
     /* 여의도 구역에 배정된 명부 — 보유주식이 큰 개인부터 149명 */
-    R = R.slice().sort(function (a, b) { return b.sh - a.sh; }).slice(0, 149);
+    R = R.slice().sort(function (a, b) { return b.sh - a.sh; }).slice(0, 399);   /* 전국 분포가 보이도록 표본을 넓혔다 */
     /* 시연 타겟(박성용 1,200주)은 보유 규모와 무관하게 반드시 포함해 150명을 맞춘다 */
     if (!R.some(function (r) { return r.i === TARGET; })) {
       var t = (CX.roster || []).filter(function (r) { return r.i === TARGET; })[0];
-      if (t) R.push(t); else R = R.slice(0, 150);
+      if (t) R.push(t); else R = R.slice(0, 400);
     }
     return R.map(function (r, i) {
       var ad = addrOf(r.i), bn = bornOf(r), lv = liveOf(r.i);
@@ -225,7 +270,7 @@
       if (st === 'done') lv = { k: 'high', nm: '거주 가능성 높음' };
       return {
         i: r.i, name: r.nm, sh: r.sh, rt: r.rt,
-        org: APP.CAMPAIGNS[0].org, camp: 'c1',
+        org: campOf(r.i).org, camp: campOf(r.i).id,
         sex: bn.sex, born: bn.ymd, age: bn.age,
         tel: SAVED.tel[r.i] || '',
         zip: ad.zip, addr: ad.full, area: ad.short, lat: ad.lat, lng: ad.lng,
@@ -240,6 +285,14 @@
         at: SAVED.at[r.i] || (st === 'plan' ? '' : atOf(r.i))
       };
     });
+  }
+
+  /* 주주가 어느 기업 주주인지 — 이번 주총(큐더스전자) 70%, 나머지 진행중 기업이 30% */
+  function campOf(i) {
+    var live = APP.CAMPAIGNS.filter(function (c) { return c.state === 'live'; });
+    var main = live[0], rest = live.slice(1);
+    if (!rest.length || rnd(i, 97) < 0.7) return main;
+    return rest[Math.floor(rnd(i, 113) * rest.length) % rest.length];
   }
 
   /* ── 저장 — CONEXUS 와 같은 칸(cx.collect)을 쓴다 ───────────────────── */
