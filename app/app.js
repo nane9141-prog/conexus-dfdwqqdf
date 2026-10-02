@@ -974,10 +974,13 @@
     function down(e) {
       if (!s.classList.contains('on')) return;
       on = true; moved = 0; y0 = e.clientY; h0 = s.getBoundingClientRect().height;
-      s.classList.add('drag'); s.setPointerCapture && s.setPointerCapture(e.pointerId);
+      s.classList.add('drag');
+      /* 포인터를 잡는 쪽과 이벤트를 듣는 쪽이 달라 드래그가 끊기던 문제 — 창에서 받는다 */
+      e.preventDefault();
     }
     function move(e) {
       if (!on) return;
+      if (e.cancelable) e.preventDefault();
       moved = y0 - e.clientY;
       var h = Math.max(80, Math.min(wrapH(), h0 + moved));
       s.style.height = h + 'px';
@@ -991,10 +994,10 @@
     ['#nearGrab', '.sheetup .sh-h'].forEach(function (sel) {
       var el = document.querySelector(sel); if (!el) return;
       el.addEventListener('pointerdown', down);
-      el.addEventListener('pointermove', move);
-      el.addEventListener('pointerup', up);
-      el.addEventListener('pointercancel', up);
     });
+    window.addEventListener('pointermove', move, { passive: false });
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
   })();
 
   /* ── 현재 지도에서 다시 찾기 ───────────────── */

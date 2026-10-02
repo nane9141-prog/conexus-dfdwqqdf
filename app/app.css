@@ -292,9 +292,12 @@ a{color:inherit;text-decoration:none}
 .sheetup.on{transform:none}
 .sheetup.full{height:100%}
 .sheetup.drag{transition:none}
-.sheetup .sh-grab{flex:none;display:flex;justify-content:center;padding:8px 0 2px;cursor:grab;touch-action:none}
+.sheetup .sh-grab{flex:none;display:flex;align-items:center;justify-content:center;height:26px;
+  cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
+.sheetup.drag .sh-grab{cursor:grabbing}
 .sheetup .sh-grab .bar{width:40px;height:4px;border-radius:4px;background:#DEE0E5}
-.sheetup .sh-h{flex:none;display:flex;align-items:center;gap:8px;padding:8px 16px 10px;touch-action:none}
+.sheetup .sh-h{flex:none;display:flex;align-items:center;gap:8px;padding:6px 16px 10px;touch-action:none;
+  cursor:grab;-webkit-user-select:none;user-select:none}
 .sheetup .sh-h b{font-size:16px;flex:1}
 .sheetup .sh-b{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 0 16px}
 .leaflet-container{font-family:inherit}
