@@ -4188,7 +4188,15 @@ function toggleMute(id){
     document.getElementById('ansSubmit').addEventListener('click',function(){
       if(!pend) return;
       var it=Q.filter(function(x){return x.id===pend;})[0];
-      if(it){ it.a=taD.value; it.st='완료'; it.pub=(vis==='pub'); }
+      if(it){
+        it.a=taD.value; it.st='완료'; it.pub=(vis==='pub');
+        /* 시청 화면에서 올라온 건이면 답변을 그쪽으로도 돌려보낸다 */
+        try{
+          var m={}; try{ m=JSON.parse(localStorage.getItem('cx.ans')||'{}'); }catch(e){}
+          m[it.id]={ a:it.a, pub:!!it.pub, at:Date.now() };
+          localStorage.setItem('cx.ans', JSON.stringify(m));
+        }catch(e){}
+      }
       var after=ansAfter;
       closeDlg(); selId=null; editId=null; render();
       if(after) after();
@@ -4571,7 +4579,7 @@ document.addEventListener('click',function(e){
 })();
 </script>
 <script src="conexus.js?v=fwk"></script>
-<script src="cx-relay.js?v=7"></script>
+<script src="cx-relay.js?v=8"></script>
 <script>/* 칸이 열린 뒤에야 내보낼 수 있으므로, 화면을 연 순간의 상태를 여기서 한 번 알린다 */
 if(window.OC&&OC.fire) OC.fire();
 /* 주주PASS 시청 화면에서 올라온 질의 · 발언 · 동의를 받아 각 목록에 얹는다 */
