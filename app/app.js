@@ -1802,7 +1802,7 @@
       drawn = false; box.classList.remove('has'); PX.sign = null;
       pxNextBtn('서명 완료', false, null);
     });
-    function goNext() { PX.sign = cv.toDataURL('image/png'); PX.step = 1; pxDraw(); }   /* 서명하면 위임장으로 */
+    function goNext() { PX.sign = cv.toDataURL('image/png'); PX.step = 3; pxDraw(); }   /* 서명을 마치면 실명 인증으로 */
     if (PX.sign) { box.classList.add('has'); drawn = true; }
     pxNextBtn('서명 완료', !!PX.sign, goNext);
   }
