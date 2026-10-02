@@ -4773,7 +4773,7 @@ if(window.OC&&OC.fire) OC.fire();
     ck.style.display = m.vote ? 'none' : '';
     $('dlyCkT').textContent = m.ck;
     $('dlyOk').textContent = m.ok;
-    $('dlyOk').className = 'dlg-btn ' + (m.warn ? 'red' : 'dark');
+    $('dlyOk').className = 'dlg-btn dark';   /* 다음 · 시작 — 항상 블랙 */
     $('dlyTabs').querySelectorAll('button').forEach(function (b) {
       b.classList.toggle('on', b.getAttribute('data-v') === v);
     });
