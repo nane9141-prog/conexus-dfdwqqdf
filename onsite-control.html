@@ -4870,8 +4870,10 @@ if(window.OC&&OC.fire) OC.fire();
     $('dlyvOvl').classList.add('on');
   });
   $('dlyvAgree').addEventListener('click', function () { this.classList.toggle('on'); });
-  ['dlyvClose', 'dlyvCancel'].forEach(function (id) {
-    $(id).addEventListener('click', function () { close('dlyvOvl'); });
+  $('dlyvClose').addEventListener('click', function () { close('dlyvOvl'); });
+  /* 이전 — 지연 모달로 돌아간다 */
+  $('dlyvCancel').addEventListener('click', function () {
+    close('dlyvOvl'); $('dlyOvl').classList.add('on');
   });
   $('dlyvOk').addEventListener('click', function () {
     if (this.disabled || !dlyDraft) return;
