@@ -890,7 +890,14 @@
         7:{op:['찬성','찬성','찬성','반대','찬성'], c41:[2,3], c42:[0,1]},  /* 주주제안 지지 */
         9:{op:['기권','찬성','반대','찬성','반대'], c42:[1,4]}
       };
+      var ROWN=t.tBodies[0].rows.length;
       Array.prototype.forEach.call(t.tBodies[0].rows,function(tr,ri){
+        /* 수집일시 — 권유 기간(9/1~9/30) 안에 최신순으로 흩어 놓는다 */
+        (function(){
+          var day=ROWN>1 ? Math.round(30-(29*ri)/(ROWN-1)) : 30;
+          var mm=9+Math.floor((ri*7)%11), hh=9+((ri*5)%11);
+          tr.cells[0].textContent='09-'+('0'+day).slice(-2)+' '+('0'+hh).slice(-2)+':'+('0'+(mm%60)).slice(-2);
+        })();
         var bd=birth(tr.cells[3].textContent);
         tr.cells[3].textContent=bd;
         tr.cells[4].textContent=(2026-+bd.slice(0,4))+'세';
