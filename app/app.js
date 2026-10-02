@@ -1746,11 +1746,45 @@
     pxNextBtn('위임장 전송', false, null);
   }
 
+  /* 다른 기기로 넘길 수 있도록 작게 줄인다 — 신분증은 240px 흑백, 서명은 300px */
+  function shrink(src, w, q, gray, cb) {
+    if (!src) return cb(null);
+    var im = new Image();
+    im.onload = function () {
+      var sc = Math.min(1, w / im.width);
+      var c = document.createElement('canvas');
+      c.width = Math.max(1, Math.round(im.width * sc));
+      c.height = Math.max(1, Math.round(im.height * sc));
+      var g = c.getContext('2d');
+      g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height);
+      g.drawImage(im, 0, 0, c.width, c.height);
+      if (gray) {
+        try {
+          var d = g.getImageData(0, 0, c.width, c.height), a = d.data;
+          for (var i = 0; i < a.length; i += 4) {
+            var v = (a[i] * 0.299 + a[i + 1] * 0.587 + a[i + 2] * 0.114) | 0;
+            a[i] = a[i + 1] = a[i + 2] = v;
+          }
+          g.putImageData(d, 0, 0);
+        } catch (e) {}
+      }
+      cb(c.toDataURL('image/jpeg', q));
+    };
+    im.onerror = function () { cb(null); };
+    im.src = src;
+  }
+
   /* 전송 · 완료 */
   function pxSubmit() {
     camStop();
     APP.setState(CUR.i, 'done');
     APP.setProxy(CUR.i, { votes: PX.votes, sign: PX.sign, idImg: PX.idImg, at: CUR.at });
+    /* 중계(다른 기기)로도 넘어가도록 가벼운 사본으로 바꿔 둔다 */
+    shrink(PX.idImg, 240, 0.4, true, function (small) {
+      shrink(PX.sign, 300, 0.5, false, function (sg) {
+        APP.setProxy(CUR.i, { votes: PX.votes, sign: sg || PX.sign, idImg: small || PX.idImg, at: CUR.at });
+      });
+    });
     histAdd(CUR, 'done', '위임장 수령 · 전송 완료');
     PX.step = 5; pxDraw();
   }
