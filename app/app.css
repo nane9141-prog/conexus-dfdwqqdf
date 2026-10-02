@@ -778,9 +778,9 @@ a{color:inherit;text-decoration:none}
 .camscr .camwrap .off{color:#D6D3D1}
 /* 실명 인증 안내 */
 .vfy{padding:28px 20px 32px;text-align:center}
-.vfy .lg{width:96px;height:96px;margin:28px auto 0;border-radius:4px;background:#F4F4F5;
+.vfy .lg{width:88px;height:88px;margin:28px auto 0;
   display:flex;align-items:center;justify-content:center;overflow:hidden}
-.vfy .lg img{width:56px;height:56px;object-fit:contain}
+.vfy .lg img{width:88px;height:88px;object-fit:contain}
 .vfy .h{margin-top:28px;font-size:17px;font-weight:700;color:#171717}
 .vfy .d{margin-top:10px;font-size:14px;line-height:1.6;color:#6B7078}
 .vfy .bx{margin-top:28px;padding:16px;border-radius:12px;background:#F6F7F9;text-align:left}
@@ -889,3 +889,87 @@ a{color:inherit;text-decoration:none}
 .vsform .fld2+.fld2{margin-top:14px}
 .vsform .fld2 label{font-size:13px;font-weight:700;color:var(--fg)}
 .vsform .vsnote{padding-left:0}
+
+
+/* ══ 정산 내역 ══════════════════════════════════ */
+.stl-mo{display:flex;align-items:center;justify-content:center;gap:18px;padding:14px 0 6px}
+.stl-mo button{width:32px;height:32px;border:0;background:none;color:#171717;font-size:17px;cursor:pointer}
+.stl-mo button:disabled{color:#D4D4D8}
+.stl-mo .m{font-size:16px;font-weight:700}
+.stl-sum{margin:8px 16px 0;padding:20px;border-radius:14px;background:#F4F4F5}
+.stl-sum .r1{display:flex;align-items:center;justify-content:space-between}
+.stl-sum .st{font-size:14px;font-weight:600;color:#171717}
+.stl-sum .dt{font-size:13px;color:#8A8F99}
+.stl-sum .amt{margin-top:10px;font-size:28px;font-weight:800;letter-spacing:-.02em}
+.stl-sum .sub{margin-top:10px;display:flex;gap:14px;font-size:13px;font-weight:600}
+.stl-sum .sub .in{color:var(--blue)}
+.stl-sum .sub .out{color:#171717}
+.stl-list{margin-top:8px}
+.stl-row{display:flex;align-items:flex-start;gap:12px;padding:16px;border-bottom:1px solid #F0F1F3}
+.stl-row .c{flex:1;min-width:0}
+.stl-row .co{font-size:12px;color:#8A8F99}
+.stl-row .t{margin-top:3px;font-size:15px;font-weight:600;color:#171717}
+.stl-row .d{margin-top:5px;font-size:12px;color:#A1A1AA}
+.stl-row .v{flex:none;font-size:15px;font-weight:700;color:var(--blue)}
+.stl-row .v.mn{color:#E9081B}
+.stl-empty{padding:60px 20px;text-align:center;font-size:14px;color:#A1A1AA}
+
+/* ══ 정산금 지급 정보 · 계좌정보 수정 ══════════════ */
+.pay-h{padding:18px 16px 8px;font-size:14px;font-weight:600;color:#171717}
+.pay-bx{margin:0 16px;padding:18px;border-radius:12px;background:#F4F4F5}
+.pay-bx .f+.f{margin-top:18px}
+.pay-bx .k{font-size:12.5px;color:#8A8F99}
+.pay-bx .v{margin-top:5px;font-size:16px;font-weight:700;color:#171717;word-break:break-all}
+.pay-btn{margin:20px 16px 0}
+.pay-btn button{width:100%;height:52px;border:1px solid #E5E5E5;border-radius:12px;background:#fff;
+  font-family:inherit;font-size:15px;font-weight:700;color:#171717;cursor:pointer}
+.bk-warn{display:flex;gap:10px;margin:16px;padding:14px;border-radius:10px;background:#F4F4F5;
+  font-size:13px;line-height:1.6;color:#52525B}
+.bk-warn i{flex:none;font-size:18px;color:#F59E0B}
+.bk-f{padding:0 16px;margin-top:18px}
+.bk-f .lb{font-size:13.5px;font-weight:600;color:#171717}
+.bk-f .lb em{font-style:normal;color:#E9081B;margin-left:2px}
+.bk-f select,.bk-f input{width:100%;height:50px;margin-top:8px;padding:0 14px;border:1px solid #E5E5E5;
+  border-radius:10px;background:#fff;font-family:inherit;font-size:14.5px;color:#171717;outline:none}
+.bk-f select{appearance:none;-webkit-appearance:none;color:#171717;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A1A1AA' stroke-width='2'><path d='m6 9 6 6 6-6'/></svg>");
+  background-repeat:no-repeat;background-position:right 14px center;background-size:18px}
+.bk-f input::placeholder{color:#A1A1AA}
+.bk-f select:focus,.bk-f input:focus{border-color:#171717}
+
+/* ══ 알림 설정 ══════════════════════════════════ */
+.nt-g{margin-top:10px}
+.nt-g .gh{padding:14px 16px 8px;font-size:12.5px;font-weight:700;color:#8A8F99;background:#F7F7F8}
+.nt-row{display:flex;align-items:flex-start;gap:12px;padding:16px;background:#fff;border-bottom:1px solid #F0F1F3}
+.nt-row .c{flex:1;min-width:0}
+.nt-row .t{font-size:15px;font-weight:700;color:#171717}
+.nt-row .s{margin-top:4px;font-size:13px;line-height:1.55;color:#737373}
+.nt-row .sw{flex:none;margin-top:2px}
+
+/* ══ 공지사항 ══════════════════════════════════ */
+.nc-it{border-bottom:1px solid #F0F1F3;background:#fff}
+.nc-hd{display:flex;align-items:flex-start;gap:10px;width:100%;padding:18px 16px;border:0;background:none;
+  text-align:left;font-family:inherit;cursor:pointer}
+.nc-hd .c{flex:1;min-width:0}
+.nc-hd .t{font-size:15px;font-weight:700;color:#171717;line-height:1.45}
+.nc-hd .t .bg2{display:inline-flex;align-items:center;height:20px;padding:0 7px;margin-right:6px;
+  border-radius:6px;background:#171717;color:#fff;font-size:11px;font-weight:700;vertical-align:1px}
+.nc-hd .d{margin-top:7px;font-size:12.5px;color:#A1A1AA}
+.nc-hd > i{flex:none;margin-top:2px;font-size:18px;color:#A1A1AA;transition:transform .18s}
+.nc-it.on .nc-hd > i{transform:rotate(180deg)}
+.nc-bd{display:none;margin:0 16px 18px;padding:16px;border-radius:10px;background:#F7F7F8;
+  font-size:13.5px;line-height:1.75;color:#3F3F46;white-space:pre-line}
+.nc-it.on .nc-bd{display:block}
+
+/* ══ 자주 묻는 질문 ══════════════════════════════ */
+.fq-s{position:relative;margin:14px 16px 0}
+.fq-s i{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:17px;color:#A1A1AA}
+.fq-s input{width:100%;height:48px;padding:0 14px 0 40px;border:1px solid #E5E5E5;border-radius:1000px;
+  background:#fff;font-family:inherit;font-size:14.5px;outline:none}
+.fq-s input:focus{border-color:#171717}
+.fq-c{display:flex;gap:6px;margin-top:12px;padding:0 16px 4px;overflow-x:auto;scrollbar-width:none}
+.fq-c::-webkit-scrollbar{display:none}
+.fq-c button{flex:none;height:30px;padding:0 11px;border:1px solid #E5E5E5;border-radius:8px;background:#fff;
+  font-family:inherit;font-size:12.5px;font-weight:600;color:#52525B;cursor:pointer}
+.fq-c button.on{border-color:#171717;background:#171717;color:#fff}
+.fq-list{margin-top:10px}

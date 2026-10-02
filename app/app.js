@@ -1525,6 +1525,7 @@
     $$('.pxsteps .b').forEach(function (b, i) { b.classList.toggle('on', i <= Math.min(3, PX.step - (PX.step > 3 ? 1 : 0))); });
     $('#pxBack').style.visibility = PX.step === 5 ? 'hidden' : '';
     $('#pxX').style.visibility = PX.step === 5 ? 'hidden' : '';
+    $('#pxAlt').hidden = true;
     var f = [pxAgree, pxDoc, pxSign, pxVerify, pxCam, pxDone][PX.step];
     f();
     $('#pxBd').scrollTop = 0;
@@ -1624,6 +1625,9 @@
       + '<div class="r"><span class="k">개최 일시</span><span class="v">' + esc(M.dateText || '') + '</span></div>'
       + '<div class="r"><span class="k">파기 시점</span><span class="v">주주총회 종료 후 영구 폐기</span></div>'
       + '</div></div>';
+    var alt = $('#pxAlt');
+    alt.hidden = false;
+    alt.onclick = function () { toast('기타 서류 인증은 운영팀 확인 후 처리됩니다'); };
     pxNextBtn('신분증 인증', true, function () { PX.step = 4; pxDraw(); });
   }
 
@@ -1903,7 +1907,8 @@
       '<div class="grp" style="margin-top:0">'
       + '<button class="li" type="button" id="setProfile"><i class="ph ph-user"></i>'
       + '<span class="t">내 프로필</span><i class="ph ph-caret-right"></i></button>'
-      + li('ph-receipt', '정산 내역', '10,000,000원 지급예정', 'hi', '정산 내역')
+      + '<button class="li" type="button" id="setSettle"><i class="ph ph-receipt"></i>'
+      + '<span class="t">정산 내역</span><span class="r hi">100,000원 지급예정</span><i class="ph ph-caret-right"></i></button>'
       + '<div id="setNoti"></div>'
       + '</div>'
 
@@ -1914,8 +1919,10 @@
       + '</div>'
 
       + '<div class="grp"><div class="gh">파트너센터</div>'
-      + li('ph-megaphone', '공지사항', '', '', '공지사항')
-      + li('ph-question', '자주 묻는 질문', '', '', '자주 묻는 질문')
+      + '<button class="li" type="button" id="setNotice"><i class="ph ph-megaphone"></i>'
+      + '<span class="t">공지사항</span><i class="ph ph-caret-right"></i></button>'
+      + '<button class="li" type="button" id="setFaq"><i class="ph ph-question"></i>'
+      + '<span class="t">자주 묻는 질문</span><i class="ph ph-caret-right"></i></button>'
       + '</div>'
 
       + '<div class="grp"><div class="gh">약관 및 정책</div>'
@@ -1929,8 +1936,11 @@
 
     $('#setNoti').innerHTML = '<button class="li" type="button" id="setNotiBtn"><i class="ph ph-bell"></i>'
       + '<span class="t">알림 설정</span><span class="r">' + notiOn() + '개 켜짐</span><i class="ph ph-caret-right"></i></button>';
-    $('#setNotiBtn').addEventListener('click', openNoti);
+    $('#setNotiBtn').addEventListener('click', function () { ntDraw(); show('#scrNoti'); });
     $('#setProfile').addEventListener('click', openProfile);
+    $('#setSettle').addEventListener('click', openSettle);
+    $('#setNotice').addEventListener('click', function () { ncDraw(); show('#scrNotice'); });
+    $('#setFaq').addEventListener('click', function () { fqDraw(); show('#scrFaq'); });
     $('#setOut').addEventListener('click', function () {
       sheet({
         mid: true, title: '로그아웃', body: '로그아웃하면 다시 로그인해야 합니다.',
@@ -1985,7 +1995,7 @@
       + '<span class="t">' + t + '</span>' + (r ? '<span class="r ' + cls + '">' + r + '</span>' : '')
       + '<i class="ph ph-caret-right"></i></button>';
   }
-  function notiOn() { return ['must', 'camp', 'news', 'promo'].filter(function (k) { return NOTI[k]; }).length; }
+  function notiOn() { var n = 0; for (var k in NOTI) if (NOTI[k]) n++; return n; }
   function openNoti() {
     var ITEMS = [
       { k: 'must', nm: '필수 알림', s: '명부 배정 · 검증 반려 등', lock: true },
@@ -2015,6 +2025,216 @@
       }
     });
   }
+
+
+  /* ══ 정산 내역 ═════════════════════════════════
+     달을 넘겨 가며 본다. 항목은 수수료(+) · 리워드(+) · 차감(−) 세 종류다. */
+  var STL_CO = ['카카오뱅크', '네이버', '큐더스전자', 'SK하이닉스'];
+  var STL = (function () {
+    var out = {}, base = [
+      { t: '위임장 수집 수수료', v: 9000 },
+      { t: '만보 달성 리워드', v: 100, co: '' },
+      { t: '위임장 수집 수수료', v: 9000 },
+      { t: '위임장 보완 요청 차감', v: -8000 },
+      { t: '위임장 수집 수수료', v: 9000 },
+      { t: '위임장 수집 수수료', v: 9000 },
+      { t: '교육 이수 리워드', v: 500, co: '' },
+      { t: '위임장 수집 수수료', v: 9000 },
+      { t: '중복 접수 차감', v: -9000 },
+      { t: '위임장 수집 수수료', v: 9000 }
+    ];
+    [9, 8, 7].forEach(function (m, mi) {
+      out[m] = base.slice(0, 10 - mi * 2).map(function (b, i) {
+        return { co: b.co === '' ? '' : STL_CO[(i + mi) % STL_CO.length], t: b.t, v: b.v,
+                 d: '2026.0' + m + '.' + ('0' + (28 - i * 2)).slice(-2) + ' 15:00' };
+      });
+    });
+    return out;
+  })();
+  var stlM = 9;
+  function stlDraw() {
+    var rows = STL[stlM] || [];
+    var inSum = rows.filter(function (r) { return r.v > 0; }).reduce(function (a, r) { return a + r.v; }, 0);
+    var outSum = rows.filter(function (r) { return r.v < 0; }).reduce(function (a, r) { return a + r.v; }, 0);
+    var tot = inSum + outSum;
+    var paid = stlM < 9;
+    $('#stlBd').innerHTML =
+      '<div class="stl-mo"><button type="button" id="stlPrev" aria-label="이전 달"><i class="ph ph-caret-left"></i></button>'
+      + '<span class="m">' + stlM + '월</span>'
+      + '<button type="button" id="stlNext" aria-label="다음 달"' + (stlM >= 9 ? ' disabled' : '') + '><i class="ph ph-caret-right"></i></button></div>'
+      + '<div class="stl-sum"><div class="r1"><span class="st">' + (paid ? '지급 완료' : '지급 예정') + '</span>'
+      + '<span class="dt">2026.' + ('0' + stlM).slice(-2) + '.' + (paid ? '10' : '10') + '</span></div>'
+      + '<div class="amt">' + cm(tot) + '원</div>'
+      + '<div class="sub"><span class="in">수입 +' + cm(inSum) + '</span><span class="out">차감 ' + cm(outSum) + '</span></div></div>'
+      + (rows.length
+          ? '<div class="stl-list">' + rows.map(function (r) {
+              return '<div class="stl-row"><div class="c">'
+                + (r.co ? '<div class="co">' + esc(r.co) + '</div>' : '')
+                + '<div class="t">' + esc(r.t) + '</div><div class="d">' + esc(r.d) + '</div></div>'
+                + '<div class="v' + (r.v < 0 ? ' mn' : '') + '">' + (r.v > 0 ? '+' : '') + cm(r.v) + '원</div></div>';
+            }).join('') + '</div>'
+          : '<div class="stl-empty">정산 내역이 없습니다.</div>');
+    $('#stlPrev').addEventListener('click', function () { if (stlM > 7) { stlM--; stlDraw(); } });
+    $('#stlNext').addEventListener('click', function () { if (stlM < 9) { stlM++; stlDraw(); } });
+  }
+  function openSettle() { stlDraw(); show('#scrSettle'); }
+  $('#stlBack').addEventListener('click', function () { goTab('set'); });
+  $('#stlCfg').addEventListener('click', function () { payDraw(); show('#scrPay'); });
+
+  /* ── 정산금 지급 정보 ── */
+  var BANK = (function () {
+    try { return JSON.parse(localStorage.getItem('cx.app.bank') || 'null'); } catch (e) { return null; }
+  })() || { bank: '국민은행', no: '0287692830980****', nm: '도지연' };
+  function payDraw() {
+    $('#payBd').innerHTML =
+      '<div class="pay-h">정산 일정</div>'
+      + '<div class="pay-bx"><div class="f"><div class="k">지급일</div><div class="v">매월 10일</div></div>'
+      + '<div class="f"><div class="k">이번 달 지급예상 금액</div><div class="v">100,000원</div></div></div>'
+      + '<div class="pay-h" style="margin-top:12px">계좌 정보</div>'
+      + '<div class="pay-bx"><div class="f"><div class="k">은행</div><div class="v">' + esc(BANK.bank) + '</div></div>'
+      + '<div class="f"><div class="k">계좌번호</div><div class="v">' + esc(BANK.no) + '</div></div>'
+      + '<div class="f"><div class="k">예금주</div><div class="v">' + esc(BANK.nm) + '</div></div></div>'
+      + '<div class="pay-btn"><button type="button" id="payEdit">계좌정보 수정</button></div>';
+    $('#payEdit').addEventListener('click', function () { bankDraw(); show('#scrBank'); });
+  }
+  $('#payBack').addEventListener('click', function () { show('#scrSettle'); });
+
+  /* ── 계좌정보 수정 ── */
+  var BANKS = ['국민은행', '신한은행', '하나은행', '우리은행', '농협은행', '기업은행', '카카오뱅크', '토스뱅크', '케이뱅크', '새마을금고'];
+  function bankDraw() {
+    $('#bkBd').innerHTML =
+      '<div class="bk-warn"><i class="ph-fill ph-warning"></i><span>계좌정보 수정은 <b>당월 정산일 기준 3일 전</b>까지 완료해야 해당 월 정산에 반영됩니다.</span></div>'
+      + '<div class="bk-f"><div class="lb">은행<em>*</em></div>'
+      + '<select id="bkBank"><option value="">계좌의 은행을 선택해 주세요.</option>'
+      + BANKS.map(function (b) { return '<option' + (b === BANK.bank ? ' selected' : '') + '>' + b + '</option>'; }).join('')
+      + '</select></div>'
+      + '<div class="bk-f"><div class="lb">계좌번호<em>*</em></div>'
+      + '<input id="bkNo" inputmode="numeric" placeholder="계좌번호를 입력해 주세요."></div>'
+      + '<div class="bk-f"><div class="lb">예금주<em>*</em></div>'
+      + '<input id="bkNm" placeholder="예금주를 입력해 주세요."></div>';
+    function sync() {
+      $('#bkOk').disabled = !($('#bkBank').value && $('#bkNo').value.trim() && $('#bkNm').value.trim());
+    }
+    ['#bkBank', '#bkNo', '#bkNm'].forEach(function (id) {
+      $(id).addEventListener('input', sync); $(id).addEventListener('change', sync);
+    });
+    sync();
+  }
+  $('#bkBack').addEventListener('click', function () { show('#scrPay'); });
+  $('#bkOk').addEventListener('click', function () {
+    if (this.disabled) return;
+    BANK = { bank: $('#bkBank').value, no: $('#bkNo').value.trim(), nm: $('#bkNm').value.trim() };
+    try { localStorage.setItem('cx.app.bank', JSON.stringify(BANK)); } catch (e) {}
+    payDraw(); show('#scrPay'); toast('계좌정보를 변경했습니다');
+  });
+
+  /* ══ 알림 설정 ═════════════════════════════════ */
+  var NTG = [
+    { g: '업무', items: [
+      { k: 'must', t: '위임 보완 요청 (필수)', s: '서류 미비 또는 위임장 보완이 필요할 때 알려드려요\n※ 미차단 시 정산금에서 제외될 수 있어요', lock: true },
+      { k: 'revisit', t: '재방문 일정', s: '재방문예정 시간이 다가오면 알려드려요' },
+      { k: 'assign', t: '새로운 배정', s: '새로운 주주가 배정되면 알려드려요' },
+      { k: 'deadline', t: '수집 마감', s: '마감 1시간 전에 미완료 건을 알려드려요' },
+      { k: 'done', t: '완료 처리', s: '수집 완료 처리가 확인되면 알려드려요' }
+    ] },
+    { g: '정산', items: [
+      { k: 'payDone', t: '정산 완료', s: '수수료가 계좌로 입금되면 알려드려요' },
+      { k: 'payPlan', t: '정산 예정', s: '정산일 3일 전에 미리 알려드려요' }
+    ] },
+    { g: '안내 및 혜택', items: [
+      { k: 'news', t: '공지사항', s: '중요 공지 및 업데이트 소식을 알려드려요' },
+      { k: 'promo', t: '혜택·이벤트', s: '추가 수익을 얻을 수 있는 혜택을 알려드려요' },
+      { k: 'edu', t: '교육 자료', s: '새 교육 자료가 등록되면 알려드려요' }
+    ] }
+  ];
+  function ntDraw() {
+    NTG.forEach(function (g) { g.items.forEach(function (it) { if (NOTI[it.k] == null) NOTI[it.k] = it.k !== 'assign'; }); });
+    NOTI.must = true;
+    $('#ntBd').innerHTML = NTG.map(function (g) {
+      return '<div class="nt-g"><div class="gh">' + g.g + '</div>'
+        + g.items.map(function (it) {
+            return '<div class="nt-row"><div class="c"><div class="t">' + esc(it.t) + '</div>'
+              + '<div class="s">' + esc(it.s).replace(/\n/g, '<br>') + '</div></div>'
+              + '<span class="sw' + (NOTI[it.k] ? ' on' : '') + (it.lock ? ' lock' : '') + '" data-nt="' + it.k + '"'
+              + (it.lock ? ' data-lock="1"' : '') + '></span></div>';
+          }).join('') + '</div>';
+    }).join('');
+    $('#ntBd').querySelectorAll('[data-nt]').forEach(function (sw) {
+      sw.addEventListener('click', function () {
+        if (sw.dataset.lock) { toast('필수 알림은 해제할 수 없습니다'); return; }
+        NOTI[sw.dataset.nt] = !NOTI[sw.dataset.nt];
+        sw.classList.toggle('on', NOTI[sw.dataset.nt]);
+        try { localStorage.setItem('cx.app.noti', JSON.stringify(NOTI)); } catch (e) {}
+      });
+    });
+  }
+  $('#ntBack').addEventListener('click', function () { goTab('set'); });
+
+  /* ══ 공지사항 ══════════════════════════════════ */
+  var NOTICE = [
+    { imp: true, t: '5월 카카오뱅크 위임장 수집 마감일 안내', d: '2026.05.02',
+      b: '안녕하세요, 파트너 여러분.\n카카오뱅크 위임장 수집 프로젝트의 마감 일정 및 서류 보완(재확인) 기한을 안내해 드립니다.\n안전하고 정확한 수집 완료를 위해 아래 일정을 반드시 준수해 주시기 바랍니다.\n\n1. 위임장 수집 기간\n  · 2026.05.01(금) ~ 2026.05.25(월) 18:00 까지\n  ※ 5월 25일 18:00 이후에 제출된 위임장은 실적으로 인정되지 않습니다.\n\n2. 재확인(보완) 요청 처리 기한\n  · 수집 기간 동안 운영팀에서 검수 후 발송되는 [재확인] 건은 2026.05.25(월) 18:00까지 최종 수정 및 재제출이 완료되어야 합니다.\n  · 기한 내에 보완되지 않은 서류는 무효 처리될 수 있으니, [재확인] 알림을 받으시면 즉시 현장 확인 및 수정을 부탁드립니다.\n\n파트너 여러분의 안전한 활동과 성실한 수집에 늘 감사드립니다.' },
+    { t: '앱 업데이트 안내 (v.2.0.1)', d: '2026.05.02',
+      b: '지도 화면의 추천 주주 보기와 정산 내역 화면이 추가되었습니다. 앱을 최신 버전으로 업데이트해 주세요.' },
+    { t: '4월 정산 완료 안내', d: '2026.05.02', b: '4월 정산이 완료되어 등록하신 계좌로 입금되었습니다. 상세 내역은 설정 > 정산 내역에서 확인하실 수 있습니다.' },
+    { t: '3월 정산 완료 안내', d: '2026.04.02', b: '3월 정산이 완료되어 등록하신 계좌로 입금되었습니다.' },
+    { t: '2월 정산 완료 안내', d: '2026.03.02', b: '2월 정산이 완료되어 등록하신 계좌로 입금되었습니다.' }
+  ];
+  function ncDraw() {
+    $('#ncBd').innerHTML = NOTICE.map(function (n, i) {
+      return '<div class="nc-it" data-nc="' + i + '"><button class="nc-hd" type="button"><div class="c">'
+        + '<div class="t">' + (n.imp ? '<span class="bg2">중요</span>' : '') + esc(n.t) + '</div>'
+        + '<div class="d">' + n.d + '</div></div><i class="ph ph-caret-down"></i></button>'
+        + '<div class="nc-bd">' + esc(n.b) + '</div></div>';
+    }).join('');
+    $('#ncBd').querySelectorAll('[data-nc]').forEach(function (it) {
+      it.querySelector('.nc-hd').addEventListener('click', function () { it.classList.toggle('on'); });
+    });
+  }
+  $('#ncBack').addEventListener('click', function () { goTab('set'); });
+
+  /* ══ 자주 묻는 질문 ════════════════════════════ */
+  var FAQ = [
+    { c: '수집 수수료', q: '수집 수수료는 언제 지급되나요?', a: '매월 1일부터 말일까지 완료된 위임장을 기준으로 집계하여, 다음 달 10일에 등록하신 계좌로 입금됩니다.' },
+    { c: '리워드', q: '리워드는 어떤 기준으로 적립되나요?', a: '만보기 달성, 교육 이수, 캠페인 챌린지 달성 시 적립되며 정산 내역에서 항목별로 확인하실 수 있습니다.' },
+    { c: '차감', q: '차감 내역은 어디서 확인할 수 있나요?', a: '설정 > 정산 내역에서 해당 월을 선택하면 차감 건이 빨간색으로 표시됩니다.' },
+    { c: '배정', q: '배정 기준은 어떻게 되나요?', a: '담당 구역과 활동 이력, 최근 수집 성과를 종합해 배정되며 배정일에 알림으로 안내드립니다.' },
+    { c: '서비스이용', q: '카테고리가 많아서 원하는 내역 찾기가 어려워요. 정산 내역 화면 스와이프가 불편해요.', a: '정산 내역 상단의 월 이동 버튼으로 달을 바꿔 보실 수 있습니다. 카테고리 필터는 다음 업데이트에서 제공될 예정입니다.' },
+    { c: '세금', q: '원천징수는 어떻게 처리되나요?', a: '사업소득 3.3%가 원천징수된 금액이 입금되며, 연말에 지급명세서를 발급해 드립니다.' },
+    { c: '정산', q: '정산 계좌는 언제까지 바꿀 수 있나요?', a: '정산일(매월 10일) 기준 3일 전까지 변경하셔야 해당 월 정산에 반영됩니다.' }
+  ];
+  var FQC = '', FQQ = '';
+  function fqDraw() {
+    var cats = [];
+    FAQ.forEach(function (f) { if (cats.indexOf(f.c) < 0) cats.push(f.c); });
+    var list = FAQ.filter(function (f) {
+      if (FQC && f.c !== FQC) return false;
+      if (FQQ && (f.q + f.a).toLowerCase().indexOf(FQQ.toLowerCase()) < 0) return false;
+      return true;
+    });
+    $('#fqBd').innerHTML =
+      '<div class="fq-s"><i class="ph ph-magnifying-glass"></i>'
+      + '<input id="fqQ" type="search" placeholder="궁금한 내용을 검색해 보세요." value="' + esc(FQQ) + '"></div>'
+      + '<div class="fq-c">' + cats.map(function (c) {
+          return '<button type="button" data-fc="' + esc(c) + '"' + (FQC === c ? ' class="on"' : '') + '>' + esc(c) + '</button>';
+        }).join('') + '</div>'
+      + (list.length
+          ? '<div class="fq-list">' + list.map(function (f, i) {
+              return '<div class="nc-it" data-fq="' + i + '"><button class="nc-hd" type="button"><div class="c">'
+                + '<div class="t">' + esc(f.q) + '</div></div><i class="ph ph-caret-down"></i></button>'
+                + '<div class="nc-bd">' + esc(f.a) + '</div></div>';
+            }).join('') + '</div>'
+          : '<div class="stl-empty">검색 결과가 없습니다.</div>');
+    $('#fqBd').querySelectorAll('[data-fq]').forEach(function (it) {
+      it.querySelector('.nc-hd').addEventListener('click', function () { it.classList.toggle('on'); });
+    });
+    $('#fqBd').querySelectorAll('[data-fc]').forEach(function (b) {
+      b.addEventListener('click', function () { FQC = (FQC === b.dataset.fc) ? '' : b.dataset.fc; fqDraw(); });
+    });
+    var q = $('#fqQ');
+    q.addEventListener('input', function () { FQQ = this.value; var p = this.selectionStart; fqDraw(); var n = $('#fqQ'); n.focus(); try { n.setSelectionRange(p, p); } catch (e) {} });
+  }
+  $('#fqBack').addEventListener('click', function () { goTab('set'); });
 
   /* 필터 칩 줄 — 넘칠 때 마우스로 끌어서 볼 수 있게. 끈 뒤의 클릭은 삼킨다. */
   (function () {

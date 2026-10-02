@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="app.css?v=66">
+<link rel="stylesheet" href="app.css?v=67">
 </head>
 <body>
 <div id="phone">
@@ -208,6 +208,73 @@
     <div class="bd" id="pfBd"></div>
   </section>
 
+  <!-- ══ 정산 내역 ══ -->
+  <section class="scr" id="scrSettle">
+    <div class="tb">
+      <button class="ic bk" id="stlBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>정산 내역</h1>
+      <span class="sp"></span>
+      <button class="ic" id="stlCfg" type="button" aria-label="정산금 지급 정보"><i class="ph ph-gear-six"></i></button>
+    </div>
+    <div class="bd plain" id="stlBd"></div>
+  </section>
+
+  <!-- ══ 정산금 지급 정보 ══ -->
+  <section class="scr" id="scrPay">
+    <div class="tb">
+      <button class="ic bk" id="payBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>정산금 지급 정보</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="bd plain" id="payBd"></div>
+  </section>
+
+  <!-- ══ 계좌정보 수정 ══ -->
+  <section class="scr" id="scrBank">
+    <div class="tb">
+      <button class="ic bk" id="bkBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>계좌정보 수정</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="bd plain" id="bkBd"></div>
+    <div class="dt-ft"><button class="btn" id="bkOk" type="button" disabled>변경하기</button></div>
+  </section>
+
+  <!-- ══ 알림 설정 ══ -->
+  <section class="scr" id="scrNoti">
+    <div class="tb">
+      <button class="ic bk" id="ntBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>알림 설정</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="bd plain" id="ntBd"></div>
+  </section>
+
+  <!-- ══ 공지사항 ══ -->
+  <section class="scr" id="scrNotice">
+    <div class="tb">
+      <button class="ic bk" id="ncBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>공지사항</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="bd plain" id="ncBd"></div>
+  </section>
+
+  <!-- ══ 자주 묻는 질문 ══ -->
+  <section class="scr" id="scrFaq">
+    <div class="tb">
+      <button class="ic bk" id="fqBack" type="button" aria-label="뒤로"><i class="ph ph-arrow-left"></i></button>
+      <h1>자주 묻는 질문</h1>
+      <span class="sp"></span>
+      <span class="ic" aria-hidden="true"></span>
+    </div>
+    <div class="bd plain" id="fqBd"></div>
+  </section>
+
   <!-- ══ 위임 진행 (약관 → 행사방향 → 서명 → 신분증) ══ -->
   <section class="scr" id="scrPx">
     <div class="tb line">
@@ -218,7 +285,7 @@
     </div>
     <div class="pxsteps"><span class="b on"></span><span class="b"></span><span class="b"></span><span class="b"></span></div>
     <div class="bd plain" id="pxBd"></div>
-    <div class="dt-ft"><button class="btn" id="pxNext" type="button" disabled>다음</button></div>
+    <div class="dt-ft"><button class="btn gh" id="pxAlt" type="button" hidden>기타서류로 인증</button><button class="btn" id="pxNext" type="button" disabled>다음</button></div>
   </section>
 
   <!-- ══ 수집현황 ══ -->
@@ -261,6 +328,6 @@
 <script src="../cx-roster.js?v=r9"></script>
 <script src="../cx-relay.js?v=3"></script>
 <script src="app-data.js?v=16"></script>
-<script src="app.js?v=66"></script>
+<script src="app.js?v=67"></script>
 </body>
 </html>
