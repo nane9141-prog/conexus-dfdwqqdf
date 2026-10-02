@@ -667,6 +667,8 @@
       return '<div class="voter"><button class="tw-chevron collapsed" data-toggle="'+gid+'"><svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg></button><span>'+x.voter+'</span></div>';
     }
     var sub=x.sub?'<span class="tag">'+x.sub+'</span>':'';
+    /* 위임받아 대신 참석하는 주주 — 몇 명을 대리하는지 함께 보여준다 */
+    if(x.asProxy) sub+='<span class="tag">대리 '+x.asProxy+'명</span>';
     return '<div class="voter"><span>'+x.voter+'</span>'+sub+'</div>';
   }
   /* 주주명 칸 — 통합기관은 '통합 N건' 뱃지를 주주명 옆에 */
@@ -1092,8 +1094,24 @@
       if(e.target.closest('[data-del-proxy]')){ proxy=null; paint(); return; }
       if((t=e.target.closest('[data-del]'))){ holders.splice(+t.dataset.del,1); paint(); return; }
       if(e.target.closest('#pxOk') && !document.getElementById('pxOk').disabled){
-        var pn=kind()==='ext'?document.getElementById('pxExtName').value.trim():proxy.name;
+        var ext2=kind()==='ext';
+        var pn=ext2?document.getElementById('pxExtName').value.trim():proxy.name;
         var seat=document.getElementById('pxSeat').value.trim();
+        /* 대리인도 현장 참석자 탭에서 보이도록 명단에 올린다 */
+        if(ext2){
+          /* 비주주 대리인 — 참관인과 같은 비주주 줄로 추가 */
+          var ph=document.getElementById('pxExtPhone').value.trim();
+          var row=nonSh(pn,'대리인','-',ph,'', '위임주주 '+holders.length+'명 대리');
+          row.site='참석'; row.app=useApp; row.proxy='-';
+          if(seat) row.seat=seat;
+          D.push(row);
+        }else{
+          /* 주주 대리인 — 본인 줄을 현장 참석으로 돌린다 */
+          if(proxy.site==='미참석') proxy.site='참석';
+          proxy.app=useApp;
+          proxy.asProxy=holders.length;
+          if(seat) proxy.seat=seat;
+        }
         holders.forEach(function(x){
           x.site=(x.pre||[]).length?'철회 후 참석':(x.site==='미참석'?'참석':x.site);
           x.proxy=pn; x.app=useApp;
