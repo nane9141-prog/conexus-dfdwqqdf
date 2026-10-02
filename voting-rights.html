@@ -887,6 +887,7 @@
     }
     function cm(n){ return (+n||0).toLocaleString('en-US'); }
     var REC={'제1호':'찬성','제2-1호':'찬성','제2-2호':'찬성','제3-1호':'찬성','제3-2호':'반대'};   /* 회사 권고(데모) */
+    var paintVote = null;        /* 아래 블록에서 채운다 — 행의 의안 칸을 다시 그린다 */
     /* 의안 칸 — 표결 단위 아래 하위 의안까지 펼친다.
        제3호(양립불가)는 두 안, 제4-1·4-2호(집중투표)는 후보별 칸이 된다. */
     var AGC=(function(){
@@ -921,7 +922,7 @@
         hr.appendChild(th);
       });
       /* 한 행의 의안 칸을 다시 그린다. dv 를 주면 회사 권고와 다른 의향이 된다. */
-      function paintVote(tr, dv){
+      paintVote = function(tr, dv){
         var sh=+String(tr.cells[2].textContent||'').replace(/\D/g,'');
         var tot=sh*2;                                   /* 집중투표 의결권 = 보유주식 × 선임 2인 */
         while(tr.cells.length>5) tr.deleteCell(5);
@@ -979,14 +980,7 @@
           .sort(function(a,b){ return b.cells[0].textContent.localeCompare(a.cells[0].textContent); })
           .forEach(function(r){ tb.appendChild(r); });
       })();
-      /* 회사 권고와 다른 건 세 명 — 첫 화면에서 바로 보이게 앞쪽에 둔다 */
-      (function(){
-        var tb=t.tBodies[0];
-        [ { at:3,  dv:{ op:['반대','찬성','찬성','찬성','반대'] } },
-          { at:8,  dv:{ op:['찬성','찬성','기권','찬성','반대'], c41:[1,2] } },
-          { at:13, dv:{ op:['찬성','찬성','찬성','반대','찬성'], c41:[2,3] } }
-        ].forEach(function(d){ if(tb.rows[d.at]) paintVote(tb.rows[d.at], d.dv); });
-      })();
+
     })();
     var hd=Array.prototype.map.call(t.tHead.rows[0].cells,function(c){return c.textContent.trim();});
     var SHCOL=hd.indexOf('보유주식수'), NCOL=t.tHead.rows[0].cells.length;
@@ -1035,8 +1029,26 @@
       paint();
       first=false;
     }
+    /* 회사 권고와 다른 건 세 명 — 첫 페이지에서 바로 보이게 심는다 (앱 수집분은 건드리지 않는다) */
+    var D3=[
+      { op:['반대','찬성','찬성','찬성','반대'] },
+      { op:['찬성','찬성','기권','찬성','반대'], c41:[1,2] },
+      { op:['찬성','찬성','찬성','반대','찬성'], c41:[2,3] }
+    ], LAST3=[];
+    function diff3(){
+      if(!paintVote) return;
+      LAST3.forEach(function(r){ if(r && r.parentNode) paintVote(r, null); });
+      LAST3=[];
+      var head=Array.prototype.slice.call(t.tBodies[0].rows, 0, 20)
+        .filter(function(r){ return !r.dataset.app; });
+      var pick=[head[2], head[7], head[12]].filter(Boolean);
+      if(pick.length<3) pick=head.slice(0,3);
+      pick.forEach(function(r,i){ paintVote(r, D3[i]); LAST3.push(r); });
+    }
+
     /* 권고와 다른 칸 주황 표시 + 하단 합계 */
     function paint(){
+      diff3();
       var rows=t.tBodies[0].rows, sum=0;
       Array.prototype.forEach.call(rows,function(r){
         sum+=+r.cells[SHCOL].textContent.replace(/\D/g,'');
