@@ -636,7 +636,9 @@
             });
             LOT.setSpeed(1.3);                   /* 원본 4초 — 시연에 맞게 조금만 줄인다 */
             lotOk = true;
-            $('#pinFace').classList.add('haslot');
+            /* 재생 전에는 마지막(완료) 모습이 비칠 수 있어 숨겨 두고,
+               Face ID 를 부를 때만 보여 준다 */
+            try { LOT.goToAndStop(0, true); } catch (e) {}
           } catch (e) {}
         };
         document.head.appendChild(sc);
@@ -678,6 +680,8 @@
     var t = $('#pinFace'), end = false;
     $('#pinFaceT').textContent = 'Face ID';
     $('#pinD').innerHTML = '얼굴을 화면에 맞춰 주세요.';
+    try { LOT.goToAndStop(0, true); } catch (e) {}
+    t.classList.add('haslot');                   /* 이때부터 로티를 보여 준다 */
     function fin() {
       if (end) return; end = true;
       LOT.removeEventListener('complete', fin);
@@ -686,6 +690,8 @@
       buzz(18);
       setTimeout(function () {
         $('#pinFaceT').textContent = 'Face ID';
+        t.classList.remove('haslot');
+        try { LOT.goToAndStop(0, true); } catch (e) {}
         faceBusy = false; done();
       }, 700);
     }
