@@ -251,7 +251,8 @@
   .tbl td.c.diff{background:#FFF1DD}
   /* 칸이 많은 표 — 화면이 좁아지면 가로로 스크롤한다(칸이 눌리지 않게) */
   .tbl-wrap.xscroll{overflow-x:auto;overflow-y:hidden}
-  .tbl-wrap.xscroll>table{min-width:980px}
+  .tbl-wrap.xscroll>table{min-width:1760px}
+  #irkRange{font-size:14px}
   /* 공통 규칙이 좁은 화면에서 표 틀에 min-width 를 걸어 페이지가 통째로 밀린다 —
      이 카드는 카드 안에서만 가로로 스크롤되게 예외로 둔다 */
   @media (max-width:1100px){ .tbl-wrap.xscroll{min-width:0} }
@@ -449,7 +450,7 @@
   .rclist{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
   .rclist .r{display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:13.5px}
   .rclist .r+.r{border-top:1px solid var(--border)}
-  .rclist .no{flex:none;width:62px;color:var(--muted-fg);font-size:12px;font-weight:700}
+  .rclist .no{flex:none;width:76px;color:var(--muted-fg);font-size:12px;font-weight:700}
   .rclist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rclist .rcnum{flex:none;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
   .rcok{display:inline-flex;align-items:center;gap:4px;color:#0071f3;font-weight:600}
@@ -828,15 +829,6 @@
      앱에서 위임을 마치면 그 행이 맨 위(최신순)로 들어오고, 회사 권고와 다른 칸은 주황으로 표시한다. */
   (function(){
     var t=document.getElementById('vrHolderTbl'); if(!t) return;
-    var REC={'제1호':'찬성','제2-1호':'찬성','제2-2호':'찬성','제3호':'찬성'};   /* 회사 권고(데모: 회사 의안은 모두 찬성 권고) */
-    /* 의안 칸 이름 — 주총 현장 제어가 쓰는 표결 단위와 같은 목록으로 맞춘다 */
-    (function(){
-      var VU=(window.CX&&CX.votingUnits)||[], hr=t.tHead.rows[0];
-      VU.forEach(function(no,i){ var c=hr.cells[5+i]; if(c) c.textContent=no; });
-    })();
-    var hd=Array.prototype.map.call(t.tHead.rows[0].cells,function(c){return c.textContent.trim();});
-    var SHCOL=hd.indexOf('보유주식수'), NCOL=t.tHead.rows[0].cells.length;
-
     function opb(v){
       return v==='반대'
         ? '<span class="opb against"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>반대</span>'
@@ -846,6 +838,55 @@
     }
     function mask(n){ n=String(n||''); return n.length<3?n:n[0]+'*'+n.slice(2); }
     function cm(n){ return (+n||0).toLocaleString('en-US'); }
+    var REC={'제1호':'찬성','제2-1호':'찬성','제2-2호':'찬성','제3-1호':'찬성','제3-2호':'반대'};   /* 회사 권고(데모) */
+    /* 의안 칸 — 표결 단위 아래 하위 의안까지 펼친다.
+       제3호(양립불가)는 두 안, 제4-1·4-2호(집중투표)는 후보별 칸이 된다. */
+    var AGC=(function(){
+      var A=(window.CX&&CX.agenda)||[], U=(window.CX&&CX.votingUnits)||[], out=[];
+      U.forEach(function(no){
+        var f=null; A.forEach(function(x){ if(x.no===no) f=x; });
+        var num=!!(f&&(f.types||[]).indexOf('집중투표')>=0);
+        if(f&&f.children&&f.children.length)
+          f.children.forEach(function(c){ out.push({no:c.no, kind:num?'num':'op'}); });
+        else out.push({no:no, kind:'op'});
+      });
+      return out;
+    })();
+    /* 집중투표 — 앞선 의향대로 1·2번 후보에게 의결권을 반씩 주고 나머지는 0 */
+    function split2(total,cnt){
+      var out=[],i,h=Math.floor(total/2);
+      for(i=0;i<cnt;i++) out.push(0);
+      if(cnt>0) out[0]=h;
+      if(cnt>1) out[1]=total-h;
+      return out;
+    }
+    /* 표 머리와 기존 행을 새 의안 칸 수에 맞춰 다시 짠다 */
+    (function(){
+      var hr=t.tHead.rows[0];
+      if(hr.cells.length-5===AGC.length) return;          /* 이미 맞으면 건드리지 않는다 */
+      while(hr.cells.length>5) hr.deleteCell(5);
+      AGC.forEach(function(c){
+        var th=document.createElement('th');
+        th.className=(c.kind==='num'?'num':'c'); th.textContent=c.no;
+        hr.appendChild(th);
+      });
+      Array.prototype.forEach.call(t.tBodies[0].rows,function(tr){
+        var sh=+String(tr.cells[2].textContent||'').replace(/\D/g,'');
+        var tot=sh*2;                                     /* 집중투표 의결권 = 보유주식 × 선임 2인 */
+        while(tr.cells.length>5) tr.deleteCell(5);
+        var vals=[opb('찬성'),opb('찬성'),opb('찬성'),opb('찬성'),opb('반대')]
+          .concat(split2(tot,4).map(cm))
+          .concat(split2(tot,5).map(cm));
+        AGC.forEach(function(c,i){
+          var td=tr.insertCell(5+i);
+          td.className=(c.kind==='num'?'num':'c');
+          td.innerHTML=vals[i]==null?'':vals[i];
+        });
+      });
+    })();
+    var hd=Array.prototype.map.call(t.tHead.rows[0].cells,function(c){return c.textContent.trim();});
+    var SHCOL=hd.indexOf('보유주식수'), NCOL=t.tHead.rows[0].cells.length;
+
 
     /* 앱이 올린 건 — 수집 시각 최신순 */
     function appRows(){
@@ -871,13 +912,17 @@
         var tr=tb.insertRow(0);
         tr.dataset.app='1'; tr.dataset.k='a'+r.i;
         var born=19500000+((r.i*7919)%500000);
+        var tot=+r.sh*2;
         var cells=[(r.at||'').slice(5), mask(r.nm), cm(r.sh),
                    String(born).slice(0,8), (2026-+String(born).slice(0,4))+'세',
-                   opb(vt[0]),opb(vt[1]),opb(vt[2]),opb(vt[3]),
-                   cm(+r.sh*2), cm(+r.sh*2)];
+                   opb(vt[0]),opb(vt[1]),opb(vt[2])]
+          .concat(vt[3]==='기권'?[opb('기권'),opb('기권')]
+                 :vt[3]==='반대'?[opb('반대'),opb('찬성')]:[opb('찬성'),opb('반대')])
+          .concat(split2(tot,4).map(cm)).concat(split2(tot,5).map(cm));
         for(var i=0;i<NCOL;i++){
           var td=tr.insertCell(i);
-          td.className=(i===2||i>=9)?'num':(i===0?'mut':(i===3?'mut c':((i>=5&&i<=8)?'c':'')));
+          var ag=i>=5?AGC[i-5]:null;
+          td.className=(i===2)?'num':(i===0?'mut':(i===3?'mut c':(ag?(ag.kind==='num'?'num':'c'):'')));
           td.innerHTML=cells[i]==null?'':cells[i];
         }
         /* 처음 그릴 때는 그냥 두고, 시연 중 새로 들어온 건만 잠깐 강조 */
@@ -948,7 +993,8 @@
     var DEMO_ID='assets/id-masked.png?v=2';   /* 시연용 샘플 — 전체 마스킹 */
     function agName(n){
       var A=(window.CX&&CX.agenda)||[], key=String(n).replace(/[^0-9-]/g,''), f=null;
-      A.forEach(function(x){ if(String(x.no)===String(n) || String(x.no).replace(/[^0-9-]/g,'')===key) f=x; });
+      function look(x){ if(String(x.no)===String(n) || String(x.no).replace(/[^0-9-]/g,'')===key) f=x; }
+      A.forEach(function(x){ look(x); (x.children||[]).forEach(look); });
       return f?f.nm:'';
     }
     function openRc(tr){
