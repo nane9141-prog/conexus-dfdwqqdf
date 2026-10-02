@@ -918,6 +918,13 @@
           if(c.kind==='num' && recs[i]!=null && vals[i]!==recs[i]) td.classList.add('diff');
         });
       });
+      /* 수집일시 최신순으로 정렬한다 */
+      (function(){
+        var tb=t.tBodies[0];
+        Array.prototype.slice.call(tb.rows)
+          .sort(function(a,b){ return b.cells[0].textContent.localeCompare(a.cells[0].textContent); })
+          .forEach(function(r){ tb.appendChild(r); });
+      })();
     })();
     var hd=Array.prototype.map.call(t.tHead.rows[0].cells,function(c){return c.textContent.trim();});
     var SHCOL=hd.indexOf('보유주식수'), NCOL=t.tHead.rows[0].cells.length;
