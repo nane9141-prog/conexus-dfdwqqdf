@@ -1469,8 +1469,7 @@
   var AGREE = [
     { k: 'a1', req: true,  t: '의결권 위임 및 대리행사 동의' },
     { k: 'a2', req: true,  t: '개인정보 수집 · 이용 동의' },
-    { k: 'a3', req: true,  t: '고유식별정보 처리 동의' },
-    { k: 'a4', req: false, t: '주주총회 안내 수신 동의' }
+    { k: 'a3', req: true,  t: '고유식별정보 처리 동의' }
   ];
 
   $('#dtStart').addEventListener('click', function () {
@@ -1503,7 +1502,7 @@
     camStop(); PX.step--; pxDraw();
   });
   function pxQuit() {
-    if (PX && PX.step >= 1 && PX.step <= 3) {
+    if (PX && PX.step >= 1 && PX.step <= 4) {
       sheet({
         mid: true, title: '작성을 그만두시겠어요?',
         body: '지금까지 입력한 내용은 저장되지 않습니다.',
@@ -1520,13 +1519,13 @@
     camStop(); show('#scrDetail'); $('#tabbar').hidden = true;
   }
 
-  var PX_TITLE = ['약관 동의', '의결권 행사 방향', '전자서명', '신분증 촬영', '위임 완료'];
+  var PX_TITLE = ['약관 동의', '전자문서 서명', '전자서명', '실명 인증', '신분증 촬영', '위임 완료'];
   function pxDraw() {
     $('#pxTitle').textContent = PX_TITLE[PX.step];
-    $$('.pxsteps .b').forEach(function (b, i) { b.classList.toggle('on', i <= Math.min(3, PX.step)); });
-    $('#pxBack').style.visibility = PX.step === 4 ? 'hidden' : '';
-    $('#pxX').style.visibility = PX.step === 4 ? 'hidden' : '';
-    var f = [pxAgree, pxVotes, pxSign, pxCam, pxDone][PX.step];
+    $$('.pxsteps .b').forEach(function (b, i) { b.classList.toggle('on', i <= Math.min(3, PX.step - (PX.step > 3 ? 1 : 0))); });
+    $('#pxBack').style.visibility = PX.step === 5 ? 'hidden' : '';
+    $('#pxX').style.visibility = PX.step === 5 ? 'hidden' : '';
+    var f = [pxAgree, pxDoc, pxSign, pxVerify, pxCam, pxDone][PX.step];
     f();
     $('#pxBd').scrollTop = 0;
   }
@@ -1536,58 +1535,96 @@
     b.onclick = fn;
   }
 
-  /* 1) 약관 동의 */
+  /* 1) 약관 동의 — 내용은 아래에서 올라오는 모달에서 받는다 */
   function pxAgree() {
-    var all = AGREE.every(function (a) { return PX.agree[a.k]; });
     $('#pxBd').innerHTML = '<div class="pxwrap">'
       + '<div class="pxh">위임에 필요한 약관에<br>동의해 주세요</div>'
       + '<div class="pxd">' + esc(CUR.name) + ' 님께 내용을 확인시켜 드린 뒤 동의를 받아 주세요.</div>'
-      + '<button class="agall' + (all ? ' on' : '') + '" type="button" id="agAll">'
-      + '<span class="cb' + (all ? ' on' : '') + '"></span><span class="t">전체 동의하기</span></button>'
-      + '<div class="aglist">' + AGREE.map(function (a) {
-          return '<div class="agrow"><span class="cb' + (PX.agree[a.k] ? ' on' : '') + '" data-ag="' + a.k + '" role="button"></span>'
-            + '<span class="t" data-ag="' + a.k + '" role="button">'
-            + (a.req ? '<em>[필수]</em>' : '<span class="opt">[선택]</span>') + esc(a.t) + '</span>'
-            + '<span class="go" data-help="' + esc(a.t) + '" role="button"><i class="ph ph-caret-right"></i></span></div>';
-        }).join('') + '</div></div>';
-    $('#agAll').addEventListener('click', function () {
-      var v = !all; AGREE.forEach(function (a) { PX.agree[a.k] = v; }); pxAgree();
-    });
-    $('#pxBd').querySelectorAll('[data-ag]').forEach(function (b) {
-      b.addEventListener('click', function () { PX.agree[b.dataset.ag] = !PX.agree[b.dataset.ag]; pxAgree(); });
-    });
+      + '<div class="agstub" id="agOpen" role="button">'
+      + '<i class="ph ph-file-text"></i><span class="t">약관 전체 보기 · 동의하기</span>'
+      + '<i class="ph ph-caret-right"></i></div></div>';
+    $('#agOpen').addEventListener('click', agSheet);
     var ok = AGREE.every(function (a) { return !a.req || PX.agree[a.k]; });
     pxNextBtn('다음', ok, function () { PX.step = 1; pxDraw(); });
+    if (!ok) setTimeout(agSheet, 120);        /* 위임을 시작하면 바로 올라온다 */
+  }
+  function agSheet() {
+    function body() {
+      var all = AGREE.every(function (a) { return PX.agree[a.k]; });
+      return '<button class="agall' + (all ? ' on' : '') + '" type="button" id="agAll">'
+        + '<span class="cb' + (all ? ' on' : '') + '"></span><span class="t">전체 동의하기</span></button>'
+        + '<div class="aglist">' + AGREE.map(function (a) {
+            return '<div class="agrow"><span class="cb' + (PX.agree[a.k] ? ' on' : '') + '" data-ag="' + a.k + '" role="button"></span>'
+              + '<span class="t" data-ag="' + a.k + '" role="button"><em>[필수]</em>' + esc(a.t) + '</span>'
+              + '<span class="go" data-help="' + esc(a.t) + '" role="button"><i class="ph ph-caret-right"></i></span></div>';
+          }).join('') + '</div>';
+    }
+    sheet({
+      title: '약관 동의',
+      body: '<div id="agBody">' + body() + '</div>',
+      foot: '<button class="btn" type="button" id="agGo">동의하고 계속하기</button>',
+      after: function (bx) {
+        function bind() {
+          bx.querySelector('#agAll').addEventListener('click', function () {
+            var v = !AGREE.every(function (a) { return PX.agree[a.k]; });
+            AGREE.forEach(function (a) { PX.agree[a.k] = v; }); redraw();
+          });
+          bx.querySelectorAll('[data-ag]').forEach(function (b) {
+            b.addEventListener('click', function () { PX.agree[b.dataset.ag] = !PX.agree[b.dataset.ag]; redraw(); });
+          });
+          bx.querySelector('#agGo').disabled = !AGREE.every(function (a) { return !a.req || PX.agree[a.k]; });
+        }
+        function redraw() { bx.querySelector('#agBody').innerHTML = body(); bind(); }
+        bind();
+        bx.querySelector('#agGo').addEventListener('click', function () {
+          if (this.disabled) return;
+          closeSheet(); PX.step = 1; pxDraw();
+        });
+      }
+    });
   }
 
-  /* 2) 의안별 행사 방향 */
+  /* 2) 전자문서 서명 — 위임장을 보여 주고 서명란을 눌러 서명 화면으로 간다 */
   function pxAgenda() {
     var A = (CX.agenda || []).filter(function (a) { return !a.header; });
     return A.length ? A : [{ no: '제1호', nm: '재무제표 승인의 건' }];
   }
-  function pxVotes() {
+  function pxDoc() {
     var A = pxAgenda();
     A.forEach(function (a, i) { if (!PX.votes[i]) PX.votes[i] = '찬성'; });
     $('#pxBd').innerHTML = '<div class="pxwrap">'
-      + '<div class="pxh">의안별 행사 방향을<br>정해 주세요</div>'
-      + '<div class="pxd">주주가 직접 고른 방향으로 표시해 주세요. 기본값은 회사 권고안(찬성)입니다.</div>'
-      + '<div style="margin-top:14px">' + A.map(function (a, i) {
-          return '<div class="agitem"><div class="nm">' + esc(a.no) + ' · ' + esc(a.nm) + '</div>'
-            + '<div class="ch" data-ag="' + i + '">'
-            + ['찬성', '반대', '기권'].map(function (c) {
-                return '<button type="button" data-c="' + c + '"' + (PX.votes[i] === c ? ' class="on"' : '') + '>' + c + '</button>';
-              }).join('') + '</div></div>';
-        }).join('') + '</div></div>';
-    $('#pxBd').querySelectorAll('[data-ag]').forEach(function (r) {
-      r.querySelectorAll('[data-c]').forEach(function (b) {
-        b.addEventListener('click', function () {
-          PX.votes[+r.dataset.ag] = b.dataset.c;
-          r.querySelectorAll('[data-c]').forEach(function (o) { o.classList.remove('on'); });
-          b.classList.add('on');
-        });
-      });
-    });
-    pxNextBtn('다음', true, function () { PX.step = 2; pxDraw(); });
+      + '<div class="pxh">위임장을 확인하고<br>서명해 주세요</div>'
+      + '<div class="pxd">' + esc(CUR.name) + ' 님께 내용을 보여 드린 뒤 서명란에 직접 서명받아 주세요.</div>'
+      + '<div class="doc">'
+      + '<div class="dt">의결권 대리행사 위임장</div>'
+      + '<div class="dr"><span class="k">주주</span><span class="v">' + esc(CUR.name) + '</span></div>'
+      + '<div class="dr"><span class="k">위임 주식수</span><span class="v">' + cm(CUR.sh) + '주</span></div>'
+      + '<div class="dr"><span class="k">수임인</span><span class="v">아이알큐더스</span></div>'
+      + '<div class="dr"><span class="k">의안</span><span class="v">' + A.length + '건 (회사 권고안)</span></div>'
+      + '<p class="dp">본인은 위 주식에 대한 의결권을 수임인에게 위임하며, 상기 주주총회의 모든 의안에 대하여 '
+      + '대리행사할 권한을 부여합니다. 위임 내용은 전자문서로 보관됩니다.</p>'
+      + '<div class="dsign' + (PX.sign ? ' has' : '') + '" id="docSign" role="button">'
+      + '<span class="lb">서명란</span>'
+      + (PX.sign ? '<img src="' + PX.sign + '" alt="전자서명">'
+                 : '<span class="ph2"><i class="ph ph-pencil-simple-line"></i>눌러서 서명하기</span>')
+      + '</div></div></div>';
+    $('#docSign').addEventListener('click', function () { PX.step = 2; pxDraw(); });
+    pxNextBtn('다음', !!PX.sign, function () { PX.step = 3; pxDraw(); });
+  }
+
+  /* 3) 실명 인증 안내 */
+  function pxVerify() {
+    var M = (window.CX && CX.meeting) || {};
+    $('#pxBd').innerHTML = '<div class="vfy">'
+      + '<div class="lg"><img src="assets/logo-kakaobank.png" alt="' + esc(M.org || '') + '"></div>'
+      + '<div class="h">신분증으로 실명을 인증해 주세요</div>'
+      + '<div class="d">신분증이 없다면 사업자등록증, 법인인감증명서, 명함 등 기타 서류로도 인증할 수 있습니다.</div>'
+      + '<div class="bx"><div class="bt">신분증 정보는 주주총회 종료 후 안전하게 폐기됩니다</div>'
+      + '<div class="r"><span class="k">사용 목적</span><span class="v">' + esc((M.org || '') + ' ' + (M.name || '')) + '</span></div>'
+      + '<div class="r"><span class="k">개최 일시</span><span class="v">' + esc(M.dateText || '') + '</span></div>'
+      + '<div class="r"><span class="k">파기 시점</span><span class="v">주주총회 종료 후 영구 폐기</span></div>'
+      + '</div></div>';
+    pxNextBtn('신분증 인증', true, function () { PX.step = 4; pxDraw(); });
   }
 
   /* 3) 전자서명 — 캔버스에 직접 그린다 */
@@ -1619,7 +1656,7 @@
     cv.addEventListener('pointermove', function (e) {
       if (!down) return;
       var p = pos(e); ctx.lineTo(p[0], p[1]); ctx.stroke();
-      pxNextBtn('다음', true, goNext);
+      pxNextBtn('서명 완료', true, goNext);
     });
     function up() { down = false; }
     cv.addEventListener('pointerup', up);
@@ -1627,11 +1664,11 @@
     $('#sgClr').addEventListener('click', function () {
       ctx.clearRect(0, 0, cv.width, cv.height);
       drawn = false; box.classList.remove('has'); PX.sign = null;
-      pxNextBtn('다음', false, null);
+      pxNextBtn('서명 완료', false, null);
     });
-    function goNext() { PX.sign = cv.toDataURL('image/png'); PX.step = 3; pxDraw(); }
+    function goNext() { PX.sign = cv.toDataURL('image/png'); PX.step = 1; pxDraw(); }   /* 서명하면 위임장으로 */
     if (PX.sign) { box.classList.add('has'); drawn = true; }
-    pxNextBtn('다음', !!PX.sign, goNext);
+    pxNextBtn('서명 완료', !!PX.sign, goNext);
   }
 
   /* 4) 신분증 촬영 — 앱 안 카메라 + 가이드 프레임 */
@@ -1640,21 +1677,19 @@
     if (CAM.stream) { CAM.stream.getTracks().forEach(function (t) { t.stop(); }); CAM.stream = null; }
   }
   function pxCam() {
-    $('#pxBd').innerHTML = '<div class="pxwrap">'
-      + '<div class="pxh">신분증을 촬영해 주세요</div>'
-      + '<div class="pxd">주민등록증 · 운전면허증 중 하나를 테두리 안에 맞춰 주세요.</div>'
+    $('#pxBd').innerHTML = '<div class="camscr' + (PX.idImg ? ' shot' : '') + '">'
+      + '<div class="ct">표시된 영역에 신분증을 맞춰 주세요.</div>'
       + '<div class="camwrap" id="camW">'
       + (PX.idImg
           ? '<img src="' + PX.idImg + '" alt="촬영한 신분증">'
           : '<video id="camV" playsinline muted autoplay></video>'
-            + '<div class="guide"><div class="fr"></div></div>'
-            + '<div class="hint">테두리 안에 신분증을 맞춰 주세요</div>')
+            + '<div class="guide"><span class="c tl"></span><span class="c tr"></span>'
+            + '<span class="c bl"></span><span class="c br"></span></div>')
       + '</div>'
+      + '<div class="cguide">어두운 배경에서 촬영해 주세요.<br>빛이 반사되지 않도록 방향을 조정해 주세요.</div>'
       + (PX.idImg
-          ? '<div class="camdone"><i class="ph-fill ph-check-circle"></i>신분증을 확인했습니다</div>'
-            + '<div class="cambar"><button class="alt" type="button" id="camRe">다시 촬영</button></div>'
-          : '<div class="cambar"><button class="shutter" type="button" id="camShot" aria-label="촬영"></button>'
-            + '<button class="alt" type="button" id="camPick">앨범에서 선택</button></div>'
+          ? '<div class="cambar"><button class="alt" type="button" id="camRe">다시 촬영</button></div>'
+          : '<div class="cambar"><button class="shutter" type="button" id="camShot" aria-label="촬영"></button></div>'
             + '<input type="file" id="camFile" accept="image/*" capture="environment" hidden>')
       + '</div>';
 
@@ -1675,7 +1710,7 @@
       /* 권한이 막히거나 카메라가 없으면 파일 선택으로 넘긴다 */
       $('#camW').innerHTML = '<div class="off"><i class="ph ph-camera-slash"></i>'
         + '카메라를 사용할 수 없습니다.<br>앨범에서 신분증 사진을 선택해 주세요.</div>';
-      var sh = $('#camShot'); if (sh) sh.style.display = 'none';
+      var sh = $('#camShot'); if (sh) sh.onclick = function () { $('#camFile').click(); };
     }
     $('#camShot').addEventListener('click', function () {
       if (!CAM.stream) { $('#camFile').click(); return; }
@@ -1687,7 +1722,6 @@
       PX.idImg = c.toDataURL('image/jpeg', 0.7);      /* 1024px · 품질 0.7 로 줄여 저장 */
       camStop(); pxDraw();
     });
-    $('#camPick').addEventListener('click', function () { $('#camFile').click(); });
     $('#camFile').addEventListener('change', function () {
       var f = this.files && this.files[0]; if (!f) return;
       var fr = new FileReader();
@@ -1714,7 +1748,7 @@
     APP.setState(CUR.i, 'done');
     APP.setProxy(CUR.i, { votes: PX.votes, sign: PX.sign, idImg: PX.idImg, at: CUR.at });
     histAdd(CUR, 'done', '위임장 수령 · 전송 완료');
-    PX.step = 4; pxDraw();
+    PX.step = 5; pxDraw();
   }
   function pxDone() {
     var A = pxAgenda();
