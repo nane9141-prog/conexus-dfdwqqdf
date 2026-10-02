@@ -1082,7 +1082,11 @@
     $('#dtBd').querySelectorAll('[data-medit]').forEach(function (b) {
       b.addEventListener('click', function () { editMemo(+b.dataset.medit); });
     });
-    $('#dtStart').textContent = x.st === 'done' ? '위임장 확인' : '위임 시작';
+    /* 위임이 끝난 건은 더 할 일이 없어 하단 버튼을 숨긴다 */
+    var done = x.st === 'done';
+    $('#dtStart').textContent = done ? '위임장 확인' : '위임 시작';
+    var ft = $('#scrDetail').querySelector('.dt-ft');
+    if (ft) ft.hidden = done;
   }
   function dkv(k, v) { return '<div class="dt-kv"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>'; }
 
