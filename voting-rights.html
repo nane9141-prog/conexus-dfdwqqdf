@@ -463,9 +463,10 @@
   .rcdocs .im.msk{position:relative}
   .rcdocs .im.msk img{filter:blur(2px)}
   .rcdocs .im.msk .lk{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
-  .rcdocs .im.msk .lk i{width:40px;height:40px;border-radius:50%;background:rgba(17,24,39,.62);color:#fff;
-    display:flex;align-items:center;justify-content:center;font-size:20px;
+  .rcdocs .im.msk .lk .bd{width:40px;height:40px;border-radius:50%;background:rgba(17,24,39,.62);
+    display:flex;align-items:center;justify-content:center;
     box-shadow:0 2px 10px rgba(16,24,40,.28)}
+  .rcdocs .im.msk .lk svg{display:block}
   .rcft{padding:12px 20px 16px;border-top:1px solid var(--border)}
   .rcclose{width:100%;height:42px;border-radius:var(--r-md);border:1px solid var(--border);
     background:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
@@ -903,13 +904,45 @@
     var AGENTS=['도지연 · 아이알큐더스','최현우 · 아이알큐더스','윤서진 · 아이알큐더스','한지민 · 아이알큐더스'];
     function agentOf(k){ var n=0, t=String(k||''); for(var i=0;i<t.length;i++) n+=t.charCodeAt(i); return AGENTS[n%AGENTS.length]; }
     /* 시연용 전자서명 · 신분증 — 앱에서 올라온 이미지가 없을 때 쓴다 */
-    var DEMO_SIGN='data:image/svg+xml;utf8,'+encodeURIComponent(
-      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 110">'
-      +'<rect width="320" height="110" fill="#fff"/>'
-      +'<path d="M26 78c14-30 26-46 34-46 9 0 7 28 14 28 8 0 14-34 24-34 9 0 6 36 15 36 8 0 15-22 24-22 10 0 9 20 18 20 11 0 20-26 33-26 12 0 17 16 28 16 9 0 16-8 22-16" '
-      +'fill="none" stroke="#111827" stroke-width="3.4" stroke-linecap="round"/>'
-      +'<path d="M232 84c16 4 32 3 46-4" fill="none" stroke="#111827" stroke-width="2.4" stroke-linecap="round"/>'
-      +'</svg>');
+    /* 시연용 전자서명 — 주주마다 다른 필체가 나오도록 씨앗값으로 획을 만든다 */
+    function signFor(seed){
+      var t=String(seed||''), n=2166136261;
+      for(var i=0;i<t.length;i++){ n^=t.charCodeAt(i); n=(n*16777619)>>>0; }
+      function rnd(){ n=(n*1664525+1013904223)>>>0; return n/4294967296; }
+      function r(a,b){ return a+(b-a)*rnd(); }
+      var W=320,H=110, x=r(22,34), y=r(72,84), d='M'+x.toFixed(1)+' '+y.toFixed(1);
+      var seg=3+Math.floor(rnd()*3);                 /* 글자 덩어리 수 */
+      var span=(W-70-x)/seg;
+      for(var k=0;k<seg;k++){
+        var x1=x+span*r(.18,.38), x2=x+span*r(.55,.82), x3=x+span;
+        var up=r(16,40), dn=r(4,20);
+        d+=' C'+x1.toFixed(1)+' '+(y-up).toFixed(1)
+          +' '+x2.toFixed(1)+' '+(y+dn).toFixed(1)
+          +' '+x3.toFixed(1)+' '+(y-r(0,12)).toFixed(1);
+        if(rnd()<.5){                                 /* 가끔 짧은 되돌림 획 */
+          var bx=x3-span*r(.2,.45);
+          d+=' M'+bx.toFixed(1)+' '+(y-r(18,34)).toFixed(1)
+            +' Q'+(bx+span*.3).toFixed(1)+' '+(y-r(28,46)).toFixed(1)
+            +' '+(bx+span*r(.5,.75)).toFixed(1)+' '+(y-r(10,24)).toFixed(1)
+            +' M'+x3.toFixed(1)+' '+(y-r(0,12)).toFixed(1);
+        }
+        x=x3;
+      }
+      var tail='';
+      if(rnd()<.75){                                  /* 마무리 흘림 */
+        tail='<path d="M'+(x-r(10,40)).toFixed(1)+' '+(y+r(10,18)).toFixed(1)
+          +' C'+(x+10).toFixed(1)+' '+(y+r(16,26)).toFixed(1)
+          +' '+(x+30).toFixed(1)+' '+(y+r(2,12)).toFixed(1)
+          +' '+(x+r(34,54)).toFixed(1)+' '+(y-r(2,14)).toFixed(1)
+          +'" fill="none" stroke="#111827" stroke-width="'+r(1.8,2.6).toFixed(1)+'" stroke-linecap="round"/>';
+      }
+      var w=r(2.9,4.2).toFixed(1);
+      return 'data:image/svg+xml;utf8,'+encodeURIComponent(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 '+W+' '+H+'">'
+        +'<rect width="'+W+'" height="'+H+'" fill="#fff"/>'
+        +'<path d="'+d+'" fill="none" stroke="#111827" stroke-width="'+w+'" '
+        +'stroke-linecap="round" stroke-linejoin="round"/>'+tail+'</svg>');
+    }
     var DEMO_ID='assets/id-masked.png?v=2';   /* 시연용 샘플 — 전체 마스킹 */
     function agName(n){
       var A=(window.CX&&CX.agenda)||[], key=String(n).replace(/[^0-9-]/g,''), f=null;
@@ -952,7 +985,7 @@
       });
       h+='</div>';
 
-      var sign=p.sign||DEMO_SIGN, idImg=p.idImg||DEMO_ID;
+      var sign=p.sign||signFor(k||tr.cells[1].textContent.trim()+tr.cells[0].textContent.trim()), idImg=p.idImg||DEMO_ID;
       h+='<div class="rcsec">접수 확인</div><dl class="rcgrid">'
         +'<dt>담당 에이전트</dt><dd>'+esc(app?'도지연 · 아이알큐더스':agentOf(k||tr.cells[1].textContent))+'</dd>'
         +'<dt>전자서명</dt><dd><span class="rcok"><i class="ph-bold ph-check-circle"></i>등록 완료</span></dd>'
@@ -962,7 +995,10 @@
         +'<figure><figcaption>전자서명</figcaption><div class="im sg"><img src="'+sign+'" alt="전자서명"></div></figure>'
         +'<figure><figcaption>신분증 <em>마스킹 처리</em></figcaption>'
         +'<div class="im msk"><img src="'+idImg+'" alt="신분증 (마스킹 처리됨)">'
-        +'<span class="lk"><i class="ph-fill ph-lock-simple"></i></span></div></figure>'
+        +'<span class="lk"><span class="bd">'
+        +'<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">'
+        +'<path d="M12 2.6a4.6 4.6 0 0 0-4.6 4.6V10H7a2.4 2.4 0 0 0-2.4 2.4v6.2A2.4 2.4 0 0 0 7 21h10a2.4 2.4 0 0 0 2.4-2.4v-6.2A2.4 2.4 0 0 0 17 10h-.4V7.2A4.6 4.6 0 0 0 12 2.6Zm0 2a2.6 2.6 0 0 1 2.6 2.6V10H9.4V7.2A2.6 2.6 0 0 1 12 4.6Zm0 9.1a1.5 1.5 0 0 1 .8 2.8v1.3a.8.8 0 0 1-1.6 0v-1.3a1.5 1.5 0 0 1 .8-2.8Z" fill="#fff"/>'
+        +'</svg></span></span></div></figure>'
         +'</div>';
       document.getElementById('rcBd').innerHTML=h;
       document.getElementById('rcOv').classList.remove('hidden');
