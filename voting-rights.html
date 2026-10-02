@@ -447,7 +447,7 @@
   .rclist{border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
   .rclist .r{display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:13.5px}
   .rclist .r+.r{border-top:1px solid var(--border)}
-  .rclist .no{flex:none;width:52px;color:var(--muted-fg);font-size:12px;font-weight:700}
+  .rclist .no{flex:none;width:62px;color:var(--muted-fg);font-size:12px;font-weight:700}
   .rclist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .rclist .rcnum{flex:none;font-size:13px;font-weight:700;font-variant-numeric:tabular-nums}
   .rcok{display:inline-flex;align-items:center;gap:4px;color:#0071f3;font-weight:600}
@@ -825,7 +825,12 @@
      앱에서 위임을 마치면 그 행이 맨 위(최신순)로 들어오고, 회사 권고와 다른 칸은 주황으로 표시한다. */
   (function(){
     var t=document.getElementById('vrHolderTbl'); if(!t) return;
-    var REC={'1':'찬성','2-1':'찬성','2-2':'찬성','3':'찬성'};   /* 회사 권고(데모: 회사 의안은 모두 찬성 권고) */
+    var REC={'제1호':'찬성','제2-1호':'찬성','제2-2호':'찬성','제3호':'찬성'};   /* 회사 권고(데모: 회사 의안은 모두 찬성 권고) */
+    /* 의안 칸 이름 — 주총 현장 제어가 쓰는 표결 단위와 같은 목록으로 맞춘다 */
+    (function(){
+      var VU=(window.CX&&CX.votingUnits)||[], hr=t.tHead.rows[0];
+      VU.forEach(function(no,i){ var c=hr.cells[5+i]; if(c) c.textContent=no; });
+    })();
     var hd=Array.prototype.map.call(t.tHead.rows[0].cells,function(c){return c.textContent.trim();});
     var SHCOL=hd.indexOf('보유주식수'), NCOL=t.tHead.rows[0].cells.length;
 
@@ -907,9 +912,8 @@
       +'</svg>');
     var DEMO_ID='assets/id-masked.png?v=2';   /* 시연용 샘플 — 전체 마스킹 */
     function agName(n){
-      var A=(window.CX&&CX.agenda)||[];
-      var f=null;
-      A.forEach(function(x){ if(String(x.no).replace(/[^0-9-]/g,'')===n) f=x; });
+      var A=(window.CX&&CX.agenda)||[], key=String(n).replace(/[^0-9-]/g,''), f=null;
+      A.forEach(function(x){ if(String(x.no)===String(n) || String(x.no).replace(/[^0-9-]/g,'')===key) f=x; });
       return f?f.nm:'';
     }
     function openRc(tr){
@@ -940,7 +944,7 @@
         var txt=cell.textContent.trim()||'-';
         var num=/^[0-9,]+$/.test(txt);
         var cls=txt==='찬성'?'for':txt==='반대'?'against':'';
-        h+='<div class="r"><span class="no">제'+esc(n)+'호</span>'
+        h+='<div class="r"><span class="no">'+esc(/^제/.test(n)?n:'제'+n+'호')+'</span>'
           +'<span class="nm">'+esc(agName(n))+'</span>'
           +(num?'<span class="rcnum">'+esc(txt)+'주</span>'
                :'<span class="opb '+cls+'">'+esc(txt)+'</span>')
