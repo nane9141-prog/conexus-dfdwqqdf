@@ -1898,12 +1898,15 @@
       var sh = $('#camShot'); if (sh) sh.onclick = function () { $('#camFile').click(); };
     }
     function shoot() {
-      var w = v.videoWidth, h = v.videoHeight; if (!w) return;
+      var vw = v.videoWidth, vh = v.videoHeight; if (!vw) return;
+      /* 화면의 가이드 테두리(1.55:1)와 같은 영역만 잘라 둔다 — 세로로 넓게 찍히지 않게 */
+      var cw = Math.min(vw, vh * 1.55), ch = cw / 1.55;
+      var sx = (vw - cw) / 2, sy = (vh - ch) / 2;
+      var out = Math.min(1024, Math.round(cw));
       var c = document.createElement('canvas');
-      var scale = Math.min(1, 1024 / w);
-      c.width = Math.round(w * scale); c.height = Math.round(h * scale);
-      c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
-      PX.idImg = c.toDataURL('image/jpeg', 0.7);      /* 1024px · 품질 0.7 로 줄여 저장 */
+      c.width = out; c.height = Math.round(out / 1.55);
+      c.getContext('2d').drawImage(v, sx, sy, cw, ch, 0, 0, c.width, c.height);
+      PX.idImg = c.toDataURL('image/jpeg', 0.75);
       camStop(); pxDraw();
     }
     $('#camShot').addEventListener('click', function () {
@@ -1917,11 +1920,13 @@
       fr.onload = function () {
         var im = new Image();
         im.onload = function () {
+          var cw = Math.min(im.width, im.height * 1.55), ch = cw / 1.55;
+          var sx = (im.width - cw) / 2, sy = (im.height - ch) / 2;
+          var out = Math.min(1024, Math.round(cw));
           var c = document.createElement('canvas');
-          var scale = Math.min(1, 1024 / im.width);
-          c.width = Math.round(im.width * scale); c.height = Math.round(im.height * scale);
-          c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
-          PX.idImg = c.toDataURL('image/jpeg', 0.7);
+          c.width = out; c.height = Math.round(out / 1.55);
+          c.getContext('2d').drawImage(im, sx, sy, cw, ch, 0, 0, c.width, c.height);
+          PX.idImg = c.toDataURL('image/jpeg', 0.75);
           camStop(); pxDraw();
         };
         im.src = fr.result;
