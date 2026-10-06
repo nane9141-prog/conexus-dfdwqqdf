@@ -2062,7 +2062,8 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
   }
   /* 하단 지표 — 의장·사회자 화면이 같은 숫자를 보도록 그대로 보낸다 */
   function kpiNow(){
-    var i=0; CX.votingUnits.forEach(function(no,n){ if(no===OC.agenda) i=n+1; });
+    /* 총회 시작 전(대기)에는 아직 상정한 의안이 없으므로 0 으로 둔다 */
+    var i=0; if(OC.stage>0) CX.votingUnits.forEach(function(no,n){ if(no===OC.agenda) i=n+1; });
     return { i:i, tot:CX.votingUnits.length,
       sub:(OC.agenda ? CX.util.chip(OC.agenda)+' '+STAGES[OC.stage].name : ''),
       rate:CX.util.pct(CX.meeting.attendShares, CX.meeting.sharesIssued).toFixed(1)+'%',
@@ -2400,7 +2401,8 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
     /* 출석률 — 캡션이 발행주식총수 기준이므로 분모도 발행주식총수 */
     set('mAttendRate', CX.util.pct(CX.meeting.attendShares, CX.meeting.sharesIssued).toFixed(1)+'%');
     /* 의안 진행 — 표결 단위만 센다. 제2호·제4호 같은 상위 의안은 표결하지 않으므로 뺀다. */
-    var i=0; CX.votingUnits.forEach(function(no,n){ if(no===OC.agenda) i=n+1; });
+    /* 총회 시작 전(대기)에는 아직 상정한 의안이 없으므로 0 으로 둔다 */
+    var i=0; if(OC.stage>0) CX.votingUnits.forEach(function(no,n){ if(no===OC.agenda) i=n+1; });
     set('mAgNo', i); set('mAgTot', CX.votingUnits.length);
     set('mAgSub', OC.agenda ? CX.util.chip(OC.agenda)+' '+STAGES[OC.stage].name : '');
     /* 현장 표결 — 의안별. 투표 중에만 움직이고 투표 종료 시 그대로 굳는다. */

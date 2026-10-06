@@ -977,6 +977,14 @@
     LIVE.done = s.done || null;
     LIVE.ts = s.ts;
 
+    /* 총회 시작 전(대기) — 지난 시연에서 남은 내 표가 있으면 비워 미참석으로 둔다 */
+    if (LIVE.stage === 0 && !(s.done && Object.keys(s.done).length)) {
+      var vv = votes();
+      if (Object.keys(vv).some(function (k) { return k.charAt(0) !== '_'; })) {
+        try { localStorage.removeItem(VKEY); } catch (e) {}
+      }
+    }
+
     var key = LIVE.ag + '/' + LIVE.stage;
     if (LIVE.stage === 2 && key !== lastOpen) {
       lastOpen = key;
