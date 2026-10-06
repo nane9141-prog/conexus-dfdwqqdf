@@ -914,6 +914,12 @@ CX.resetMeeting = function () {
    /* 의결권 수집 앱 · 현장투표 앱이 쌓아 둔 시연 데이터도 함께 비운다 */
    'cx.collect', 'cx.app.book', 'cx.app.noti', 'cx.app.px', 'cx.app.hist', 'cx.onsite'
   ].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+  /* 중계에 쌓인 값도 지운다 — 다시 열었을 때 옛 표가 되살아나지 않게 */
+  try {
+    if (window.cxRelay && cxRelay.wipe) {
+      cxRelay.wipe(['cx.live', 'cx.collect', 'cx.app.px', 'cx.onsite', 'cx.att', 'cx.ans']);
+    }
+  } catch (e) {}
   /* 다른 기기(현장 휴대폰)도 같이 비우도록 신호를 남긴다 */
   try { localStorage.setItem('cx.reset', JSON.stringify({ ts: Date.now() })); } catch (e) {}
 };
