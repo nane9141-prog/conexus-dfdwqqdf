@@ -500,6 +500,11 @@ html{-webkit-text-size-adjust:100%}
 /* 투표 불가 상태 — 고른 값은 그대로 보이되 바꿀 수 없다 */
 .vpick.lock .ch3 button,.vpick.lock [data-cd]{pointer-events:none}
 .vpick.lock [data-cd]{background:#F7F8FA;color:#8A8F99}
+/* 투표 전·마감 뒤에는 고를 수 없다는 것이 보이게 — 색을 빼고 흐리게 둔다 */
+.vpick.lock .ch3 button{background:#F7F8FA;border-color:#EDEEF1;color:#A7AAB1}
+.vpick.lock .ch3 button i{color:#C9CDD4}
+.vpick.lock .ch3 button.on{background:#EEF0F2;border-color:transparent;color:#6B7078}
+.vpick.lock .ch3 button.on i{color:#6B7078}
 /* 찬성 ○ 아이콘을 조금 더 굵게 */
 .ch3 button .ph-circle{font-weight:700;-webkit-text-stroke:.8px currentColor}
 
