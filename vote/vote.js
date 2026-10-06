@@ -17,13 +17,7 @@
   var CARDS = [
     { key: 'kudos', co: M.org || '큐더스전자', term: M.name || '제10기 정기주주총회',
       sh: 41847, seat: 'A129', asof: '2026년 9월 14일 기준', live: true,
-      g: ['#3D5AFE', '#7A4DFF', '#2E9BFF', '#63C2FF'] },
-    { key: 'naver', co: '네이버', term: '제27기 정기주주총회',
-      sh: 20000, seat: 'B061', asof: '2026년 9월 14일 기준', live: false,
-      g: ['#00C853', '#00E6A8', '#76FF03', '#C6FF4D'] },
-    { key: 'kakaobank', co: '카카오뱅크', term: '제10기 정기주주총회',
-      sh: 1200, seat: 'C412', asof: '2026년 9월 14일 기준', live: false,
-      g: ['#FF6A00', '#FFC400', '#FF2D55', '#FFD166'] }
+      g: ['#3D5AFE', '#7A4DFF', '#2E9BFF', '#63C2FF'] }
   ];
   var CUR = null, CURAG = null;
 
