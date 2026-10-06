@@ -913,6 +913,7 @@
       + '<div class="d" id="relayD">확인 중…</div></div>'
       + '<span class="rdot" id="relayDot"></span></div>'
       + '<button class="slink" type="button" id="relayAgain">연결 새로고침<i class="ph ph-arrow-counter-clockwise"></i></button>'
+      + '<button class="slink" type="button" id="voteReset">투표 기록 초기화<i class="ph ph-trash"></i></button>'
       + '</div>'
       + '<div class="sgap"></div>'
       + '<div class="slist"><div class="lb">약관</div>'
@@ -926,6 +927,14 @@
     });
     $('#swNoti').addEventListener('click', function () {
       SET.noti = !SET.noti; saveSet(); this.classList.toggle('on', SET.noti);
+    });
+    var rs = $('#voteReset');
+    if (rs) rs.addEventListener('click', function () {
+      /* 이 기기에 남은 표를 지운다 — 중계에 올려 둔 것도 함께 거둔다 */
+      try { localStorage.removeItem('cx.onsite'); } catch (e) {}
+      try { if (window.cxRelay && cxRelay.wipe) cxRelay.wipe(['cx.onsite']); } catch (e) {}
+      toast('이 기기의 투표 기록을 지웠습니다');
+      setTimeout(function () { location.reload(); }, 400);
     });
     var again = $('#relayAgain');
     if (again) again.addEventListener('click', function () {
