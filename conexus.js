@@ -1202,10 +1202,12 @@ window.cxClock = cxChannel('cx.clock');
   st.textContent =
     /* 붙어 있는 줄은 바탕색을 깔아 아래 내용이 비치지 않게 하고, 위아래 숨 쉴 틈을 둔다.
        붙는 자리(top)는 처음에 놓여 있던 자리 그대로라, 스크롤을 시작해도 줄이 움찔하지 않는다 */
-    '.st-head,.ev-head{position:sticky;top:var(--stick-top,0px);z-index:20;background:#fff;' +
-      'padding:12px 0 10px;margin-top:-12px;box-shadow:0 1px 0 var(--border,#E5E5E5)}' +
-    '.lc-hd{position:sticky;top:var(--stick-top,0px);z-index:21;background:#fff}' +
-    '.lc-bar{position:sticky;top:calc(var(--stick-top,0px) + var(--lcbar-top,72px));z-index:20;background:#fff}';
+    '.st-head,.ev-head{position:sticky;top:0;z-index:20;background:#fff;' +
+      'padding:calc(12px + var(--stick-gap,0px)) 0 10px;' +
+      'margin-top:calc(-12px - var(--stick-gap,0px));box-shadow:0 1px 0 var(--border,#E5E5E5)}' +
+    '.lc-hd{position:sticky;top:0;z-index:21;background:#fff;' +
+      'padding-top:var(--stick-gap,0px);margin-top:calc(-1 * var(--stick-gap,0px))}' +
+    '.lc-bar{position:sticky;top:var(--lcbar-top,72px);z-index:20;background:#fff}';
   (document.head || document.documentElement).appendChild(st);
 
   /* 붙는 자리 재기 — 아직 스크롤하지 않았을 때의 위치를 그대로 쓴다 */
@@ -1216,12 +1218,15 @@ window.cxClock = cxChannel('cx.clock');
     }
     return null;
   }
+  /* 줄 위에 남는 틈만큼 줄 자신을 위로 늘려 둔다 — 틈이 없어야 뒤 내용이 비치지 않는다 */
   function stickTop() {
     document.querySelectorAll('.st-head,.ev-head,.lc-hd').forEach(function (h) {
       if (!h.offsetParent || !h.offsetHeight) return;      /* 숨은 탭은 건너뛴다 */
       var sc = scrollerOf(h); if (!sc || sc.scrollTop > 0) return;
       var g = Math.round(h.getBoundingClientRect().top - sc.getBoundingClientRect().top);
-      if (g >= 0 && g < 200) sc.style.setProperty('--stick-top', g + 'px');
+      if (!g || g < 0 || g > 200) return;
+      var cur = parseFloat(sc.style.getPropertyValue('--stick-gap')) || 0;
+      sc.style.setProperty('--stick-gap', (cur + g) + 'px');
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', stickTop); else stickTop();
