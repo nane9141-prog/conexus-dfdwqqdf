@@ -914,6 +914,8 @@ CX.resetMeeting = function () {
    /* 의결권 수집 앱 · 현장투표 앱이 쌓아 둔 시연 데이터도 함께 비운다 */
    'cx.collect', 'cx.app.book', 'cx.app.noti', 'cx.app.px', 'cx.app.hist', 'cx.onsite'
   ].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+  /* 다른 기기(현장 휴대폰)도 같이 비우도록 신호를 남긴다 */
+  try { localStorage.setItem('cx.reset', JSON.stringify({ ts: Date.now() })); } catch (e) {}
 };
 window.cxClock = cxChannel('cx.clock');
 

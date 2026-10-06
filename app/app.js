@@ -2530,3 +2530,20 @@
     if (curTab === 'stat') drawStat();
   });
 })();
+
+/* ── 총회 종료 초기화 신호 — 현장 제어가 비우면 이 기기도 같이 비운다 ── */
+(function () {
+  var SEEN = 'cx.reset.seen';
+  function run() {
+    var r = {}; try { r = JSON.parse(localStorage.getItem('cx.reset') || '{}'); } catch (e) {}
+    if (!r.ts) return;
+    var last = 0; try { last = +localStorage.getItem(SEEN) || 0; } catch (e) {}
+    if (r.ts <= last) return;
+    try { localStorage.setItem(SEEN, String(r.ts)); } catch (e) {}
+    ['cx.collect', 'cx.app.book', 'cx.app.noti', 'cx.app.px', 'cx.app.hist'].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+    setTimeout(function () { location.reload(); }, 150);
+  }
+  window.addEventListener('storage', function (e) { if (e.key === 'cx.reset') run(); });
+  setInterval(run, 1500);
+  run();
+})();
