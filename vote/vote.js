@@ -917,7 +917,9 @@
       + '<div class="slist"><div class="lb">현장 연결</div>'
       + '<div class="srow"><div class="c"><div class="t">실시간 주총 연결</div>'
       + '<div class="d" id="relayD">확인 중…</div></div>'
-      + '<span class="rdot" id="relayDot"></span></div></div>'
+      + '<span class="rdot" id="relayDot"></span></div>'
+      + '<button class="slink" type="button" id="relayAgain">연결 새로고침<i class="ph ph-arrow-counter-clockwise"></i></button>'
+      + '</div>'
       + '<div class="sgap"></div>'
       + '<div class="slist"><div class="lb">약관</div>'
       + '<button class="slink" type="button" data-help="이용약관">이용약관<i class="ph ph-caret-right"></i></button>'
@@ -930,6 +932,15 @@
     });
     $('#swNoti').addEventListener('click', function () {
       SET.noti = !SET.noti; saveSet(); this.classList.toggle('on', SET.noti);
+    });
+    var again = $('#relayAgain');
+    if (again) again.addEventListener('click', function () {
+      var r = window.cxRelay;
+      try { if (r && r.connect) r.connect(); } catch (e) {}
+      try { if (r && r.catchUp) r.catchUp(); } catch (e) {}
+      /* 받아온 최신 상태를 바로 반영한다 */
+      setTimeout(function () { var s2 = liveGet(); if (s2.ts) { LIVE.ts = 0; apply(s2); } relayPaint(); }, 600);
+      toast('주총 연결을 다시 확인합니다');
     });
     relayPaint();
   }
