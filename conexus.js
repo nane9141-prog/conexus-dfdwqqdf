@@ -1204,7 +1204,7 @@ window.cxClock = cxChannel('cx.clock');
        붙는 자리(top)는 처음에 놓여 있던 자리 그대로라, 스크롤을 시작해도 줄이 움찔하지 않는다 */
     '.st-head,.ev-head{position:sticky;top:0;z-index:20;background:#fff;' +
       'padding:calc(12px + var(--stick-gap,0px)) 0 10px;' +
-      'margin-top:calc(-12px - var(--stick-gap,0px));box-shadow:0 1px 0 var(--border,#E5E5E5)}' +
+      'margin-top:calc(-12px - var(--stick-gap,0px))}' +
     '.lc-hd{position:sticky;top:0;z-index:21;background:#fff;' +
       'padding-top:var(--stick-gap,0px);margin-top:calc(-1 * var(--stick-gap,0px))}' +
     '.lc-bar{position:sticky;top:var(--lcbar-top,72px);z-index:20;background:#fff}';
@@ -1218,15 +1218,23 @@ window.cxClock = cxChannel('cx.clock');
     }
     return null;
   }
-  /* 줄 위에 남는 틈만큼 줄 자신을 위로 늘려 둔다 — 틈이 없어야 뒤 내용이 비치지 않는다 */
+  /* 붙어 있을 자리를 잡아 준다
+     ① 줄을 감싼 상자가 내용보다 짧으면(flex 로 눌린 경우) 붙는 범위가 거기서 끝나므로 내용만큼 늘린다
+     ② 줄 위에 남는 틈만큼 줄 자신을 위로 늘려, 틈으로 뒤 내용이 비치지 않게 한다 */
   function stickTop() {
     document.querySelectorAll('.st-head,.ev-head,.lc-hd').forEach(function (h) {
       if (!h.offsetParent || !h.offsetHeight) return;      /* 숨은 탭은 건너뛴다 */
-      var sc = scrollerOf(h); if (!sc || sc.scrollTop > 0) return;
+      var sc = scrollerOf(h); if (!sc) return;
+      for (var p = h.parentElement; p && p !== sc; p = p.parentElement) {
+        if (p.scrollHeight > p.clientHeight + 1 && getComputedStyle(p).overflowY === 'visible') {
+          p.style.minHeight = 'max-content';
+        }
+      }
+      if (sc.scrollTop > 0) return;
       var g = Math.round(h.getBoundingClientRect().top - sc.getBoundingClientRect().top);
       if (!g || g < 0 || g > 200) return;
-      var cur = parseFloat(sc.style.getPropertyValue('--stick-gap')) || 0;
-      sc.style.setProperty('--stick-gap', (cur + g) + 'px');
+      var cur = parseFloat(h.style.getPropertyValue('--stick-gap')) || 0;
+      h.style.setProperty('--stick-gap', (cur + g) + 'px');
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', stickTop); else stickTop();
