@@ -1,6 +1,6 @@
 /* 전자주주총회 관리 · 진행 설정 — 카드별 토글·일정·규칙, 한 번에 저장
    - 진행 시간 예약을 켠 채로 일시가 비면 저장 불가
-   - 사전 참석 · 사전 질의 종료는 총회 전날 24:00 까지, 대리인 신청 시작은 사전 참석 시작 이후
+   - 사전 신청 · 사전 질의 종료는 총회 전날 24:00 까지, 대리인 신청 시작은 사전 신청 시작 이후
    - 당일 질의 · 당일 발언은 둘 다 끌 수 없음 */
 (function () {
   var root = document.getElementById('pgRoot');
@@ -34,10 +34,10 @@
     card('open', '주주총회 정보 공개 설정', '공개 설정에 따라 주주PASS - 전자주주총회 사이트에 주주총회 설정 정보가 제공됩니다.',
       '<div class="pg-rad" style="align-items:center">' + rad('pgOpen', 'now', '즉시 공개') + rad('pgOpen', 'rsv', '예약 공개', 1) + dtIn('pgOpenT', '2026-09-04', '10:30', ' id="pgOpenAt"') + '</div>') +
     card('late', '전자주주총회 중도입장 허용', '주주총회 개회 후에도 주주의 실시간 온라인 입장을 허용합니다.', '', true) +
-    card('apply', '사전 참석 신청', '주주들이 주주총회 당일 전자주주총회 시청 및 참여를 위해 미리 신청하는 기간을 설정합니다.',
-      '<div class="pg-row">' + dt('pgApS', '시작 일시', '2026-09-11', '09:00') + dt('pgApE', '종료 일시', PREV, '23:59', '총회 전날 24:00까지 설정할 수 있습니다.') + '</div><div class="pg-row">' + unit('pgApN', '참석 인원 제한 (선택)', '1,000', '명').replace('flex:1', 'width:268px') + '</div>', true) +
+    card('apply', '사전 신청', '주주들이 주주총회 당일 전자주주총회 시청 및 참여를 위해 미리 신청하는 기간을 설정합니다.',
+      '<div class="pg-row">' + dt('pgApS', '시작 일시', '2026-09-11', '09:00') + dt('pgApE', '종료 일시', PREV, '23:59', '총회 전날 24:00까지 설정할 수 있습니다.') + '</div>', true) +
     card('proxy', '대리인 신청 기간', '주주가 본인 대신 대리인을 지정하여 전자주주총회에 참석 및 의결권을 행사할 수 있도록 신청받는 기간입니다.',
-      '<div class="pg-row">' + dt('pgPxS', '시작 일시', '2026-09-11', '09:00', '사전 참석 신청 시작 이후로 설정해 주세요.') + dt('pgPxE', '종료 일시', PREV, '18:00') + '</div>', true) +
+      '<div class="pg-row">' + dt('pgPxS', '시작 일시', '2026-09-11', '09:00', '사전 신청 시작 이후로 설정해 주세요.') + dt('pgPxE', '종료 일시', PREV, '18:00') + '</div>', true) +
     card('preq', '사전 질의 운영 설정', '주총 개최 전, 지정된 사전 기간 동안 주주들이 미리 질문을 등록하고 수정할 수 있도록 허용합니다.',
       '<div class="pg-row">' + dt('pgPqS', '시작 일시', '2026-09-11', '09:00') + dt('pgPqE', '종료 일시', PREV, '23:59', '총회 전날 24:00까지 설정할 수 있습니다.') + '</div>' +
       '<div class="pg-row">' + unit('pgPqN', '질의 횟수', '3', '회') + unit('pgPqL', '작성 분량', '1,000', '자') + '</div>' +
@@ -82,7 +82,7 @@
     } else { err('pgStart'); err('pgEnd'); }
     ok = err('pgApE', on('apply') && at('pgApE') > LIMIT ? '총회 전날 24:00 이후로 설정할 수 없습니다.' : '') && ok;
     ok = err('pgPqE', on('preq') && at('pgPqE') > LIMIT ? '총회 전날 24:00 이후로 설정할 수 없습니다.' : '') && ok;
-    ok = err('pgPxS', on('proxy') && on('apply') && at('pgPxS') && at('pgPxS') < at('pgApS') ? '사전 참석 신청 시작 이전으로 설정할 수 없습니다.' : '') && ok;
+    ok = err('pgPxS', on('proxy') && on('apply') && at('pgPxS') && at('pgPxS') < at('pgApS') ? '사전 신청 시작 이전으로 설정할 수 없습니다.' : '') && ok;
     save.disabled = !ok;
     return ok;
   }
