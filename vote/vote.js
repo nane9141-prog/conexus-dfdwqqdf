@@ -953,7 +953,7 @@
     var r = window.cxRelay;
     var ok = !!(r && r.ok);
     dot.className = 'rdot' + (ok ? ' on' : r ? ' off' : ' na');
-    d.textContent = !r ? '중계를 쓰지 않습니다 (같은 기기에서만 연동)'
+    d.textContent = !r ? '같은 기기에서 연동됩니다 (제어 화면과 같은 브라우저)'
       : ok ? '연결됨 · 제어 화면의 표결이 바로 반영됩니다'
       : '끊김 · 네트워크를 확인해 주세요 (다시 연결 중)';
   }
