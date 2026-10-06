@@ -125,7 +125,7 @@
     switch (c) {
       case '상태': return x.st;
       case '등록경로': return x.route;
-      case '구분': return x.ns ? x.kind : x.corp ? '법인' : '개인';
+      case '구분': return x.ns ? x.kind : x.corp ? '기관' : '개인';
       case '유형': return x.ns ? x.kind : (x.cfAt ? (x.multi ? '복수' : '단일') : '-');
       case '이름': return x.name;
       case '연결된 투표권자': return x.voters.length ? voterOf(x.voters[0]) + (x.voters.length > 1 ? ' 외 ' + (x.voters.length - 1) + '명' : '') : '-';
@@ -411,7 +411,7 @@
       '<div class="lc-f"><label for="lciMemo">메모 (선택)</label><textarea class="lc-in" id="lciMemo" placeholder="참석 목적 등 메모를 입력해 주세요">' + esc(v.lciMemo || '') + '</textarea></div>' +
       (ns ? '<div class="lc-f"><label>질의권 부여</label><label class="lc-chk"><input type="checkbox" id="lciAsk"' + (v.lciAsk ? ' checked' : '') + '>질의 권한을 부여합니다.</label></div>' : '');
     issR.innerHTML = '<div class="lc-tgrow"><div class="lc-tgw"><div class="lc-sh">발급대상</div><div class="lc-tg">' + tg('tgt', 'sh', '주주', !ns) + tg('tgt', 'ns', '비주주', ns) + '</div></div>' +
-      (ns ? '' : '<div class="lc-tgw"><div class="lc-sh">주주 유형</div><div class="lc-tg">' + tg('corp', '1', '해외(법인)', iss.corp) + tg('corp', '', '해외(개인)', !iss.corp) + '</div></div>') + '</div>' +
+      (ns ? '' : '<div class="lc-tgw"><div class="lc-sh">주주 유형</div><div class="lc-tg">' + tg('corp', '1', '기관', iss.corp) + tg('corp', '', '개인', !iss.corp) + '</div></div>') + '</div>' +
       (ns ? '<div class="lc-f"><label>유형 선택</label><div class="lc-tg lc-kgrid">' + NSK.map(function (k) { return tg('kind', k, k, iss.kind === k); }).join('') + '</div></div>'
         : '<div class="lc-iss-roster"><div class="lc-sh"><span>주주명부 목록</span><span class="lc-iss-sum" id="lcIssSum"></span></div>' +
           '<div class="mbar"><select class="lc-sel" id="lcIssF" aria-label="검색 기준">' + [['vt', '투표권자'], ['nm', '주주명'], ['id', '주주번호'], ['ac', '실질계좌번호']].map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === iss.f ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
@@ -448,7 +448,7 @@
     document.getElementById('lcPickForm').innerHTML = '<div class="lc-f"><label>발급 대상</label><div class="lc-rad">' + rad('lcpTgt', 'sh', '주주', !pk.ns) + rad('lcpTgt', 'ns', '비주주', pk.ns) + '</div></div>' +
       (pk.ns
         ? '<div class="lc-f"><label for="lcpKind">비주주 유형</label><select class="lc-sel" id="lcpKind" style="width:100%"><option value="" disabled' + (pk.kind ? '' : ' selected') + '>유형을 선택해 주세요</option>' + NSK.map(function (k) { return '<option' + (k === pk.kind ? ' selected' : '') + '>' + k + '</option>'; }).join('') + '</select></div>'
-        : '<div class="lc-f"><label>주주 유형</label><div class="lc-rad">' + rad('lcpCorp', '1', '해외(법인)', pk.corp) + rad('lcpCorp', '', '해외(개인)', !pk.corp) + '</div></div>');
+        : '<div class="lc-f"><label>주주 유형</label><div class="lc-rad">' + rad('lcpCorp', '1', '기관', pk.corp) + rad('lcpCorp', '', '개인', !pk.corp) + '</div></div>');
     pickOk.disabled = pk.ns && !pk.kind;
   }
   document.getElementById('lcIssue').addEventListener('click', function () { iss = null; pk = { ns: cur === 'ns', corp: true, kind: '' }; pickPaint(); pickEl.classList.add('show'); });
@@ -574,7 +574,7 @@
   function openMap(x) {
     if (VOTING_STARTED) return alertDlg({ ic: 'warn', t: '표결이 시작되어 변경이 불가합니다', d: '표결이 시작된 이후에는 주주확인 및 매핑 변경을 할 수 없습니다.', ok: '확인', danger: 1 });
     mapX = x; picked = x.voters.slice(); mapQ.value = ''; mapF.value = 'vt';
-    var l = kv('구분', x.corp ? '해외 법인' : '해외 개인') + kv(x.corp ? '법인(기관)명' : '이름', esc(x.name)) + (x.corp ? kv('담당자명', esc(x.mgr)) : '') + kv('휴대폰번호', esc(x.phone)) + kv('이메일', esc(x.email)) + kv('로그인코드', '<span class="lc-code">' + x.code + '</span>') +
+    var l = kv('구분', x.corp ? '기관' : '개인') + kv(x.corp ? '법인(기관)명' : '이름', esc(x.name)) + (x.corp ? kv('담당자명', esc(x.mgr)) : '') + kv('휴대폰번호', esc(x.phone)) + kv('이메일', esc(x.email)) + kv('로그인코드', '<span class="lc-code">' + x.code + '</span>') +
       kv('주주번호', esc(x.idNo) + ' <span class="mu">(' + x.idType + ')</span>') + (x.corp ? kv('상임대리인코드', x.agent) : '') + kv('보유주식수량', cm(x.decl) + '주 · 계좌 ' + x.accts.length + '건');
     document.getElementById('lcMapL').innerHTML = sec('주주 신청 정보', l) + (x.accts.length ? sec('신고 계좌', acctCards(x)) : '') + sec('제출 서류', files(x));
     mapOk.textContent = x.st === '주주확인 완료' ? '변경하기' : '주주 매핑';

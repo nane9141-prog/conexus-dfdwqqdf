@@ -130,9 +130,9 @@ table.lctbl .lc-empty{padding:72px 16px;text-align:center;color:#737373;cursor:d
 .lc-kv .k{width:100px;flex:none;font-size:12px;line-height:16px;font-weight:600;color:#737373}
 .lc-kv .v{flex:1;min-width:0;font-size:14px;line-height:20px;color:#0A0A0A;word-break:break-all}
 .lc-kv .v .mu{color:#737373}
-.lc-acct{background:#F5F5F5;border-radius:10px;padding:10px;margin-top:4px}
+.lc-acct{background:#F5F5F5;border-radius:10px;padding:6px 10px;margin:4px 0}
 .lc-acct .h{font-size:12px;line-height:16px;font-weight:600;color:#0A0A0A;padding:4px 0}
-.lc-acct .lc-kv .k{width:88px}
+.lc-acct .lc-kv .k{width:112px;white-space:nowrap}
 .lc-2btn{display:flex;gap:4px;margin-top:8px}
 .lc-2btn .btn{flex:1}
 .lc-note{font-size:12px;line-height:16px;color:#737373;margin-top:6px}
