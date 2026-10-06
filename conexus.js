@@ -1200,9 +1200,11 @@ window.cxClock = cxChannel('cx.clock');
 (function () {
   var st = document.createElement('style');
   st.textContent =
-    '.st-head,.ev-head{position:sticky;top:0;z-index:20}' +
-    '.lc-hd{position:sticky;top:0;z-index:21}' +
-    '.lc-bar{position:sticky;top:var(--lcbar-top,72px);z-index:20}';
+    /* 붙어 있는 줄은 바탕색을 깔아 아래 내용이 비치지 않게 하고, 위아래 숨 쉴 틈을 둔다 */
+    '.st-head,.ev-head{position:sticky;top:0;z-index:20;background:#fff;' +
+      'padding:12px 0 10px;margin-top:-12px;box-shadow:0 1px 0 var(--border,#E5E5E5)}' +
+    '.lc-hd{position:sticky;top:0;z-index:21;background:#fff}' +
+    '.lc-bar{position:sticky;top:var(--lcbar-top,72px);z-index:20;background:#fff}';
   (document.head || document.documentElement).appendChild(st);
   var RO = window.ResizeObserver ? new ResizeObserver(sync) : null, seen = [];
   function sync() {
