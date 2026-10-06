@@ -847,7 +847,7 @@
       + '<div class="meta"><div class="col">'
       + vrow('가결 여부', x.res, resCls(x.res), x.sp ? x.sp : '')
       + (x.sp ? '' : vrow('내 의견', x.my, myCls(x.my), x.my === '불통일행사' ? 'uni' : ''))
-      + '</div><i class="ph ph-caret-right cv"></i></div>';
+      + '</div></div>';
     if (has) {
       h += '<div class="vkids">' + kids.map(function (k) {
         return '<div class="vkid"><div class="hd"><span class="no">' + esc(k.no) + '</span></div>'
@@ -855,7 +855,7 @@
           + '<div class="meta"><div class="col">'
           + vrow('가결여부', k.res, resCls(k.res))
           + vrow('내 의견', k.my, myCls(k.my))
-          + '</div><i class="ph ph-caret-right cv"></i></div></div>';
+          + '</div></div></div>';
       }).join('') + '</div>'
       + '<button class="vfold" type="button">하위의안 펼치기<i class="ph ph-caret-down"></i></button>';
     }
