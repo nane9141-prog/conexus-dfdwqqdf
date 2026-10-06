@@ -956,6 +956,8 @@
   var lastOpen = null;
   function apply(s) {
     if (!s || !s.ts) return;
+    /* 중계가 늦게 들려준 옛 신호 때문에 상태가 뒤로 가지 않게 한다 */
+    if (s.ts && LIVE.ts && s.ts < LIVE.ts) return;
     LIVE.ag = s.ag || null;
     LIVE.stage = isFinite(s.stage) ? +s.stage : 0;
     LIVE.sec = (s.sec == null ? null : +s.sec);
@@ -1020,5 +1022,5 @@
   function liveGet() { try { return JSON.parse(localStorage.getItem('cx.live') || '{}'); } catch (e) { return {}; } }
   apply(liveGet());
   window.addEventListener('storage', function (e) { if (e.key === 'cx.live') apply(liveGet()); });
-  setInterval(function () { var s = liveGet(); if (s.ts && s.ts !== LIVE.ts) apply(s); }, 1000);
+  setInterval(function () { var s = liveGet(); if (s.ts && s.ts > LIVE.ts) apply(s); }, 1000);
 })();
