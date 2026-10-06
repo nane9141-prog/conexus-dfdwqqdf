@@ -781,8 +781,7 @@
       var done = it.filter(function (x) { return x.my; }).length;
       html += '<button class="hrow" type="button" data-h="' + i + '"><div class="c">'
         + '<div class="co">' + esc(h.co) + '</div><div class="tm">' + esc(h.term) + '</div></div>'
-        + '<span class="n">투표 ' + done + ' / ' + it.length + '건</span>'
-        + '<i class="ph ph-caret-right cv"></i></button>';
+        + '<span class="n">투표 ' + done + ' / ' + it.length + '건</span></button>';
     });
     body.innerHTML = html;
     body.querySelectorAll('[data-h]').forEach(function (b) {
