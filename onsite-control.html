@@ -2075,8 +2075,10 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
       try{ localStorage.setItem('cx.oc', JSON.stringify({agenda:OC.agenda, stage:(OC.loading?3:OC.stage), done:OC.done, res:OC.res,
         decided:OC.decided, amends:window.__amends||[], ts:Date.now()})); }catch(e){}
     }
-    /* 의장·사회자 화면은 이 신호만 보고 따라 넘어간다 */
-    if(window.cxSync) cxSync.set({ag:OC.agenda, stage:(OC.loading?2:OC.stage), sec:voteSec,
+    /* 의장·사회자 화면은 이 신호만 보고 따라 넘어간다.
+       제어 화면을 여러 대에서 띄워 두면 서로 다른 상태를 쏘아 현장 화면이 왔다 갔다 한다 —
+       이 화면을 실제로 조작한 뒤에만 내보낸다. */
+    if(window.cxSync && window.__ocActive) cxSync.set({ag:OC.agenda, stage:(OC.loading?2:OC.stage), sec:voteSec,
       cast:null, done:resMap(), kpi:kpiNow()});
     /* 대시보드 현장 의안별 행사 현황 반영용 상태 기록 */
     try {
@@ -4580,8 +4582,18 @@ document.addEventListener('click',function(e){
 </script>
 <script src="conexus.js?v=fwk2"></script>
 <script src="cx-relay.js?v=10"></script>
-<script>/* 칸이 열린 뒤에야 내보낼 수 있으므로, 화면을 연 순간의 상태를 여기서 한 번 알린다 */
-if(window.OC&&OC.fire) OC.fire();
+<script>/* 이 화면을 조작하기 시작하면 그때부터 현장 화면으로 내보낸다 —
+   제어 화면이 여러 대 떠 있어도 서로 상태를 덮어쓰지 않는다 */
+(function(){
+  function on(){
+    if(window.__ocActive) return;
+    window.__ocActive = true;
+    if(window.OC && OC.fire) OC.fire();
+  }
+  ['pointerdown','keydown'].forEach(function(ev){
+    document.addEventListener(ev, on, true);
+  });
+})();
 /* 주주PASS 시청 화면에서 올라온 질의 · 발언 · 동의를 받아 각 목록에 얹는다 */
 (function(){
   var CH='cx.qna';
