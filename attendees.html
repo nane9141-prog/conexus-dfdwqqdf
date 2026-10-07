@@ -664,7 +664,10 @@
   function mu(t){return '<span class="atmut">'+t+'</span>';}
   function preB(p){ if(!p.length) return '<span class="atb none">미행사</span>'; if(p.length>1) return '<span class="atb rose attip" data-tip="'+p.join(', ')+'">중복행사</span>'; return '<span class="atb orange">'+p[0]+'</span>'; }
   var SITE_C={'참석':'blue','일부 참석':'gray','미참석':'off','철회 후 참석':'purple','참관':'purple'};
-  function siteB(s){ return '<span class="atb '+(SITE_C[s]||'gray')+'">'+s+'</span>'; }
+  /* 현장 출석 — 칸 글자는 출석 / 일부 출석 / 참관 */
+  var SITE_T={'참석':'출석','일부 참석':'일부 출석','미참석':'미출석','철회 후 참석':'철회 후 출석'};
+  function siteTx(s){ return SITE_T[s]||s; }
+  function siteB(s){ return '<span class="atb '+(SITE_C[s]||'gray')+'">'+siteTx(s)+'</span>'; }
   /* 전자주총 출석 — 칸 글자는 출석 / 미출석 */
   function evTx(e){ return e==='참석'?'출석':'미출석'; }
   function evB(e){ return '<span class="atb '+(e==='참석'?'blue':'off')+'">'+evTx(e)+'</span>'; }
@@ -695,14 +698,14 @@
         if(c==='투표권자') return '<td class="tcell"><span class="cv"></span></td>';
         if(c==='주주명') v=m.name; else if(c==='주주번호') v=m.no; else if(c==='대리인') v=mu('-'); else if(c==='출석') v=evB(x.evote);
         else if(c==='보유주식수') v=cm(m.hold);
-        else if(c==='사전투표') v=preB(x.pre); else if(c==='현장 참석') v=siteB(x.site); else if(c==='앱 사용') v=appB(x.app);
+        else if(c==='사전투표') v=preB(x.pre); else if(c==='현장 출석') v=siteB(x.site); else if(c==='앱 사용') v=appB(x.app);
         else if(c==='보유주식') v=cm(m.hold); else if(c==='지분율') v=m.ratio; else if(c==='참석주식수'){ var ma=cur==='evote'?(x.evote==='참석'?m.hold:0):m.attend; v=ma?cm(ma):mu('-'); }
         return '<td'+cls(c)+'>'+v+'</td>';
       }).join('')+'</tr>';
     }).join('');
   }
   /* 세 탭 공통 항목 */
-  var C=['투표권자','주주명','주주번호','사전투표','사전신청','보유주식','지분율','참석주식수','현장 참석','앱 사용','의결권 제한','의안별 제한'];
+  var C=['투표권자','주주명','주주번호','사전투표','사전신청','보유주식','지분율','참석주식수','현장 출석','앱 사용','의결권 제한','의안별 제한'];
   /* 현장 참석자 탭 — 주주번호 오른쪽 '대리인', 맨 뒤 더보기(⋯). 헤더가 빈 칸은 표 도구가 정렬·필터를 달지 않는다.
      사전투표·참석 신청은 등록 단계에서 확인하는 값이라 이 탭에서는 빼둔다. */
   var CA=C.slice(0,3).concat(['대리인']).concat(C.slice(5)).concat(['']);
@@ -712,7 +715,7 @@
   var CN=['구분','참석자명','소속','전화번호','이메일','메모'];
   var COLS={reg:C,evote:CE,all:CA,non:CN};
   function ck(){ return (cur==='all'&&chip==='non')?'non':cur; }
-  var NUMC=['보유주식','보유주식수','지분율','참석주식수'], CENC=['구분','사전투표','사전신청','현장 참석','앱 사용','의결권 제한','의안별 제한','출석',''];
+  var NUMC=['보유주식','보유주식수','지분율','참석주식수'], CENC=['구분','사전투표','사전신청','현장 출석','앱 사용','의결권 제한','의안별 제한','출석',''];
   function cls(c){ return NUMC.indexOf(c)>=0?' class="n"':(CENC.indexOf(c)>=0?' class="c"':''); }
   function cellHTML(x,c,gid,k){
     if(c==='보유주식수') c='보유주식';
@@ -727,7 +730,7 @@
       case '보유주식': return cm(x.hold);
       case '지분율': return x.ratio;
       case '참석주식수': return attOf(x)?cm(attOf(x)):mu('-');
-      case '현장 참석': return siteB(x.site);
+      case '현장 출석': return siteB(x.site);
       case '앱 사용': return appB(x.app);
       case '의결권 제한': return x.limit==='-'?mu('-'):'<span title="'+x.limit+'">'+x.limit+'</span>';
       case '의안별 제한': return agB(x.ag);
@@ -748,7 +751,7 @@
       case '투표권자': return x.voter; case '주주명': return x.name; case '주주번호': return x.no; case '대리인': return x.proxy||'-';
       case '사전투표': return !x.pre.length?'미행사':(x.pre.length>1?'중복행사':x.pre[0]);
       case '사전신청': return (x.apply||'미신청')==='신청'?0:1;
-      case '현장 참석': return x.site; case '앱 사용': return x.app;
+      case '현장 출석': return siteTx(x.site); case '앱 사용': return x.app;
       case '보유주식': return x.hold; case '지분율': return parseFloat(x.ratio); case '참석주식수': return attOf(x);
       case '의결권 제한': return x.limit; case '의안별 제한': return x.ag?'제한':'-';
       case '구분': return x.kind; case '참석자명': return x.name; case '소속': return x.org; case '전화번호': return x.phone; case '이메일': return x.mail; case '메모': return x.memo||'-';
@@ -763,7 +766,7 @@
       case '투표권자': return x.voter; case '주주명': return x.name; case '주주번호': return x.no; case '대리인': return x.proxy||'-';
       case '사전투표': return !x.pre.length?'미행사':(x.pre.length>1?'중복행사':x.pre[0]);
       case '사전신청': return x.apply||'미신청';
-      case '현장 참석': return x.site; case '앱 사용': return x.app;
+      case '현장 출석': return siteTx(x.site); case '앱 사용': return x.app;
       case '보유주식': return cm(x.hold); case '지분율': return x.ratio; case '참석주식수': return attOf(x)?cm(attOf(x)):'-';
       case '의결권 제한': return x.limit; case '의안별 제한': return x.ag?'제한 '+x.ag.length+'건':'-';
       case '구분': return x.kind; case '참석자명': return x.name; case '소속': return x.org; case '전화번호': return x.phone; case '이메일': return x.mail; case '메모': return x.memo||'-';
@@ -780,7 +783,7 @@
       var r=(typeof p==='number'&&typeof q==='number')?p-q:String(p).localeCompare(String(q),'ko');
       return r?d*r:a._o-b._o; });
   }
-  var CW={'출석':90,'보유주식수':120,'대리인':96,'주주명':140,'주주번호':140,'사전투표':116,'사전신청':100,'현장 참석':110,'앱 사용':84,'보유주식':110,'지분율':72,'참석주식수':104,'의결권 제한':150,'의안별 제한':92,'구분':110,'참석자명':120,'소속':180,'전화번호':140,'이메일':220,'메모':240};
+  var CW={'출석':90,'보유주식수':120,'대리인':96,'주주명':140,'주주번호':140,'사전투표':116,'사전신청':100,'현장 출석':110,'앱 사용':84,'보유주식':110,'지분율':72,'참석주식수':104,'의결권 제한':150,'의안별 제한':92,'구분':110,'참석자명':120,'소속':180,'전화번호':140,'이메일':220,'메모':240};
   /* 검색은 항상 전체 데이터(D) 기준. reg 탭은 검색 전엔 목록을 감춘다(null 반환) */
   /* 칩은 단일 선택 — 전체(기본) · 주주 · 비주주 */
   var chip='sh';
