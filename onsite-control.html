@@ -1532,7 +1532,7 @@
               <th style="width:80px">지분율</th>
               <th class="c" style="width:110px">의결권제한</th>
               <th class="c" style="width:120px">의안별 제한</th>
-              <th class="c" style="width:90px">참석번호</th>
+              <th class="c" style="width:90px" data-al="c">좌석번호</th>
               <th class="c" style="width:56px">상세</th>
             </tr></thead><tbody id="pBody"></tbody></table></div>
             <div class="pfoot">
@@ -3046,7 +3046,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
       <div><div class="lb">대상 의안</div>
         <select class="dlg-sel" id="amAg"></select></div>
       <div><div class="lb">제안 주주</div>
-        <div class="am-find" id="amFind"><label class="am-in"><i class="ph ph-magnifying-glass"></i><input id="amWho" type="text" value="" placeholder="참석자 이름 · 참석번호로 검색" autocomplete="off"></label>
+        <div class="am-find" id="amFind"><label class="am-in"><i class="ph ph-magnifying-glass"></i><input id="amWho" type="text" value="" placeholder="참석자 이름 · 좌석번호로 검색" autocomplete="off"></label>
           <div class="am-dd" id="amDd"></div></div>
         <div class="am-pick" id="amPick" hidden></div></div>
       <div><div class="lb">검증 유형</div>
@@ -3144,7 +3144,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
     counts();
     open(o1);
   };
-  /* 제안자 — 참석자 안에서 이름·참석번호로 검색해 고른다 */
+  /* 제안자 — 참석자 안에서 이름·좌석번호로 검색해 고른다 */
   var who=document.getElementById('amWho'), dd=document.getElementById('amDd');
   function esc2(t){ return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
   function suggest(){
@@ -3319,7 +3319,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
   function pc(a,b){ return b? (Math.round(a/b*1000)/10).toFixed(1)+'%' : '0.0%'; }
   function no2(no){ return String(no).replace(/^제/,'').replace(/호$/,''); }
 
-  /* 현장 명부 표본 — 투표권자 / 주주명 / 대리인 / 앱 / 행사 / 의결권 / 제한 / 의안별 / 참석번호.
+  /* 현장 명부 표본 — 투표권자 / 주주명 / 대리인 / 앱 / 행사 / 의결권 / 제한 / 의안별 / 좌석번호.
      kids 가 있으면 통합기관이라 아코디언으로 하위 건을 편다(다른 명부 화면과 같은 형태). */
   var ROWS=[
     ['국민연금공단','국민연금공단','',        1,1, 41200000,'해당없음','없음','A01'],
@@ -3435,7 +3435,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
         +'<td>'+cm(can)+'</td><td>'+pct(can)+'</td>'
         +limC+agC
         +'<td class="c">'+seat+'</td>'
-        +'<td class="c"><span class="extip" data-tip="참석처리 '+M.operator.name+'\n'+M.date+' 09:'+(20+i)+'\n참석번호 '+seat+'">'+INFO+'</span></td></tr>');
+        +'<td class="c"><span class="extip" data-tip="참석처리 '+M.operator.name+'\n'+M.date+' 09:'+(20+i)+'\n좌석번호 '+seat+'">'+INFO+'</span></td></tr>');
       (kids||[]).forEach(function(k){
         out.push('<tr class="pchild" data-child="'+i+'">'
           +'<td class="l tcell"><span class="cv"></span></td>'
@@ -3444,7 +3444,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
           +'<td class="c"><span class="pchip'+(done?' b':'')+'">'+(done?'행사':'미행사')+'</span></td>'
           +'<td>'+cm(k[1])+'</td><td>'+pct(k[1])+'</td>'
           +limC+agC
-          +'<td class="c"></td><td class="c"></td></tr>');   /* 참석번호는 통합 계좌 줄에만 */
+          +'<td class="c"></td><td class="c"></td></tr>');   /* 좌석번호는 통합 계좌 줄에만 */
       });
     });
     document.getElementById('pBody').innerHTML=out.join('')||'<tr><td colspan="11" class="c mut" style="height:120px">검색 결과가 없습니다.</td></tr>';
@@ -3605,7 +3605,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
       +'<div class="mvrow"><div class="mvf"><b>보유주식</b>'+cm(can)+'주</div><span class="mvsep"></span>'
       +'<div class="mvf"><b>의결권 제한</b>'+r[6]+'</div><span class="mvsep"></span>'
       +'<div class="mvf"><b>앱 사용</b>'+(r[3]?'사용':'미사용')+'</div><span class="mvsep"></span>'
-      +'<div class="mvf"><b>참석번호</b>'+r[8]+'</div><span class="mvsep"></span>'
+      +'<div class="mvf"><b>좌석번호</b>'+r[8]+'</div><span class="mvsep"></span>'
       +'<div class="mvf"><b>참석처리</b>'+M.operator.name+' · '+M.date+' 09:'+(20+i)+'</div></div>'
       +(r[2]?'<div class="mvrow"><div class="mvf"><b>대리인</b>'+r[2]+'</div><span class="mvsep"></span>'
         +'<div class="mvf"><b>생년월일</b>1978-0'+(i%9+1)+'-1'+(i%9)+'</div><span class="mvsep"></span>'
