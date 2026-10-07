@@ -151,7 +151,7 @@
   .cert-x:hover{opacity:1}
   .cert-x .ph{font-size:16px}
   /* 왼쪽 — 발급 설정 */
-  .cert-side{width:260px;flex:none;display:flex;flex-direction:column;background:#fff}
+  .cert-side{width:300px;flex:none;display:flex;flex-direction:column;background:#fff}
   .cert-sh{display:flex;flex-direction:column;gap:8px;padding:20px}
   .cert-sh .t{font-size:16px;line-height:1;font-weight:600;letter-spacing:-.16px;color:#0a0a0a}
   .cert-sh .d{font-size:14px;line-height:20px;letter-spacing:-.14px;color:#737373}
@@ -178,13 +178,13 @@
   .cert-ck .ct span{font-size:12px;line-height:16px;letter-spacing:-.12px;color:#737373}
   /* 오른쪽 — 미리보기 */
   .cert-prev{background:#fafafa;padding:16px;display:flex;flex-direction:column;gap:8px;min-height:0}
-  .cert-doc-wrap{width:540px;flex:1;min-height:0;overflow:auto;background:#fff}
+  .cert-doc-wrap{width:720px;max-width:calc(100vw - 360px);flex:1;min-height:0;overflow:auto;background:#fff}
   .cert-ft{display:flex;gap:8px;align-items:center;justify-content:center;padding:8px 16px}
   .cert-btn{height:32px;padding:0 10px;border:1px solid #e5e5e5;border-radius:10px;background:#fff;
     font-family:inherit;font-size:14px;font-weight:500;letter-spacing:-.14px;color:#0a0a0a;cursor:pointer}
   .cert-btn.pri{background:#171717;border-color:#171717;color:#fafafa}
   /* ── 확인증 문서 ── */
-  .cert-doc{position:relative;box-sizing:border-box;width:540px;padding:30px;background:#fff;color:#0a0a0a;
+  .cert-doc{position:relative;box-sizing:border-box;width:100%;padding:36px 40px;background:#fff;color:#0a0a0a;
     font-size:12px;letter-spacing:-.12px}
   .cert-doc + .cert-doc{border-top:8px solid #fafafa}
   .cert-doc .rule{height:1px;background:#171717}
@@ -203,12 +203,12 @@
   .cert-sum .c .lb{font-size:10px;line-height:14px;color:#737373}
   .cert-sum .c .vl{font-size:13px;line-height:18px;font-weight:700;color:#0a0a0a}
   .cert-h2{margin:22px 0 8px;font-size:14px;font-weight:700;letter-spacing:-.14px;color:#0a0a0a}
-  table.cert-tbl{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
-  .cert-tbl th{padding:8px 4px;text-align:right;font-weight:400;color:#737373;vertical-align:bottom;
+  table.cert-tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+  .cert-tbl th{padding:8px 6px;text-align:right;font-weight:400;color:#737373;vertical-align:bottom;
     border-bottom:1px solid #e5e5e5;line-height:14px}
   .cert-tbl th.l{text-align:left}
   .cert-tbl th.c{text-align:center}
-  .cert-tbl td{padding:9px 4px;text-align:right;border-bottom:1px solid #f2f2f2;
+  .cert-tbl td{padding:9px 6px;text-align:right;border-bottom:1px solid #f2f2f2;
     font-variant-numeric:tabular-nums;color:#0a0a0a}
   .cert-tbl td.l{text-align:left}
   .cert-tbl td.c{text-align:center}
@@ -231,7 +231,7 @@
     font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
     letter-spacing:-1px;line-height:1.05;text-align:center;transform:rotate(-8deg)}
   .cert-iss{display:flex;justify-content:space-between;align-items:center;margin-top:22px;font-size:10px;color:#737373}
-  .cert-wm{position:absolute;left:50%;top:46%;width:520px;transform:translate(-50%,-50%) rotate(-24deg);
+  .cert-wm{position:absolute;left:50%;top:46%;width:90%;transform:translate(-50%,-50%) rotate(-24deg);
     opacity:.05;font-size:72px;font-weight:800;letter-spacing:.06em;text-align:center;color:#171717;
     pointer-events:none;user-select:none}
 
@@ -930,8 +930,8 @@
         + '</div>'
         + '<div class="cert-h2">표결 결과 상세'+(ch?'(1/2)':'')+'</div>'
         + '<table class="cert-tbl"><colgroup>'
-        +   '<col><col style="width:74px"><col style="width:62px"><col style="width:62px">'
-        +   '<col style="width:62px"><col style="width:56px"><col style="width:44px"></colgroup>'
+        +   '<col><col style="width:104px"><col style="width:92px"><col style="width:86px">'
+        +   '<col style="width:86px"><col style="width:76px"><col style="width:56px"></colgroup>'
         +   '<thead><tr><th class="l">의안명</th><th>찬성</th><th>반대<sup>1)</sup></th>'
         +     '<th>행사가능의결권<br>기준 찬성률</th><th>의결권행사<br>기준 찬성률</th>'
         +     '<th>반대/기권<br>(률)</th><th class="c">결과</th></tr></thead>'
