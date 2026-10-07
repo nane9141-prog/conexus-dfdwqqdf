@@ -82,7 +82,7 @@
   .ty-tbl td.l{text-align:left}.ty-tbl td.c{text-align:center}
   .ty-tbl td.muted{color:#c4c4c4}
   /* 주주별 결과 — 칸을 고정해 넓은 화면에서는 가로 스크롤이 생기지 않게 한다 */
-  table#holderTbl{table-layout:fixed;min-width:1030px}
+  table#holderTbl{table-layout:fixed;min-width:1086px}
   /* 의안 칸은 좁다 — 좌우 여백을 줄여 가로 스크롤을 최소화 */
   #holderTbl th.ag,#holderTbl td.ag{padding-left:4px;padding-right:4px}
   #holderTbl th.cv,#holderTbl td.cv{text-align:right;font-variant-numeric:tabular-nums}
@@ -750,12 +750,12 @@
     var C=hlCols(), th=document.getElementById('hlHead'), cg=document.getElementById('hlCols');
     if(!th||!cg) return;
     th.innerHTML='<th class="l">투표권자</th><th class="l">주주명</th><th class="l">행사방식</th>'
-      +'<th>행사가능<br>의결권</th><th>미행사<br>의결권</th><th>행사<br>의결권</th>'
-      +'<th class="c">의결권<br>제한</th><th class="c">의안별<br>제한</th>'
+      +'<th>행사가능의결권</th><th>미행사의결권</th><th>행사의결권</th>'
+      +'<th class="c">의결권제한</th><th class="c">의안별제한</th>'
       +C.map(function(c){ return '<th class="ag'+(c.cum?' cv':' c')+'">'+c.lb+'</th>'; }).join('');
     cg.innerHTML='<col style="width:92px"><col style="width:100px"><col style="width:86px">'
-      +'<col style="width:80px"><col style="width:70px"><col style="width:80px">'
-      +'<col style="width:60px"><col style="width:66px">'
+      +'<col style="width:98px"><col style="width:86px"><col style="width:76px">'
+      +'<col style="width:76px"><col style="width:76px">'
       +C.map(function(c){ return '<col style="width:'+(c.cum?72:54)+'px">'; }).join('');
     var tbl=document.getElementById('holderTbl');
     if(tbl) tbl.style.minWidth=(634+C.reduce(function(s,c){ return s+(c.cum?72:54); },0))+'px';
