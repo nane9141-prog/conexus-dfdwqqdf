@@ -19,7 +19,7 @@
     return {
       k: 'p' + r.i, r: r, voter: r.nm, name: r.nm, id: r.id, ac: r.ac, sh: r.sh, rt: r.rt,
       type: k % 6 === 2 ? '대리인' : '본인', pre: preOf(r),
-      apply: apply ? '신청' : '미신청', attend: attend ? '참석' : '미참석', watch: attend || k % 4 === 0,
+      apply: apply ? '신청' : '미신청', attend: attend ? '출석' : '미출석', watch: attend || k % 4 === 0,
       att: attend ? r.sh : 0, code: code, revoked: !!code && k % 9 === 4,
       route: code ? (k % 3 ? '주주 신청' : '관리자 등록') : '주주 신청',
       phone: '010-' + (2000 + (r.i * 37) % 7000) + '-' + ('000' + (r.i * 53 % 10000)).slice(-4),
@@ -30,14 +30,14 @@
   var groups = (CX.rosterGroups || []).slice(0, 12).map(function (g, gi) {
     var kids = g.members.map(function (m, j) { inGroup[m.i] = 1; var p = person(m, gi * 3 + j); p.voter = g.voter; return p; });
     function agg(f) { var s = {}; kids.forEach(function (c) { s[c[f]] = 1; }); return Object.keys(s); }
-    var types = agg('type'), pres = agg('pre'), att = kids.filter(function (c) { return c.attend === '참석'; }).length;
+    var types = agg('type'), pres = agg('pre'), att = kids.filter(function (c) { return c.attend === '출석'; }).length;
     return {
       k: 'g' + g.id, grp: true, kids: kids, voter: g.voter, name: '통합 ' + kids.length + '건', id: kids[0].id, ac: '-',   /* 주주번호는 대표(첫) 계좌 — 참석자 관리와 동일 */
       sh: kids.reduce(function (a, c) { return a + c.sh; }, 0), rt: kids.reduce(function (a, c) { return a + c.rt; }, 0),
       att: kids.reduce(function (a, c) { return a + c.att; }, 0),
       type: types.length > 1 ? '본인·대리인' : types[0], pre: pres.length > 1 ? '중복행사' : pres[0],
       apply: kids.some(function (c) { return c.apply === '신청'; }) ? '신청' : '미신청',
-      attend: att === kids.length ? '참석' : att ? '일부참석' : '미참석',
+      attend: att === kids.length ? '출석' : att ? '일부출석' : '미출석',
       watch: kids.some(function (c) { return c.watch; }), code: '', route: kids[0].route, email: '-', phone: kids[0].phone
     };
   });
@@ -59,7 +59,7 @@
 
   /* ---------- 컬럼 ---------- */
   var COLS = {
-    sh: [['투표권자', 220], ['주주명', 0], ['주주번호', 140], ['참석 유형', 104, 'c'], ['사전투표', 96, 'c'], ['보유주식수', 120, 'n'], ['지분율', 90, 'n'], ['참석주식수', 120, 'n'], ['참석 신청', 104, 'c'], ['출석', 96, 'c'], ['로그인코드', 130], ['휴대폰번호', 140], ['등록 경로', 104, 'c']],
+    sh: [['투표권자', 220], ['주주명', 0], ['주주번호', 140], ['참석 유형', 104, 'c'], ['사전투표', 96, 'c'], ['보유주식수', 120, 'n'], ['지분율', 90, 'n'], ['참석주식수', 120, 'n'], ['사전 신청', 104, 'c'], ['출석', 96, 'c'], ['로그인코드', 130], ['휴대폰번호', 140], ['등록 경로', 104, 'c']],
     ns: [['유형', 100, 'c'], ['이름', 140], ['이메일', 220], ['휴대폰번호', 140], ['소속', 0], ['직급', 120], ['시청', 96, 'c'], ['질의권', 90, 'c'], ['메모', 200], ['로그인코드', 130], ['', 44, 'c']]
   };
   var LEFT = { sh: 1, ns: 2 };
@@ -67,7 +67,7 @@
     switch (c) {
       case '투표권자': return x.voter; case '주주명': return x.name; case '주주번호': return x.id;
       case '참석 유형': return x.type; case '사전투표': return x.pre; case '보유주식수': return x.sh;
-      case '지분율': return x.rt; case '참석주식수': return x.att; case '참석 신청': return x.apply;
+      case '지분율': return x.rt; case '참석주식수': return x.att; case '사전 신청': return x.apply;
       case '출석': return x.attend; case '시청': return x.watch ? '시청' : '미시청';
       case '로그인코드': return x.code || '-'; case '등록 경로': return x.route;
       case '유형': return x.kind; case '이름': return x.name; case '이메일': return x.email;
@@ -87,11 +87,11 @@
     /* 통합기관 — 참석자 관리와 같은 모양: 투표권자 칸 원형 chevron, 주주명 칸 '통합 N건' 뱃지, 계좌 줄은 세로선 */
     if (c === '투표권자' && x.grp) return '<div class="voter"><button type="button" class="tw-chevron' + (open[x.k] ? '' : ' collapsed') + '" aria-label="펼치기"><svg viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg></button><span>' + esc(x.voter) + '</span></div>';
     if (c === '투표권자' && child) return '<span class="cv"></span>';
-    /* 참석 신청: 신청 blue · 미신청 info 50% / 출석: 참석 blue · 일부참석 info · 미참석 info 50% */
+    /* 사전 신청: 신청 blue · 미신청 info 50% / 출석: 출석 blue · 일부출석 info · 미출석 info 50% */
     /* 비주주 시청·질의권도 같은 규칙: 시청·부여 blue · 미시청·미부여 info 50% */
-    if (c === '참석 신청' || c === '출석' || c === '시청' || c === '질의권') {
+    if (c === '사전 신청' || c === '출석' || c === '시청' || c === '질의권') {
       var t0 = val(x, c);   /* 상태 뱃지 — 점 없이 글자만 */
-      return '<span class="lc-b ' + ({ '신청': 'blue', '참석': 'blue', '시청': 'blue', '부여': 'blue', '일부참석': 'gray' }[t0] || 'gray off') + '">' + t0 + '</span>';
+      return '<span class="lc-b ' + ({ '신청': 'blue', '출석': 'blue', '시청': 'blue', '부여': 'blue', '일부출석': 'gray' }[t0] || 'gray off') + '">' + t0 + '</span>';
     }
     if (MUTED[c] && x[MUTED[c]]) return '<span class="mu">' + esc(x[MUTED[c]]) + '</span>';
     if (c === '등록 경로') return '<span class="mu">' + esc(x.route) + '</span>';
@@ -120,8 +120,8 @@
   var tbl = document.getElementById('atTbl'), body = document.getElementById('atBody');
   var cur = 'sh', chip = 'all', page = 1, pageSize = 20, lastTotal = 0, sortSt = null, filtPred = null, open = {};
   var CHIPS = {
-    sh: [['all', '전체'],   /* 사전 신청 관리 — 전체 · 참석 · 일부참석 · 미참석 */
-      ['in', '참석', function (x) { return x.attend === '참석'; }], ['part', '일부참석', function (x) { return x.attend === '일부참석'; }], ['out', '미참석', function (x) { return x.attend === '미참석'; }]],
+    sh: [['all', '전체'],   /* 사전 신청 관리 — 전체 · 출석 · 일부출석 · 미출석 */
+      ['in', '출석', function (x) { return x.attend === '출석'; }], ['part', '일부출석', function (x) { return x.attend === '일부출석'; }], ['out', '미출석', function (x) { return x.attend === '미출석'; }]],
     ns: []
   };
   function list() { return cur === 'sh' ? SH : NS; }

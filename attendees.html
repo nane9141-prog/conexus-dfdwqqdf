@@ -665,7 +665,9 @@
   function preB(p){ if(!p.length) return '<span class="atb none">미행사</span>'; if(p.length>1) return '<span class="atb rose attip" data-tip="'+p.join(', ')+'">중복행사</span>'; return '<span class="atb orange">'+p[0]+'</span>'; }
   var SITE_C={'참석':'blue','일부 참석':'gray','미참석':'off','철회 후 참석':'purple','참관':'purple'};
   function siteB(s){ return '<span class="atb '+(SITE_C[s]||'gray')+'">'+s+'</span>'; }
-  function evB(e){ return '<span class="atb '+(e==='참석'?'blue':'off')+'">'+e+'</span>'; }
+  /* 전자주총 출석 — 칸 글자는 출석 / 미출석 */
+  function evTx(e){ return e==='참석'?'출석':'미출석'; }
+  function evB(e){ return '<span class="atb '+(e==='참석'?'blue':'off')+'">'+evTx(e)+'</span>'; }
   function apB(a){ a=a||'미신청'; return '<span class="atb '+(a==='신청'?'blue':'off')+'">'+a+'</span>'; }
   /* 전자주총 탭의 참석주식수는 온라인 출석 기준 */
   function attOf(x){ return cur==='evote'?(x.evote==='참석'?x.hold:0):x.attend; }
@@ -742,7 +744,7 @@
   function sortVal(x,c){
     if(c==='보유주식수') c='보유주식';
     switch(c){
-      case '출석': return x.evote;
+      case '출석': return evTx(x.evote);
       case '투표권자': return x.voter; case '주주명': return x.name; case '주주번호': return x.no; case '대리인': return x.proxy||'-';
       case '사전투표': return !x.pre.length?'미행사':(x.pre.length>1?'중복행사':x.pre[0]);
       case '사전신청': return (x.apply||'미신청')==='신청'?0:1;
@@ -757,7 +759,7 @@
   function cellText(x,c){
     if(c==='보유주식수') c='보유주식';
     switch(c){
-      case '출석': return x.evote;
+      case '출석': return evTx(x.evote);
       case '투표권자': return x.voter; case '주주명': return x.name; case '주주번호': return x.no; case '대리인': return x.proxy||'-';
       case '사전투표': return !x.pre.length?'미행사':(x.pre.length>1?'중복행사':x.pre[0]);
       case '사전신청': return x.apply||'미신청';
