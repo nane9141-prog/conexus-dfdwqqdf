@@ -411,7 +411,8 @@
 
       /* dot 뱃지가 든 칸은 왼쪽으로 */
       /* 표마다 다르게 둘 칸은 머리글 data-al(l·c·r)로 정렬을 덮어쓴다 */
-      var al = { l: L, c: C, r: R }[th.getAttribute('data-al')] || rl.al;
+      var fix = { l: L, c: C, r: R }[th.getAttribute('data-al')];   /* 머리글이 직접 정한 맞춤 — 찬반 칸이라도 이게 먼저다 */
+      var al = fix || rl.al;
       if (cells.some(function (c) { return c.querySelector('.qmdot,.stbadge,.dotbadge'); })) al = L;
 
       /* 찬반 칸은 표마다 다르다 — 집계 수치면 오른쪽, 체크 표기면 가운데.
@@ -421,13 +422,13 @@
       var filled = cells.filter(function (c) { return txt(c) !== ''; });
       var allNum = filled.length > 0 && filled.every(isNum);
       if (rl.vote) voteHead(th, lb);
-      if (lb) { th.style.textAlign = (rl.vote || rl.auto) ? (allNum ? R : C) : al; }
+      if (lb) { th.style.textAlign = (!fix && (rl.vote || rl.auto)) ? (allNum ? R : C) : (fix === C && rl.vote ? C : al); }
       /* 왼쪽 맞춤 칸은 필터 버튼을 글자 옆에 둔다 — 칸이 넓으면 오른쪽 끝은 너무 멀다 */
       th.classList.toggle('cx-al-l', !!lb && !rl.vote && !rl.auto && al === L);
       /* 보조 수치 칸 — 본문 글자를 muted-foreground로 */
       var mute = /^(주주번호|보유\s*주식수?|지분율|참석\s*주식수)$/.test(lb);
       cells.forEach(function (c) {
-        c.style.textAlign = (rl.vote || rl.auto)
+        c.style.textAlign = (!fix && (rl.vote || rl.auto))
           ? ((c.querySelector('input') || isNum(c) || txt(c) === '') ? (allNum ? R : C) : C)
           : al;
         if (rl.bold) c.style.fontWeight = '600';
