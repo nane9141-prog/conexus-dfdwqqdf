@@ -1488,8 +1488,8 @@
               <th style="width:125px">총 행사가능의결권</th>
               <th style="width:118px">총 행사의결권</th>
               <th style="width:108px">사전의결권</th>
-              <th style="width:108px">현장표결</th>
-              <th style="width:108px">전자표결</th>
+              <th style="width:108px" data-al="r">현장표결</th>
+              <th style="width:108px" data-al="r">전자표결</th>
               <th style="width:108px"><span class="exh for"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>찬성</span></th>
               <th style="width:108px"><span class="exh ag"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>반대</span></th>
               <th style="width:108px"><span class="exh ab"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg>기권</span></th>
@@ -3684,7 +3684,7 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
   function m(v){ return '<td class="mut">'+cm(v)+'</td>'; }
   /* 채널 셀 — 마우스오버 시 그 채널의 찬성·반대·기권 분해. 아직 안 들어온 채널은 0. */
   function chTd(v,F,A,AB,tot){
-    if(!v) return '<td class="mut">0</td>';
+    if(!v) return '<td>0</td>';
     var sh=tot? v/tot : 0;
     var f=Math.round(F*sh), a=Math.round(A*sh), b=v-f-a;
     var tip='찬성 '+cm(f)+' ('+pc(f,v)+')\n반대 '+cm(a)+' ('+pc(a,v)+')\n기권 '+cm(b)+' ('+pc(b,v)+')';
