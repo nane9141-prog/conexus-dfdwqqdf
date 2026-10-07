@@ -670,6 +670,24 @@
   function siteB(s){ return '<span class="atb '+(SITE_C[s]||'gray')+'">'+siteTx(s)+'</span>'; }
   /* 전자주총 출석 — 칸 글자는 출석 / 미출석 */
   function evTx(e){ return e==='참석'?'출석':'미출석'; }
+  /* 주주PASS 시청 페이지를 보고 있으면 전자주총 출석으로 잡는다(박성용 1,200주) */
+  (function(){
+    function live(){
+      try{ var v=JSON.parse(localStorage.getItem('cx.evote')||'null');
+        return (v && v.at && Date.now()-v.at < 20000) ? v : null; }catch(e){ return null; }
+    }
+    function sync(){
+      var v=live(), want=v?'참석':'미참석', hit=false;
+      D.forEach(function(x){
+        if(x.nonsh || x.name!=='박성용' || x.hold!==1200) return;
+        if(x.evote!==want){ x.evote=want; hit=true; }
+      });
+      if(hit) render();
+    }
+    window.addEventListener('storage', function(e){ if(e.key==='cx.evote') sync(); });
+    setInterval(sync, 2000);
+    setTimeout(sync, 0);
+  })();
   function evB(e){ return '<span class="atb '+(e==='참석'?'blue':'off')+'">'+evTx(e)+'</span>'; }
   function apB(a){ a=a||'미신청'; return '<span class="atb '+(a==='신청'?'blue':'off')+'">'+a+'</span>'; }
   /* 전자주총 탭의 참석주식수는 온라인 출석 기준 */
