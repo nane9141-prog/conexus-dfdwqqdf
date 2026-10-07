@@ -148,7 +148,9 @@
     cs.forEach(function (c) { min += c[1] || 180; });
     tbl.style.minWidth = min + 'px';
     document.getElementById('atCols').innerHTML = cs.map(function (c) { return c[1] ? '<col style="width:' + c[1] + 'px">' : '<col>'; }).join('');
-    document.getElementById('atHead').innerHTML = '<tr>' + cs.map(function (c, i) { return '<th' + stick(i) + (c[2] ? ' class="' + c[2] + '"' : '') + '>' + c[0] + '</th>'; }).join('') + '</tr>';
+    document.getElementById('atHead').innerHTML = '<tr>' + cs.map(function (c, i) { return '<th' + stick(i) + (c[2] ? ' class="' + c[2] + '"' : '')
+        + (c[2] === 'c' ? ' data-al="c"' : c[2] === 'n' ? ' data-al="r"' : '')   /* 표 도구에 맞춤을 알려 준다 */
+        + '>' + c[0] + '</th>'; }).join('') + '</tr>';
   }
   function tr(x, child) { var cs = COLS[cur]; return '<tr data-k="' + x.k + '"' + (child ? ' class="child"' : '') + '>' + cs.map(function (c, j) { return '<td' + stick(j) + cls(c, child) + '>' + cell(x, c[0], child) + '</td>'; }).join('') + '</tr>'; }
   function render() {
