@@ -141,66 +141,99 @@
   .badge.red{background:#fdecec;color:#dc2626}
   .badge.gray{background:#f1f1f2;color:#737373}
   .badge.amber{background:#fef6e7;color:#b45309}
-  /* 확인증 — 요약 · 각주 · 발급정보 · 워터마크 */
-  .cert-doc{position:relative}
-  .cert-wm{position:absolute;left:50%;top:46%;width:534px;transform:translate(-50%,-50%) rotate(-30deg);
-    opacity:.05;font-size:64px;font-weight:800;letter-spacing:.06em;text-align:center;color:#171717;pointer-events:none;user-select:none}
-  .cert-sum{display:flex;gap:8px;margin:0 0 14px}
-  .cert-sum .c{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding:10px 12px;background:#FAFAFA;
-    border:1px solid #E5E5E5;border-radius:8px}
-  .cert-sum .c .lb{font-size:10px;line-height:14px;color:#6b7280}
-  .cert-sum .c .vl{font-size:13px;line-height:18px;font-weight:600;color:#171717}
-  .cert-sub{margin:8px 0 14px;padding:10px 12px;background:#FAFAFA;border-radius:8px}
-  .cert-sub .h{font-size:11px;font-weight:600;color:#374151;margin-bottom:4px}
-  .cert-sub .r{display:flex;gap:8px;font-size:11px;line-height:16px;color:#4b5563}
-  .cert-sub .r b{font-weight:600;color:#171717}
-  .cert-fn{margin:6px 0 14px;font-size:10px;line-height:15px;color:#6b7280}
-  .cert-iss{display:flex;align-items:center;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid #E5E5E5}
-  .cert-iss .tx{flex:1;min-width:0;font-size:10px;line-height:15px;color:#6b7280}
-  .cert-iss .tx b{font-weight:600;color:#374151}
-  .cert-qr{width:52px;height:52px;flex:none;border:1px solid #E5E5E5;border-radius:4px;
-    display:flex;align-items:center;justify-content:center;font-size:8px;color:#9ca3af;background:#fff}
-  /* 케이스 — 축약본은 기준 정보와 요약을 뺀다 */
-  .cert-doc.brief .cert-info,.cert-doc.brief .cert-svc,.cert-doc.brief .cert-sum{display:none}
-  .cert-doc:not(.multi) .cert-sub.x2,.cert-doc:not(.multi) .cert-sub.x3{display:none}
-  /* 결과확인증 모달 */
+  /* ===== 결과 확인증 (Figma 8060:174287 · 8060:172271) ===== */
   .cert-ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center;padding:24px}
   .cert-ov.show{display:flex}
-  .cert-modal{width:1000px;max-width:100%;max-height:90vh;overflow:hidden;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.08);display:flex;flex-direction:column}
-  .cert-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
-  .cert-hd .t{font-size:16px;font-weight:600}
-  .cert-x{width:28px;height:28px;border:none;background:none;cursor:pointer;color:#0a0a0a;border-radius:7px;display:flex;align-items:center;justify-content:center}
-  .cert-x:hover{background:var(--muted)}
-  .cert-body{display:flex;flex:1;min-height:0}
-  .cert-nav{width:236px;flex:none;border-right:1px solid var(--border);padding:18px;display:flex;flex-direction:column;gap:8px;background:#fff}
-  .cert-nav .nt{font-size:15px;font-weight:600;margin-bottom:6px}
-  .cert-navi{padding:12px 14px;border:1px solid var(--border);border-radius:10px;font-size:13px;color:#404040;cursor:pointer;background:#fff;text-align:left;font-family:inherit}
-  .cert-navi:hover{background:var(--muted)}
-  .cert-navi.active{background:#eef4ff;border-color:#bcd7ff;color:#1d4ed8;font-weight:600}
-  .cert-doc-wrap{flex:1;padding:22px;overflow:auto;background:#f4f5f7}
-  .cert-doc{background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:32px 36px;color:#1f2937;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-  .cert-top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1f2937;padding-bottom:16px}
-  .cert-co{font-size:13px;line-height:1.7}
-  .cert-co b{font-size:15px}
-  .cert-title{text-align:right}
-  .cert-title .bg{font-size:26px;font-weight:700;letter-spacing:12px;color:#1e3a8a}
-  .cert-title .sub{font-size:14px;color:#1e40af;margin-top:6px;letter-spacing:2px}
-  .cert-info{display:grid;grid-template-columns:1fr 1fr;gap:0 40px;padding:18px 0;border-bottom:1px solid #e5e7eb}
-  .cert-info .r{display:flex;gap:16px;padding:6px 0;font-size:13px}
-  .cert-info .r .lb{width:120px;color:#6b7280;flex:none}
-  .cert-info .r .vl{color:#111827;font-weight:600}
-  .cert-svc{font-size:13px;padding:14px 0;border-bottom:1px solid #e5e7eb;line-height:1.7}
-  .cert-svc .lb{color:#6b7280;margin-right:8px}
-  table.cert-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:16px}
-  .cert-tbl th{text-align:right;font-weight:600;color:#374151;padding:9px 8px;border-bottom:1px solid #cbd5e1}
+  .cert-modal{position:relative;max-height:92vh;background:#fff;border:1px solid rgba(10,10,10,.1);
+    border-radius:14px;overflow:hidden;display:flex}
+  .cert-x{position:absolute;right:15px;top:15px;width:16px;height:16px;border:0;background:none;padding:0;
+    cursor:pointer;color:#0a0a0a;opacity:.7;display:flex;align-items:center;justify-content:center;z-index:2}
+  .cert-x:hover{opacity:1}
+  .cert-x .ph{font-size:16px}
+  /* 왼쪽 — 발급 설정 */
+  .cert-side{width:260px;flex:none;display:flex;flex-direction:column;background:#fff}
+  .cert-sh{display:flex;flex-direction:column;gap:8px;padding:20px}
+  .cert-sh .t{font-size:16px;line-height:1;font-weight:600;letter-spacing:-.16px;color:#0a0a0a}
+  .cert-sh .d{font-size:14px;line-height:20px;letter-spacing:-.14px;color:#737373}
+  .cert-sc{display:flex;flex-direction:column;gap:20px;padding:0 20px 20px}
+  .cert-sel{box-sizing:border-box;width:100%;height:32px;padding:0 8px 0 10px;border:1px solid #e5e5e5;
+    border-radius:10px;background:#fff;font-family:inherit;font-size:14px;letter-spacing:-.14px;color:#0a0a0a;
+    cursor:pointer;appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230a0a0a' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 10px center;background-size:12px}
+  .cert-grp{display:flex;flex-direction:column;gap:16px}
+  .cert-fld{display:flex;flex-direction:column;gap:8px}
+  .cert-fld .k{font-size:12px;line-height:16px;letter-spacing:-.12px;color:#0a0a0a}
+  .cert-fld .v{font-size:14px;line-height:1;font-weight:500;letter-spacing:-.14px;color:#0a0a0a}
+  .cert-ck{display:flex;gap:8px;align-items:flex-start;width:100%;box-sizing:border-box;padding:10px;
+    border:1px solid #e5e5e5;border-radius:8px;background:#fff;cursor:pointer;text-align:left;font-family:inherit}
+  .cert-ck .bx{flex:none;width:16px;height:16px;border:1px solid #e5e5e5;border-radius:4px;background:#fff;
+    position:relative;transition:.12s}
+  .cert-ck .bx::after{content:"";position:absolute;left:4.6px;top:2.4px;width:4px;height:7.6px;
+    border:1.8px solid #fff;border-left:0;border-top:0;transform:rotate(45deg);opacity:0;transition:.12s}
+  .cert-ck.on .bx{background:#171717;border-color:#171717}
+  .cert-ck.on .bx::after{opacity:1}
+  .cert-ck .ct{display:flex;flex-direction:column;gap:6px}
+  .cert-ck .ct b{font-size:14px;line-height:1;font-weight:500;letter-spacing:-.14px;color:#0a0a0a}
+  .cert-ck .ct span{font-size:12px;line-height:16px;letter-spacing:-.12px;color:#737373}
+  /* 오른쪽 — 미리보기 */
+  .cert-prev{background:#fafafa;padding:16px;display:flex;flex-direction:column;gap:8px;min-height:0}
+  .cert-doc-wrap{width:540px;flex:1;min-height:0;overflow:auto;background:#fff}
+  .cert-ft{display:flex;gap:8px;align-items:center;justify-content:center;padding:8px 16px}
+  .cert-btn{height:32px;padding:0 10px;border:1px solid #e5e5e5;border-radius:10px;background:#fff;
+    font-family:inherit;font-size:14px;font-weight:500;letter-spacing:-.14px;color:#0a0a0a;cursor:pointer}
+  .cert-btn.pri{background:#171717;border-color:#171717;color:#fafafa}
+  /* ── 확인증 문서 ── */
+  .cert-doc{position:relative;box-sizing:border-box;width:540px;padding:30px;background:#fff;color:#0a0a0a;
+    font-size:12px;letter-spacing:-.12px}
+  .cert-doc + .cert-doc{border-top:8px solid #fafafa}
+  .cert-doc .rule{height:1px;background:#171717}
+  .cert-doc .ttl{margin:32px 0 28px;font-size:24px;line-height:1;font-weight:700;text-align:center;color:#171717;letter-spacing:-.24px}
+  .cert-info{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  .cert-info .r{display:flex;gap:16px;align-items:baseline;padding:7px 0;border-bottom:1px solid #f0f0f0}
+  .cert-info .r .lb{width:88px;flex:none;color:#737373}
+  .cert-info .r .vl{flex:1;min-width:0;font-weight:600;color:#0a0a0a}
+  .cert-svc{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;padding:10px 0 0}
+  .cert-svc .lb{margin-right:4px;color:#737373}
+  .cert-svc .p{color:#737373}
+  .cert-svc .p b{margin-left:6px;font-weight:600;color:#0a0a0a}
+  .cert-sum{display:flex;gap:0;margin:16px 0 0;border:1px solid #e5e5e5;border-radius:8px;overflow:hidden}
+  .cert-sum .c{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;padding:10px 12px}
+  .cert-sum .c + .c{border-left:1px solid #e5e5e5}
+  .cert-sum .c .lb{font-size:10px;line-height:14px;color:#737373}
+  .cert-sum .c .vl{font-size:13px;line-height:18px;font-weight:700;color:#0a0a0a}
+  .cert-h2{margin:22px 0 8px;font-size:14px;font-weight:700;letter-spacing:-.14px;color:#0a0a0a}
+  table.cert-tbl{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+  .cert-tbl th{padding:8px 4px;text-align:right;font-weight:400;color:#737373;vertical-align:bottom;
+    border-bottom:1px solid #e5e5e5;line-height:14px}
   .cert-tbl th.l{text-align:left}
-  .cert-tbl td{text-align:right;padding:11px 8px;border-bottom:1px solid #eef0f3;font-variant-numeric:tabular-nums}
+  .cert-tbl th.c{text-align:center}
+  .cert-tbl td{padding:9px 4px;text-align:right;border-bottom:1px solid #f2f2f2;
+    font-variant-numeric:tabular-nums;color:#0a0a0a}
   .cert-tbl td.l{text-align:left}
-  .cert-tbl td.res{font-weight:700}
-  .cert-sign{display:flex;justify-content:flex-end;gap:48px;margin-top:34px;font-size:14px;color:#111827}
-  .cert-sign .s{display:inline-flex;align-items:center;gap:10px}
-  .cert-sign .stamp{width:38px;height:38px;border-radius:50%;border:1px dashed #ef4444;color:#ef4444;font-size:11px;display:inline-flex;align-items:center;justify-content:center}
-  .cert-ft{display:flex;justify-content:center;padding:16px;border-top:1px solid var(--border)}
+  .cert-tbl td.c{text-align:center}
+  .cert-tbl tr.grp td{background:#fafafa;color:#0a0a0a}
+  .cert-tbl tr.ch td{color:#737373;border-bottom:1px solid #f7f7f7}
+  .cert-tbl tr.ch td.l{padding-left:14px}
+  .cert-res{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:5px;
+    font-size:11px;font-weight:500}
+  .cert-res.ok{background:#EEF5FF;color:#0071F3}
+  .cert-res.no{background:#FFF1F2;color:#E9081B}
+  .cert-res.dr{background:#F5F5F5;color:#737373}
+  .cert-fn{margin:8px 0 0;font-size:10px;line-height:15px;color:#737373}
+  .cert-foot{margin-top:40px;padding-top:16px;border-top:1px solid #e5e5e5;display:flex;align-items:flex-end;gap:16px}
+  .cert-co{flex:1;min-width:0}
+  .cert-co b{display:block;font-size:13px;font-weight:700;color:#0a0a0a}
+  .cert-co span{font-size:11px;color:#737373}
+  .cert-sign{display:flex;gap:20px;align-items:center}
+  .cert-sign .s{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#0a0a0a}
+  .cert-stamp{width:30px;height:30px;border-radius:50%;border:1.6px solid #d93025;color:#d93025;
+    font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;
+    letter-spacing:-1px;line-height:1.05;text-align:center;transform:rotate(-8deg)}
+  .cert-iss{display:flex;justify-content:space-between;align-items:center;margin-top:22px;font-size:10px;color:#737373}
+  .cert-wm{position:absolute;left:50%;top:46%;width:520px;transform:translate(-50%,-50%) rotate(-24deg);
+    opacity:.05;font-size:72px;font-weight:800;letter-spacing:.06em;text-align:center;color:#171717;
+    pointer-events:none;user-select:none}
 
   /* ===== 공통 toolbar (evote-records 패턴) ===== */
   .hbtns{display:flex;align-items:center;gap:8px}
@@ -441,81 +474,42 @@
 
 <div class="cert-ov" id="certOv">
   <div class="cert-modal">
-    <div class="cert-hd"><div class="t">결과 확인증 발급</div><button class="cert-x" id="certX"><i class="ph ph-x" style="font-size:18px"></i></button></div>
-    <div class="cert-body">
-      <div class="cert-nav">
-        <div class="nt">결과 확인증 발급</div>
-        <button class="cert-navi active" data-cert="ev">전자주주총회 결과확인증</button>
-        <button class="cert-navi" data-cert="gm">주주총회 결과확인증</button>
-        <button class="cert-navi" data-cert="ev2">전자투표/위임 결과확인증</button>
+    <button class="cert-x" id="certX" type="button" aria-label="닫기"><i class="ph ph-x"></i></button>
+    <!-- 왼쪽 : 발급 설정 -->
+    <div class="cert-side">
+      <div class="cert-sh">
+        <div class="t">결과 확인증 발급</div>
+        <div class="d">발급이 필요한 확인증을 선택하세요.</div>
       </div>
-      <div class="cert-doc-wrap">
-        <div class="cert-doc">
-          <div class="cert-top">
-            <div class="cert-co"><b>(주)아이알큐더스</b><br>서울특별시 영등포구 국제금융로8길 2, 14층<br>공동대표: 이종승 · 이준호</div>
-            <div class="cert-title"><div class="bg">결과확인증</div><div class="sub" id="certSub">전자주주총회</div></div>
+      <div class="cert-sc">
+        <select class="cert-sel" id="certKind">
+          <option value="ev">전자주주총회 결과확인증</option>
+          <option value="gm">주주총회 결과 확인증</option>
+          <option value="ev2">전자투표, 위임 결과 확인증</option>
+        </select>
+        <div class="cert-grp">
+          <div class="cert-fld">
+            <span class="k">기본 정보</span>
+            <span class="v" id="certBase">의결권 내역, 찬성 비율, 표결 결과</span>
           </div>
-          <div class="cert-info">
-            <div class="r"><span class="lb">회사명</span><span class="vl">카카오뱅크</span></div>
-            <div class="r"><span class="lb">총발행주식수</span><span class="vl"><span data-cx="meeting.sharesIssued">476,211,964</span>주</span></div>
-            <div class="r"><span class="lb">행사명</span><span class="vl">제10기 정기주주총회</span></div>
-            <div class="r"><span class="lb">총행사가능의결권</span><span class="vl">476,211,964주</span></div>
-            <div class="r"><span class="lb">주주총회 일시</span><span class="vl">2026-09-29 09:00</span></div>
-            <div class="r"><span class="lb">총행사의결권</span><span class="vl"><span data-cx="meeting.attendShares">300,000,000</span>주</span></div>
-            <div class="r"><span class="lb">전자투표/위임 기간</span><span class="vl">2026-09-14 ~ 2026-09-28</span></div>
-            <div class="r"><span class="lb">총행사주주수</span><span class="vl"><span data-cx="meeting.attendHolders">300,000</span>명</span></div>
-            <div class="r"><span class="lb">주주명부 기준일</span><span class="vl">2025-12-31</span></div>
-            <div class="r"><span class="lb">행사율</span><span class="vl">63.0%</span></div>
+          <div class="cert-fld">
+            <span class="k">추가 정보</span>
+            <button class="cert-ck" id="certCh" type="button">
+              <span class="bx"></span>
+              <span class="ct"><b>채널별 행사 내역</b><span>전자투표, 서면, 현장, 온라인</span></span>
+            </button>
           </div>
-          <div class="cert-svc"><span class="lb">이용 서비스</span>전자투표/위임 큐더스 주주총회 플랫폼, 한국예탁결제원 · 서면투표/위임 진행 · 현장투표 진행 · 주주총회 생중계 진행</div>
-          <div class="cert-sum">
-            <div class="c"><div class="lb">발행주식총수</div><div class="vl">476,211,964주</div></div>
-            <div class="c"><div class="lb">행사가능의결권 (A)</div><div class="vl">471,661,174주</div></div>
-            <div class="c"><div class="lb">의결권행사 (B)</div><div class="vl">300,000,000주</div></div>
-            <div class="c"><div class="lb">참석률 (B/A)</div><div class="vl">63.6%</div></div>
-          </div>
-          <table class="cert-tbl">
-            <thead><tr><th class="l">의안 번호</th><th class="l">의안명</th><th>찬성</th><th>반대</th><th>기권</th><th class="l" style="text-align:center;width:78px">결과</th></tr></thead>
-            <tbody>
-              <tr><td class="l">제1호</td><td class="l">재무제표 승인의 건</td><td>241,800,000</td><td>58,200,000</td><td>0</td><td class="res" style="text-align:center;color:#0a8a3c">가결</td></tr>
-              <tr><td class="l">제2-1호</td><td class="l">집중투표제 배제 조항 삭제의 건</td><td>173,700,000</td><td>126,300,000</td><td>0</td><td class="res" style="text-align:center;color:#0a8a3c">가결</td></tr>
-              <tr><td class="l">제2-2호</td><td class="l">전자주주총회 도입 관련 변경</td><td>240,600,000</td><td>59,400,000</td><td>0</td><td class="res" style="text-align:center;color:#0a8a3c">가결</td></tr>
-              <tr><td class="l">제2-3호</td><td class="l">의결권 대리행사 수단 확대</td><td>240,600,000</td><td>59,400,000</td><td>0</td><td class="res" style="text-align:center;color:#0a8a3c">가결</td></tr>
-              <tr><td class="l">제3-1호</td><td class="l">집중투표 후보 4인 중 2인 선임의 건</td><td colspan="3" style="text-align:center;color:#6b7280">김근수 · 진웅섭 선임 (총 600,000,000표)</td><td class="res" style="text-align:center;color:#0a8a3c">가결</td></tr>
-              <tr><td class="l">제3-2호</td><td class="l">감사위원이 되는 사외이사 선임의 건</td><td>238,800,000</td><td>61,200,000</td><td>0</td><td class="res" style="text-align:center;color:#0a8a3c">가결</td></tr>
-            </tbody>
-          </table>
-          <div class="cert-sub">
-            <div class="h">제3-1호 · 집중투표 후보별 득표</div>
-            <div class="r"><b>김근수</b> 410,471,124표 (68.4%)<b style="margin-left:auto">선임</b></div>
-            <div class="r"><b>진웅섭</b> 121,475,008표 (20.2%)<b style="margin-left:auto">선임</b></div>
-            <div class="r"><b>남상일</b> 58,810,427표 (9.8%)<span style="margin-left:auto">미선임</span></div>
-            <div class="r"><b>박선화</b> 9,243,441표 (1.6%)<span style="margin-left:auto">미선임</span></div>
-          </div>
-          <div class="cert-sub x2">
-            <div class="h">제3-2호 · 감사위원이 되는 사외이사</div>
-            <div class="r"><b>이도현</b> 238,800,000표 (79.6%)<b style="margin-left:auto">선임</b></div>
-          </div>
-          <div class="cert-sub x3">
-            <div class="h">제2호 · 정관 변경 소계</div>
-            <div class="r"><b>제2-1호 ~ 제2-3호</b> 전건 가결<b style="margin-left:auto">특별결의</b></div>
-          </div>
-          <div class="cert-fn">1) 반대주식수는 반대, 기권 및 무효를 포함합니다.</div>
-          <div class="cert-sign">
-            <span class="s">공동대표 이종승 <span class="stamp">인</span></span>
-            <span class="s">공동대표 이준호 <span class="stamp">인</span></span>
-          </div>
-          <div class="cert-iss">
-            <div class="tx"><b>발급번호</b> CNX-2026-0327-000481<br>
-              <b>발급일시</b> 2026-09-29 12:40<br>
-              <b>진위확인</b> verify.conexus.co.kr</div>
-            <div class="cert-qr">QR</div>
-          </div>
-          <div class="cert-wm">conexus</div>
         </div>
       </div>
     </div>
-    <div class="cert-ft"><button class="ty-btn-pri" id="certDl">확인증 다운로드</button></div>
+    <!-- 오른쪽 : 미리보기 -->
+    <div class="cert-prev">
+      <div class="cert-doc-wrap" id="certDoc"></div>
+      <div class="cert-ft">
+        <button class="cert-btn" id="certClose" type="button">닫기</button>
+        <button class="cert-btn pri" id="certDl" type="button">다운로드</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -849,26 +843,127 @@
         menu.querySelectorAll('.ty-mi').forEach(function(x){x.classList.toggle('cur',x===m);});
         agRender(); kpiRender();
       }); }); })();
-  // 결과확인증 모달
-  (function(){ var ov=document.getElementById('certOv'),open=document.getElementById('tyCert'),x=document.getElementById('certX'),sub=document.getElementById('certSub'),dl=document.getElementById('certDl');
-    var SUB={ev:'전자주주총회',gm:'주주총회',ev2:'전자투표/위임'};
-    if(open)open.addEventListener('click',function(){ov.classList.add('show');});
-    if(x)x.addEventListener('click',function(){ov.classList.remove('show');});
-    /* ev  : 기준 정보 + 요약 + 집중투표 소그룹
-       gm  : 위 내용에 소그룹 블록을 더 얹는다
-       ev2 : 기준 정보·요약 없이 의안 표만 담는 축약본 */
-    var doc=document.querySelector('.cert-doc');
-    function variant(k){
-      if(!doc) return;
-      doc.classList.toggle('brief', k==='ev2');
-      doc.classList.toggle('multi', k==='gm');
+  /* ===== 결과 확인증 (Figma 8060:174287) =====
+     왼쪽에서 종류와 추가 정보를 고르면 오른쪽 문서가 바로 다시 그려진다.
+     수치는 전부 CX(SSOT)에서 가져온다. */
+  (function(){
+    var ov=document.getElementById('certOv'); if(!ov) return;
+    var open=document.getElementById('tyCert'), x=document.getElementById('certX'),
+        cl=document.getElementById('certClose'), dl=document.getElementById('certDl'),
+        sel=document.getElementById('certKind'), ck=document.getElementById('certCh'),
+        base=document.getElementById('certBase'), host=document.getElementById('certDoc');
+    var M=CX.meeting, C=CX.center, cm=CX.util.comma;
+    var KIND={
+      ev :{ ttl:'전자주주총회 결과 확인증', base:'의결권 내역, 찬성 비율, 표결 결과' },
+      gm :{ ttl:'주주총회 결과 확인증',     base:'의결권 내역, 찬성 비율, 표결 결과' },
+      ev2:{ ttl:'전자투표·위임 결과 확인증', base:'전자투표·위임 행사 내역, 찬성 비율' }
+    };
+    /* 채널 비중 — 확인증에 나누어 적을 때 쓴다(전자투표·서면·현장·온라인) */
+    var CHAN=[['전자투표(사전)',.46],['서면위임(사전)',.26],['현장투표',.13],['온라인투표',.15]];
+    var ISSUE=M.sharesIssued, ABLE=Math.round(ISSUE*0.9904), EX=M.attendShares;
+    function pc(a,b){ return b?(Math.round(a/b*1000)/10).toFixed(1)+'%':'−'; }
+    function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+    function resTag(r){
+      var k=r==='가결'?'ok':r==='부결'?'no':'dr';
+      return '<span class="cert-res '+k+'">'+esc(r)+'</span>';
     }
-    variant('ev');
-    document.querySelectorAll('.cert-navi').forEach(function(b){b.addEventListener('click',function(){
-      document.querySelectorAll('.cert-navi').forEach(function(x){x.classList.toggle('active',x===b);});
-      if(sub)sub.textContent=SUB[b.dataset.cert]||'전자주주총회';
-      variant(b.dataset.cert); });});
-    if(dl)dl.addEventListener('click',function(){if(window.cxToast)cxToast('확인증을 다운로드했습니다.');}); })();
+    /* 의안 한 줄 — 채널 상세를 켜면 아래에 채널별 줄이 붙는다 */
+    function row(no,nm,fo,ag,res,ch){
+      var tot=fo+ag, out='<tr><td class="l">'+esc(no)+'. '+esc(nm)+'</td>'
+        +'<td>'+cm(fo)+'</td><td>'+cm(ag)+'</td>'
+        +'<td>'+pc(fo,ABLE)+'</td><td>'+pc(fo,tot)+'</td><td>'+pc(ag,tot)+'</td>'
+        +'<td class="c">'+resTag(res)+'</td></tr>';
+      if(!ch) return out;
+      CHAN.forEach(function(c){
+        var f=Math.round(fo*c[1]), a=Math.round(ag*c[1]), t=f+a;
+        out+='<tr class="ch"><td class="l">'+c[0]+'</td><td>'+cm(f)+'</td><td>'+cm(a)+'</td>'
+          +'<td>'+pc(f,ABLE)+'</td><td>'+pc(f,t)+'</td><td>'+pc(a,t)+'</td><td class="c"></td></tr>';
+      });
+      return out;
+    }
+    function rows(ch){
+      var out='';
+      CX.agenda.forEach(function(a){
+        if(a.header) return;
+        var d=C[a.no]||{};
+        if(d.type==='집중투표'){
+          out+='<tr class="grp"><td class="l">'+esc(a.no)+'. '+esc(a.nm)+'</td>'
+            +'<td colspan="5"></td><td class="c">'+resTag('집중투표')+'</td></tr>';
+          (d.cands||[]).slice().sort(function(p,q){return p.rank-q.rank;}).forEach(function(c){
+            out+=row(c.no,c.name,c.votes,0,c.elected?'가결':'부결',ch);
+          });
+          return;
+        }
+        if(d.type==='양립불가'){
+          out+='<tr class="grp"><td class="l">'+esc(a.no)+'. '+esc(a.nm)+'</td>'
+            +'<td colspan="5"></td><td class="c">'+resTag('분리의안')+'</td></tr>';
+          (d.options||[]).forEach(function(o){ out+=row(o.no,o.name,o['for']||0,o.against||0,o.result||'부결',ch); });
+          return;
+        }
+        out+=row(a.no,a.nm,d['for']||0,d.against||0,(d['for']||0)>(d.against||0)?'가결':'부결',ch);
+      });
+      return out;
+    }
+    function docHTML(k,ch){
+      var K=KIND[k]||KIND.ev;
+      return '<div class="cert-doc">'
+        + '<div class="rule"></div>'
+        + '<div class="ttl">'+K.ttl+'</div>'
+        + '<div class="cert-info">'
+        +   '<div class="r"><span class="lb">회사명</span><span class="vl">'+esc(M.company||'큐더스전자')+'</span></div>'
+        +   '<div class="r"><span class="lb">행사명</span><span class="vl">'+esc(M.name||'제10기 정기주주총회')+'</span></div>'
+        +   '<div class="r"><span class="lb">주주총회 일시</span><span class="vl">'+esc(M.date)+' 09:00</span></div>'
+        +   '<div class="r"><span class="lb">주주명부 기준일</span><span class="vl">2025-12-31</span></div>'
+        +   '<div class="r"><span class="lb">전자투표/위임 기간</span><span class="vl">2026-09-14 ~ 2026-09-28</span></div>'
+        +   '<div class="r"><span class="lb">행사 주주수</span><span class="vl">'+cm(M.attendHolders||100060)+'</span></div>'
+        + '</div>'
+        + '<div class="cert-svc"><span class="lb">이용 서비스</span>'
+        +   '<span class="p">전자투표/위임<b>주주PASS</b></span>'
+        +   '<span class="p">서면투표/위임<b>사용</b></span>'
+        +   '<span class="p">현장투표<b>앱 사용</b></span>'
+        +   '<span class="p">전자주주총회<b>이용</b></span></div>'
+        + '<div class="cert-sum">'
+        +   '<div class="c"><div class="lb">발행주식총수</div><div class="vl">'+cm(ISSUE)+'</div></div>'
+        +   '<div class="c"><div class="lb">행사가능의결권(A)</div><div class="vl">'+cm(ABLE)+'</div></div>'
+        +   '<div class="c"><div class="lb">의결권행사(B)</div><div class="vl">'+cm(EX)+'</div></div>'
+        +   '<div class="c"><div class="lb">참석률(B/A)</div><div class="vl">'+pc(EX,ABLE)+'</div></div>'
+        + '</div>'
+        + '<div class="cert-h2">표결 결과 상세'+(ch?'(1/2)':'')+'</div>'
+        + '<table class="cert-tbl"><colgroup>'
+        +   '<col><col style="width:74px"><col style="width:62px"><col style="width:62px">'
+        +   '<col style="width:62px"><col style="width:56px"><col style="width:44px"></colgroup>'
+        +   '<thead><tr><th class="l">의안명</th><th>찬성</th><th>반대<sup>1)</sup></th>'
+        +     '<th>행사가능의결권<br>기준 찬성률</th><th>의결권행사<br>기준 찬성률</th>'
+        +     '<th>반대/기권<br>(률)</th><th class="c">결과</th></tr></thead>'
+        +   '<tbody>'+rows(ch)+'</tbody></table>'
+        + '<div class="cert-fn">1) 반대주식수는 반대, 기권 및 무효 포함</div>'
+        + '<div class="cert-foot">'
+        +   '<div class="cert-co"><b>(주)아이알큐더스</b><span>서울특별시 영등포구 국제금융로8길 2, 14층</span></div>'
+        +   '<div class="cert-sign">'
+        +     '<span class="s">공동대표 이준호<span class="cert-stamp">큐더<br>스</span></span>'
+        +     '<span class="s">공동대표 이종승<span class="cert-stamp">큐더<br>스</span></span>'
+        +   '</div>'
+        + '</div>'
+        + '<div class="cert-iss"><span>'+esc(M.date)+' 11:24</span>'
+        +   '<span>본 확인증은 conexus에서 발급 하였습니다.</span></div>'
+        + '<div class="cert-wm">CONEXUS</div>'
+        + '</div>';
+    }
+    function draw(){
+      var k=sel.value, ch=ck.classList.contains('on');
+      base.textContent=(KIND[k]||KIND.ev).base;
+      host.innerHTML=docHTML(k,ch);
+      host.scrollTop=0;
+    }
+    if(open) open.addEventListener('click',function(){ draw(); ov.classList.add('show'); });
+    function close(){ ov.classList.remove('show'); }
+    if(x) x.addEventListener('click',close);
+    if(cl) cl.addEventListener('click',close);
+    ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+    sel.addEventListener('change',draw);
+    ck.addEventListener('click',function(){ ck.classList.toggle('on'); draw(); });
+    if(dl) dl.addEventListener('click',function(){ if(window.cxToast) cxToast('확인증을 다운로드했습니다.'); });
+  })();
   /* 다운로드 — 무엇을 받을지 고르고, 주주별은 사유와 동의를 받는다 */
   (function(){
     var ov=document.getElementById('dlOv'), rsn=document.getElementById('dlRsnOv');
