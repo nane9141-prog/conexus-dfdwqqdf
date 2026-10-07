@@ -206,11 +206,11 @@
   table.cert-tbl{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
   .cert-tbl th{padding:8px 6px;text-align:right;font-weight:400;color:#737373;vertical-align:bottom;
     border-bottom:1px solid #e5e5e5;line-height:14px}
-  .cert-tbl th.l{text-align:left}
+  .cert-tbl th.l{text-align:left;white-space:nowrap}
   .cert-tbl th.c{text-align:center}
   .cert-tbl td{padding:9px 6px;text-align:right;border-bottom:1px solid #f2f2f2;
     font-variant-numeric:tabular-nums;color:#0a0a0a}
-  .cert-tbl td.l{text-align:left}
+  .cert-tbl td.l{text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .cert-tbl td.c{text-align:center}
   .cert-tbl tr.grp td{background:#fafafa;color:#0a0a0a}
   .cert-tbl tr.ch td{color:#737373;border-bottom:1px solid #f7f7f7}
@@ -929,7 +929,7 @@
         +   '<div class="c"><div class="lb">참석률(B/A)</div><div class="vl">'+pc(EX,ABLE)+'</div></div>'
         + '</div>'
         + '<div class="cert-h2">표결 결과 상세'+(ch?'(1/2)':'')+'</div>'
-        + '<table class="cert-tbl"><colgroup>'
+        + '<table class="cert-tbl" data-nocx><colgroup>'
         +   '<col><col style="width:104px"><col style="width:92px"><col style="width:86px">'
         +   '<col style="width:86px"><col style="width:76px"><col style="width:56px"></colgroup>'
         +   '<thead><tr><th class="l">의안명</th><th>찬성</th><th>반대<sup>1)</sup></th>'
