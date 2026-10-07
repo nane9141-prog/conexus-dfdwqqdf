@@ -256,6 +256,8 @@
   .iabtn.dark{background:#171717;border-color:#171717;color:#FAFAFA}
   .iabtn.red{background:rgba(220,38,38,.1);border-color:transparent;color:#E9081B}
   .iabtn.ic{padding:0;width:28px;height:28px}
+  .iabtn.ghost{border-color:transparent;background:none;padding:0 8px;color:#0A0A0A}
+  .iabtn.ghost i{font-size:14px}
   .iabtn:disabled{background:#F5F5F5;border-color:#EEEEEE;color:#BDBDBD;cursor:default}
   .iabtn.dark:disabled{background:#F5F5F5;border-color:#EEEEEE;color:#BDBDBD}
   /* 더보기 — 마감한 표결을 다시 여는 길만 둔다 */
@@ -1942,10 +1944,10 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
      마감할 수 없는 동안에는 자리만 지키고 눌리지 않는다. */
   var LOCK={t:'표결 마감',c:'dark',dis:1};
   var STAGES=[
-    {cls:'',name:'의안 상정 대기중',right:[{t:'의안 상정',c:'',go:1},LOCK]},
+    {cls:'',name:'의안 상정 대기중',right:[{t:'상정문',c:'ghost',doc:0},{t:'의안 상정',c:'',go:1},LOCK]},
     {cls:'',name:'의안 상정 중',right:[{t:'투표 시작',c:'dark',go:2},LOCK]},
     {cls:'ia-voting',name:'투표 진행 중',red:1,sub:'출석·미투표 주주',sel:1,timer:1,right:[{t:'투표 종료',c:'red',go:3},LOCK]},
-    {cls:'ia-fill',name:'결과 확인 중',sub:'출석·미투표 주주',sel:1,timer:1,right:[{t:'투표 재개',c:'play',go:2},{t:'표결 마감',c:'dark',go:4}]},
+    {cls:'ia-fill',name:'결과 확인 중',sub:'출석·미투표 주주',sel:1,timer:1,right:[{t:'표결문',c:'ghost',doc:1},{t:'투표 재개',c:'play',go:2},{t:'표결 마감',c:'dark',go:4}]},
     {cls:'ia-wait',name:'표결 마감',sub:'출석 · 미투표',selStatic:'기권 처리',timer:1,right:[{t:'결과 공표',c:'dark',act:'declare'},{t:'',c:'dots'}]}
   ];
   /* done — 표결 마감(4단계)까지 간 의안. 의결권 행사현황의 결과 칸이 이걸 본다. */
@@ -1999,6 +2001,11 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
           +'<span class="ctrl-menu"><button type="button" data-go="2">표결 재개</button></span></span>';
         return;
       }
+      if(b.doc!=null){   /* 상정문 · 표결문 — 의장용 대본을 띄운다 */
+        r+='<button class="iabtn ghost" type="button" data-doc="'+b.doc+'">'
+          +'<i class="ph ph-file-text"></i>'+b.t+'</button>';
+        return;
+      }
       var dis=b.dis?' disabled':'';
       var go=b.go!=null?' data-go="'+b.go+'"':(b.act?' data-act="'+b.act+'"':'');
       if(b.c==='play') r+='<button class="iabtn" type="button"'+go+dis+'>'+PLAY+b.t+'</button>';
@@ -2007,6 +2014,10 @@ var SPEECHES=[{"id": "S1-01", "ag": "1", "sub": "", "name": "서준서", "t": "�
     r+='</div>';
     el.className='ctrlbar '+m.key;
     el.innerHTML=l+r;
+    el.querySelectorAll('[data-doc]').forEach(function(b){ b.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(window.openScript) openScript(+b.getAttribute('data-doc'));
+    }); });
     el.querySelectorAll('[data-go]').forEach(function(b){ b.addEventListener('click',function(e){
       e.stopPropagation();
       var mo=document.getElementById('ctrlMore'); if(mo) mo.classList.remove('open');
