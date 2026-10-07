@@ -74,11 +74,11 @@
   .rst.pass{background:#EEF5FF;color:#0071F3}.rst.fail{background:#FEE2E2;color:#DC2626}
   .rst.drop{background:#F5F5F5;color:#A3A3A3}.rst.wait{background:#F5F5F5;color:#737373}
   .ty-tbl td.no{text-align:left;color:#737373;padding-left:12px}   /* 의안 번호 — 숫자만, 들여쓰기 없음 */
-  .ty-tbl td.nm2{white-space:normal;min-width:120px}              /* 의안명은 줄바꿈 — 가로 스크롤이 생기지 않게 */
+  .ty-tbl td.nm2{white-space:normal;min-width:92px}              /* 의안명은 줄바꿈 — 가로 스크롤이 생기지 않게 */
   .ty-tbl thead th{white-space:normal!important;line-height:16px}
-  .ty-tbl thead th{background:#fafafa;text-align:right;font-weight:600;color:var(--muted-fg);font-size:12px;padding:11px 8px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
+  .ty-tbl thead th{background:#fafafa;text-align:right;font-weight:600;color:var(--muted-fg);font-size:12px;padding:11px 6px;border-bottom:1px solid var(--border);white-space:nowrap;position:sticky;top:0}
   .ty-tbl thead th.l{text-align:left}.ty-tbl thead th.c{text-align:center}
-  .ty-tbl td{padding:13px 8px;border-bottom:1px solid #f0f0f0;text-align:right;font-variant-numeric:tabular-nums;color:#0a0a0a}
+  .ty-tbl td{padding:13px 6px;border-bottom:1px solid #f0f0f0;text-align:right;font-variant-numeric:tabular-nums;color:#0a0a0a}
   .ty-tbl td.l{text-align:left}.ty-tbl td.c{text-align:center}
   .ty-tbl td.muted{color:#c4c4c4}
   /* 주주별 결과 — 칸을 고정해 넓은 화면에서는 가로 스크롤이 생기지 않게 한다 */
@@ -105,7 +105,7 @@
   .ty-foot .pp.dis{opacity:.4;cursor:default;pointer-events:none}
   .ty-foot .atpg-tot{margin-left:6px;color:#737373}
   .pos{color:#0a8a3c;font-weight:600}
-  .neg{color:#dc2626;font-weight:600}
+  .neg{color:#dc2626}
   .strong{font-weight:700;color:#0a0a0a}
   .vb{display:inline-flex;align-items:center;height:22px;padding:0 10px;border-radius:9999px;font-size:12px;font-weight:600}
   .vb.green{background:#eafaf0;color:#0a8a3c}
@@ -400,7 +400,7 @@
                 <th class="l">의안 번호</th><th class="l">의안명</th><th class="l">결의방법</th><th class="c">가결 여부</th>
                 <th><i class="ph ph-number-circle-one hn"></i>의결권 있는 발행주식 총수</th><th><i class="ph ph-number-circle-two hn"></i>총 행사 의결권</th>
                 <th><i class="ph ph-number-circle-one hn"></i>찬성률</th><th><i class="ph ph-number-circle-two hn"></i>찬성률</th><th><i class="ph ph-number-circle-two hn"></i>반대·기권 등 비율</th>
-                <th class="c" data-al="c">찬성</th><th class="c" data-al="c">반대</th><th class="c" data-al="c">기권</th><th class="c" data-al="c">중립</th><th>단수주</th>
+                <th class="c" data-al="r" data-al-h="c">찬성</th><th class="c" data-al="r" data-al-h="c">반대</th><th class="c" data-al="r" data-al-h="c">기권</th><th class="c" data-al="r" data-al-h="c">중립</th><th>단수주</th>
               </tr></thead>
               <tbody id="agBody"></tbody>
             </table>
@@ -914,6 +914,6 @@
     });
   })();
 </script>
-<script src="conexus.js?v=fwk8"></script>
+<script src="conexus.js?v=fwk9"></script>
 </body>
 </html>
