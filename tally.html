@@ -92,7 +92,7 @@
   .ty-tbl tbody tr:last-child td{border-bottom:none}
   .ty-tbl tbody tr:hover td{background:#fafafa}
   .ty-tbl .nm{color:#0a0a0a}
-  .ty-tbl .sub{color:#737373}
+  .ty-tbl .sub{color:var(--muted-fg)}
   .ty-tbl tr.off td{opacity:.5}
   .ty-tblwrap.hasfoot{border-bottom:0;border-radius:12px 12px 0 0}
   .ty-tblwrap.hasfoot + .ty-foot{margin-top:-14px}   /* .ty-panel 의 flex gap 만큼 당겨 표에 붙인다 */
@@ -224,6 +224,8 @@
   .ty-tbl thead th .hn{font-size:15px;vertical-align:-2px;margin-right:3px;color:#525252}
   /* 그룹/자식 행 */
   .ty-tbl tr.grp td{background:#fbfbfc;font-weight:600;color:#0a0a0a}
+  /* 결의방법 칸은 어느 줄에서나 보조 글자 — 굵게 하지 않는다 */
+  .ty-tbl td.sub{font-weight:400!important;color:var(--muted-fg)!important}
   .ty-tbl tr.subg td{background:#fcfcfd;color:#0a0a0a}
   .ty-tbl td.ind{padding-left:26px}
   .ty-tbl td.ind2{padding-left:42px}
