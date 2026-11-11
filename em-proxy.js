@@ -288,11 +288,12 @@
     var isP = (tab === 'proxy');
     return '<div class="pxa-sec">' + (isP ? '위임인 선택' : '기관(법인) 선택') + '</div>' +
       '<div class="pxa-sch"><select id="pxaKey">' + KEYS.map(function (k) { return '<option>' + k + '</option>'; }).join('') + '</select>' +
-      '<span class="pxa-in"><i class="ph ph-magnifying-glass"></i><input id="pxaQ" type="text" placeholder="투표권자 검색"></span>' +
+      '<span class="pxa-in"><i class="ph ph-magnifying-glass"></i><input id="pxaQ" type="text" autocomplete="off" placeholder="투표권자 검색">' +
+        '<div class="pxa-dd" id="pxaDD" hidden></div></span>' +
       (isP ? '<button class="btn" type="button" id="pxaSame" disabled>보유 주식수와 동일위임</button>' : '') + '</div>' +
       '<div class="pxa-tblwrap"><table class="pxa-tbl"><thead><tr>' +
         '<th>투표권자</th><th>주주명</th><th>주주 번호</th><th class="n">보유 주식수</th>' +
-        (isP ? '<th class="n">위임 주식수</th>' : '') +
+        (isP ? '<th class="n">위임 주식수</th>' : '') + '<th class="c" style="width:44px"></th>' +
       '</tr></thead><tbody id="pxaRows"></tbody></table></div>';
   }
   function addOpen() {
@@ -322,36 +323,53 @@
       return (r.nm + ' ' + (r.id || '') + ' ' + (r.ac || '')).indexOf(q.trim()) >= 0;
     }).sort(function (a, b) { return b.sh - a.sh; }).slice(0, 20);
   }
+  /* 표 — 고른 주주만 쌓인다 */
   function paintPick() {
     var host = add.querySelector('#pxaRows'); if (!host) return;
-    var isP = (tab === 'proxy'), span = isP ? 5 : 4;
-    if (AD.picks.length) {
-      host.innerHTML = AD.picks.map(function (r, i) {
-        return '<tr><td>' + esc(r.nm) + '</td><td>' + esc(r.nm) + '</td><td>' + esc(r.id || '-') + '</td>' +
-          '<td class="n">' + cm(r.sh) + '</td>' +
-          (isP ? '<td class="n"><input class="qin" data-q="' + i + '" type="text" inputmode="numeric" value="' +
-            (r.q != null ? cm(r.q) : '') + '" placeholder="위임 주식수"></td>' : '') + '</tr>' +
-          (isP && r.bad ? '<tr class="errrow"><td colspan="5">위임 주식수는 보유 주식수 이내로 입력해 주세요</td></tr>' : '');
-      }).join('');
-      return;
-    }
-    var qel = add.querySelector('#pxaQ'), q = qel ? qel.value : '', L = hits(q);
-    if (!q.trim()) {
+    var isP = (tab === 'proxy'), span = isP ? 6 : 5;
+    if (!AD.picks.length) {
       host.innerHTML = '<tr><td colspan="' + span + '"><div class="pxa-empty">' +
         (isP ? '검색 후 추가할 위임인을 선택해 주세요.' : '검색 후 기관(법인)을 선택해 주세요') + '</div></td></tr>';
       return;
     }
-    host.innerHTML = L.length ? L.map(function (r, i) {
-      var lock = (i % 7 === 3);
-      return '<tr data-pick="' + i + '" class="pk' + (lock ? ' lock' : '') + '"><td>' + esc(r.nm) + '</td><td>' + esc(r.nm) + '</td>' +
-        '<td>' + esc(r.id || '-') + (lock ? '<span class="lockx">・' + LB[tab] + ' 지정됨</span>' : '') + '</td>' +
-        '<td class="n">' + cm(r.sh) + '</td>' + (isP ? '<td class="n mu">-</td>' : '') + '</tr>';
-    }).join('') : '<tr><td colspan="' + span + '"><div class="pxa-empty">검색 결과가 없습니다</div></td></tr>';
-    host.__list = L;
+    host.innerHTML = AD.picks.map(function (r, i) {
+      return '<tr><td>' + esc(r.nm) + '</td><td>' + esc(r.nm) + '</td><td>' + esc(r.id || '-') + '</td>' +
+        '<td class="n">' + cm(r.sh) + '</td>' +
+        (isP ? '<td class="n"><input class="qin" data-q="' + i + '" type="text" inputmode="numeric" value="' +
+          (r.q != null ? cm(r.q) : '') + '" placeholder="위임 주식수"></td>' : '') +
+        '<td class="c"><button class="pxa-rm" type="button" data-rm="' + i + '" aria-label="삭제"><i class="ph ph-x"></i></button></td></tr>' +
+        (isP && r.bad ? '<tr class="errrow"><td colspan="' + span + '">위임 주식수는 보유 주식수 이내로 입력해 주세요</td></tr>' : '');
+    }).join('');
   }
+
+  /* 검색 결과 드롭다운 (Figma 16880:201519) */
+  var SEL = {};   /* 다중 선택 임시 */
+  function ddPaint() {
+    var dd = add.querySelector('#pxaDD'); if (!dd) return;
+    var q = add.querySelector('#pxaQ').value;
+    if (!q.trim()) { dd.hidden = true; dd.innerHTML = ''; return; }
+    var L = hits(q);
+    dd.__list = L;
+    if (!L.length) { dd.hidden = false; dd.innerHTML = '<div class="pxa-ddempty">검색 결과가 없습니다</div>'; return; }
+    var multi = (tab === 'proxy');
+    dd.innerHTML = L.map(function (r, i) {
+      var lock = (i % 7 === 3) || AD.picks.some(function (x) { return x.id === r.id && x.nm === r.nm; });
+      var meta = esc(r.id || '-') + '・' + cm(r.sh) + '주' + (lock ? '・' + LB[tab] + ' 지정됨' : '');
+      return '<button class="pxa-ddi' + (lock ? ' lock' : '') + (SEL[i] ? ' on' : '') + '" type="button" data-dd="' + i + '">' +
+        '<span class="t1">' + esc(r.nm) + '</span>' +
+        '<span class="t2">' + esc(r.nm) + '</span>' +
+        '<span class="t3' + (lock ? ' bl' : '') + '">' + meta + '</span>' +
+        '<i class="ck ph ph-check"></i></button>';
+    }).join('') +
+      (multi ? '<div class="pxa-ddft"><button class="btn dark" type="button" id="pxaAddSel" ' +
+        (Object.keys(SEL).length ? '' : 'disabled') + '>위임 주주 선택</button></div>' : '');
+    dd.hidden = false;
+  }
+  function ddClose() { var dd = add.querySelector('#pxaDD'); if (dd) { dd.hidden = true; } SEL = {}; }
+
   add.addEventListener('input', function (e) {
     if (e.target.type === 'tel') e.target.value = e.target.value.replace(/\D/g, '').slice(0, 12);
-    if (e.target.id === 'pxaQ') { AD.picks = []; paintPick(); addCheck(); return; }
+    if (e.target.id === 'pxaQ') { SEL = {}; ddPaint(); return; }
     if (e.target.classList.contains('qin')) {
       var r = AD.picks[+e.target.dataset.q];
       var v = e.target.value.replace(/\D/g, '');
@@ -362,6 +380,10 @@
       else if (!r.bad && err && err.classList.contains('errrow')) paintPick();
     }
     addCheck();
+  });
+  add.addEventListener('focusin', function (e) { if (e.target.id === 'pxaQ') ddPaint(); });
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('.pxa-in')) ddClose();
   });
   add.addEventListener('change', function (e) {
     if (e.target.id === 'pxaKey') {
@@ -379,13 +401,30 @@
       document.getElementById('pxaL').innerHTML = leftHtml();
       addCheck(); return;
     }
-    var tr = e.target.closest('[data-pick]');
-    if (tr) {
-      if (tr.classList.contains('lock')) { EM.toast('이미 ' + LB[tab] + '이 지정된 주주입니다.'); return; }
-      var r = add.querySelector('#pxaRows').__list[+tr.dataset.pick];
-      AD.picks = [{ nm: r.nm, id: r.id, sh: r.sh, q: null }];
-      paintPick(); addCheck(); return;
+    /* 검색 결과에서 고르기 */
+    var di = e.target.closest('[data-dd]');
+    if (di) {
+      e.stopPropagation();
+      if (di.classList.contains('lock')) { EM.toast('이미 ' + LB[tab] + '이 지정된 주주입니다.'); return; }
+      var dd = add.querySelector('#pxaDD'), r = dd.__list[+di.dataset.dd];
+      if (tab === 'proxy') {                     /* 여러 명 고를 수 있다 */
+        if (SEL[di.dataset.dd]) delete SEL[di.dataset.dd]; else SEL[di.dataset.dd] = r;
+        ddPaint(); return;
+      }
+      AD.picks = [{ nm: r.nm, id: r.id, sh: r.sh, q: null }];   /* 담당자는 한 곳만 */
+      add.querySelector('#pxaQ').value = ''; ddClose(); paintPick(); addCheck(); return;
     }
+    if (e.target.closest('#pxaAddSel')) {
+      e.stopPropagation();
+      Object.keys(SEL).forEach(function (k) {
+        var r = SEL[k];
+        if (!AD.picks.some(function (x) { return x.id === r.id && x.nm === r.nm; }))
+          AD.picks.push({ nm: r.nm, id: r.id, sh: r.sh, q: null });
+      });
+      add.querySelector('#pxaQ').value = ''; ddClose(); paintPick(); addCheck(); return;
+    }
+    var rm = e.target.closest('[data-rm]');
+    if (rm) { AD.picks.splice(+rm.dataset.rm, 1); paintPick(); addCheck(); return; }
     if (e.target.closest('#pxaSame')) {
       AD.picks.forEach(function (r) { r.q = r.sh; r.bad = false; });
       paintPick(); addCheck(); return;
