@@ -51,9 +51,9 @@
   function rows() { return inbox().concat(DATA[tab]).filter(function (x) { return x.kind === tab; }); }
 
   /* ---------- 표 ---------- */
-  var COLS = [['상태', 90, 'c', 'c'], ['기관(법인)명', 0], ['주주 번호', 0],
-              ['보유 주식수', 110, 'n'], ['담당자', 92], ['이메일', 150],
-              ['등록경로', 104], ['요청일', 120], ['처리일', 120], ['', 44, 'c']];
+  var COLS = [['상태', 110, 'c', 'c'], ['기관(법인)명', 0], ['주주 번호', 150],
+              ['보유 주식수', 110, 'n'], ['담당자', 92], ['이메일', 160],
+              ['등록경로', 104], ['요청일', 110], ['처리일', 110], ['', 44, 'c']];
   function val(x, c) {
     switch (c) {
       case '상태': return x.st; case '기관(법인)명': return x.org; case '주주 번호': return x.no;
@@ -80,7 +80,7 @@
         '<button type="button" data-t="proxy">대리인 지정</button></span>' +
       '<div class="lc-chips" id="pxChips"></div>' +
       '<button class="btn dark" type="button" id="pxAdd">담당자 지정</button><span data-cx-tools></span></div>' +
-    '<div class="lc-wrap"><div class="lc-scroll"><table class="lctbl" id="pxTbl"><colgroup>' +
+    '<div class="lc-wrap"><div class="lc-scroll"><table class="lctbl" id="pxTbl" style="min-width:1170px"><colgroup>' +
       COLS.map(function (c) { return c[1] ? '<col style="width:' + c[1] + 'px">' : '<col>'; }).join('') + '</colgroup>' +
       '<thead><tr>' + COLS.map(function (c) {
         return '<th' + (c[2] ? ' class="' + c[2] + '"' : '') + (c[3] ? ' data-al="' + c[3] + '"' : '') +
