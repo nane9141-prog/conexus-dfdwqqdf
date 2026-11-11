@@ -11,8 +11,8 @@
                '승인완료': 'blue', '반려': 'rose', '지정철회': 'rose' };
 
   /* ---------- 데모 데이터 ---------- */
-  var ORG = ['OO인더스트리', 'OOOO자산운용', 'OO화학', 'OO금융', 'OO자산운용',
-             'OO캐피탈', 'OO생명', 'OO증권', 'OO리츠', 'OO홀딩스'];
+  var ORG = ['미래에셋자산운용', '삼성자산운용', '한국투자신탁운용', 'KB자산운용', '신한자산운용',
+             'NH-아문디자산운용', '키움투자자산운용', '한화자산운용', '교보악사자산운용', '하나UBS자산운용'];
   var NM = ['김주한', '한도윤', '송지훈', '박지용', '박지훈', '김민준', '이서연', '정도윤'];
   function mk(kind, i) {
     var s = ST[[0, 0, 1, 2, 3, 3, 4, 5][i % 8]];
@@ -53,7 +53,7 @@
   /* ---------- 표 ---------- */
   var COLS = [['상태', 110, 'c', 'c'], ['기관(법인)명', 0], ['주주 번호', 150],
               ['보유 주식수', 110, 'n'], ['담당자', 92], ['이메일', 160],
-              ['등록경로', 104], ['요청일', 110], ['처리일', 110], ['', 44, 'c']];
+              ['등록경로', 104], ['요청일', 132], ['처리일', 132], ['', 44, 'c']];
   function val(x, c) {
     switch (c) {
       case '상태': return x.st; case '기관(법인)명': return x.org; case '주주 번호': return x.no;
@@ -70,6 +70,15 @@
   }
 
   var tab = 'mgr', chip = 'all', page = 1, size = 25, LASTP = 1;
+  function DOCF(t, d) {
+    return '<div class="pxa-doc"><label>' + t + '</label>' +
+      '<button class="pxa-drop" type="button" data-aup="' + t + '">' +
+        '<i class="ph ph-file-arrow-up"></i>파일 첨부 (pdf, jpg, png)</button>' +
+      '<div class="pxa-file" hidden><span class="ic"><i class="ph ph-file"></i></span>' +
+        '<span class="nm"></span><span class="sz"></span>' +
+        '<button class="x" type="button" data-adel><i class="ph ph-x"></i></button></div>' +
+      '<div class="hint">' + d + '</div></div>';
+  }
   var LB = { mgr: '담당자', proxy: '대리인' };
 
   root.innerHTML = '<div class="lc">' +
@@ -80,7 +89,7 @@
         '<button type="button" data-t="proxy">대리인 지정</button></span>' +
       '<div class="lc-chips" id="pxChips"></div>' +
       '<button class="btn dark" type="button" id="pxAdd">담당자 지정</button><span data-cx-tools></span></div>' +
-    '<div class="lc-wrap"><div class="lc-scroll"><table class="lctbl" id="pxTbl" style="min-width:1170px"><colgroup>' +
+    '<div class="lc-wrap"><div class="lc-scroll"><table class="lctbl" id="pxTbl" style="min-width:1214px"><colgroup>' +
       COLS.map(function (c) { return c[1] ? '<col style="width:' + c[1] + 'px">' : '<col>'; }).join('') + '</colgroup>' +
       '<thead><tr>' + COLS.map(function (c) {
         return '<th' + (c[2] ? ' class="' + c[2] + '"' : '') + (c[3] ? ' data-al="' + c[3] + '"' : '') +
@@ -90,6 +99,45 @@
         '<span class="lc-pg">페이지당 <select id="pxSize"><option>25</option><option>50</option><option>100</option></select>' +
         '<span class="lc-pages" id="pxPager"></span></span></div>' +
     '</div>' +
+    '<div class="pxd-ov" id="pxDlg"><div class="pxd">' +
+      '<button class="pxd-x" type="button" data-dx aria-label="닫기"><i class="ph ph-x"></i></button>' +
+      '<div class="pxd-hd"><div class="pxd-t"></div><div class="pxd-d"></div></div>' +
+      '<div class="pxd-bd"><div class="pxd-lb"></div><textarea id="pxDlgTa" rows="3"></textarea>' +
+        '<div class="pxd-note"></div></div>' +
+      '<div class="pxd-ft"><button class="btn" type="button" data-dno>취소</button>' +
+        '<button class="btn dark" type="button" data-dok disabled>확인</button></div></div></div>' +
+
+    '<div class="pxa-ov" id="pxAddDlg"><div class="pxa">' +
+      '<button class="pxd-x" type="button" data-ax aria-label="닫기"><i class="ph ph-x"></i></button>' +
+      '<div class="pxa-hd"><div class="pxa-t"></div><div class="pxa-d"></div></div>' +
+      '<div class="pxa-bd">' +
+        '<div class="pxa-l">' +
+          '<div class="pxa-sec pxa-sec1"></div>' +
+          '<div class="pxa-f"><label>이름</label><input data-af type="text" placeholder="이름 입력"></div>' +
+          '<div class="pxa-f"><label>생년월일</label><input data-af type="text" inputmode="numeric" maxlength="8" placeholder="생년월일 8자리 (숫자만 입력)"></div>' +
+          '<div class="pxa-f"><label>휴대폰번호</label><input data-af type="tel" inputmode="numeric" placeholder="휴대폰번호 (숫자만 입력)"></div>' +
+          '<div class="pxa-f"><label>이메일</label><input data-af type="email" placeholder="이메일 입력"></div>' +
+          '<div class="pxa-sec row">증빙 서류<button class="btn" type="button" data-form><i class="ph ph-download-simple"></i>대리권 증빙 양식</button></div>' +
+          DOCF('대리권 증빙 서류', '대상 주주총회와 위임 범위가 명시된 위임장(POA)을 첨부해 주세요.') +
+          DOCF('보유주식 증빙 서류', '주주명부 기준일 현재 보유 주식을 확인할 수 있는 잔고증명서 등을 첨부해 주세요.') +
+          DOCF('서명권자 증빙 서류', '대표 서명 권한을 증명하는 서류(이사직임증명서, 이사회 결의서 등)를 첨부해 주세요.') +
+        '</div>' +
+        '<div class="pxa-r">' +
+          '<div class="pxa-sec">기관(법인) 선택</div>' +
+          '<div class="pxa-sch"><select id="pxaKey">' +
+            SEARCH_KEY.map(function (k) { return '<option>' + k[0] + '</option>'; }).join('') +
+            '</select><span class="pxa-in"><i class="ph ph-magnifying-glass"></i>' +
+            '<input id="pxaQ" type="text" placeholder="투표권자 검색"></span></div>' +
+          '<div class="pxa-tblwrap"><table class="pxa-tbl"><thead><tr>' +
+            '<th>투표권자</th><th>주주명</th><th>주주 번호</th><th class="n">보유 주식</th>' +
+            '</tr></thead><tbody id="pxaRows"></tbody></table></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="pxa-ft"><span class="pxa-note">관리자 등록 시 바로 승인완료 처리되며, 참석자 코드가 담당자 이메일로 전송됩니다.</span>' +
+        '<button class="btn" type="button" data-ano>취소</button>' +
+        '<button class="btn dark" type="button" data-aok disabled>담당자 지정 등록</button></div>' +
+    '</div></div>' +
+
     '<div class="px-menu" id="pxMenu" hidden>' +
       '<button type="button" data-act="fix"><i class="ph ph-paper-plane-tilt"></i><span class="t"></span></button>' +
       '<button type="button" data-act="deny"><i class="ph ph-prohibit"></i><span class="t"></span></button>' +
@@ -153,9 +201,92 @@
   document.getElementById('pxSize').addEventListener('change', function () {
     size = parseInt(this.value, 10) || 25; page = 1; render();
   });
-  document.getElementById('pxAdd').addEventListener('click', function () {
-    EM.toast(LB[tab] + ' 지정은 시연 대상이 아닙니다.');
+  /* 지정 등록 모달 (Figma 16880:169454 · 17138:61851) */
+  var add = document.getElementById('pxAddDlg');
+  var SEARCH_KEY = [['투표권자','투표권자'],['주주명','주주명'],['주주 번호','주주 번호'],['실질계좌번호','실질계좌번호']];
+  var picked = null;
+  function addOpen() {
+    var L = LB[tab];
+    add.querySelector('.pxa-t').textContent = L + ' 지정';
+    add.querySelector('.pxa-d').textContent = (tab === 'mgr')
+      ? '의결권을 행사할 국내 기관(법인) 주주의 담당자를 직접 지정합니다.'
+      : '의결권을 행사할 국내·해외 개인·법인 주주의 대리인을 직접 지정합니다.';
+    add.querySelector('.pxa-sec1').textContent = L + ' 정보';
+    add.querySelector('[data-aok]').textContent = L + ' 지정 등록';
+    Array.prototype.forEach.call(add.querySelectorAll('[data-af]'), function (i) { i.value = ''; });
+    Array.prototype.forEach.call(add.querySelectorAll('.pxa-drop'), function (d) { d.hidden = false; });
+    Array.prototype.forEach.call(add.querySelectorAll('.pxa-file'), function (d) { d.hidden = true; });
+    picked = null; add.querySelector('#pxaQ').value = '';
+    paintPick(); addCheck();
+    add.classList.add('show');
+  }
+  document.getElementById('pxAdd').addEventListener('click', addOpen);
+
+  /* 검색 — 명부에서 찾는다 */
+  function hits(q) {
+    if (!q.trim()) return [];
+    var R = CX.roster.filter(function (r) {
+      return (r.nm + ' ' + (r.id || '') + ' ' + (r.ac || '')).indexOf(q.trim()) >= 0;
+    });
+    return R.slice(0, 20);
+  }
+  function paintPick() {
+    var host = add.querySelector('#pxaRows');
+    if (picked) {
+      host.innerHTML = '<tr><td>' + esc(picked.nm) + '</td><td>' + esc(picked.nm) + '</td>' +
+        '<td>' + esc(picked.id || '-') + '</td><td class="n">' + cm(picked.sh) + '</td></tr>';
+      return;
+    }
+    var q = add.querySelector('#pxaQ').value, L = hits(q);
+    if (!q.trim()) { host.innerHTML = '<tr><td colspan="4"><div class="pxa-empty">검색 후 기관(법인)을 선택해 주세요</div></td></tr>'; return; }
+    host.innerHTML = L.length ? L.map(function (r, i) {
+      return '<tr data-pick="' + i + '" class="pk"><td>' + esc(r.nm) + '</td><td>' + esc(r.nm) + '</td>' +
+        '<td>' + esc(r.id || '-') + '</td><td class="n">' + cm(r.sh) + '</td></tr>';
+    }).join('') : '<tr><td colspan="4"><div class="pxa-empty">검색 결과가 없습니다</div></td></tr>';
+    host.__list = L;
+  }
+  add.querySelector('#pxaQ').addEventListener('input', function () { picked = null; paintPick(); addCheck(); });
+  add.querySelector('#pxaKey').addEventListener('change', function () {
+    add.querySelector('#pxaQ').placeholder = this.value + ' 검색';
   });
+  add.querySelector('#pxaRows').addEventListener('click', function (e) {
+    var tr = e.target.closest('[data-pick]'); if (!tr) return;
+    picked = this.__list[+tr.dataset.pick]; paintPick(); addCheck();
+  });
+  add.addEventListener('click', function (e) {
+    if (e.target === add || e.target.closest('[data-ax]') || e.target.closest('[data-ano]')) { add.classList.remove('show'); return; }
+    var up = e.target.closest('[data-aup]');
+    if (up) {
+      var box = up.parentNode.querySelector('.pxa-file');
+      box.querySelector('.nm').textContent = up.dataset.aup + '.pdf';
+      box.querySelector('.sz').textContent = (Math.round((0.6 + Math.random() * 3) * 10) / 10) + 'MB';
+      box.hidden = false; up.hidden = true; addCheck(); return;
+    }
+    var del = e.target.closest('[data-adel]');
+    if (del) {
+      var b = del.closest('.pxa-file'); b.hidden = true;
+      b.parentNode.querySelector('.pxa-drop').hidden = false; addCheck(); return;
+    }
+    var ok = e.target.closest('[data-aok]');
+    if (ok && !ok.disabled) {
+      var f = add.querySelectorAll('[data-af]');
+      DATA[tab].unshift({
+        k: tab + '-new-' + Date.now(), kind: tab, st: '승인완료',
+        org: picked ? picked.nm : '-', no: picked ? (picked.id || '-') : '-',
+        sh: picked ? picked.sh : 0, nm: f[0].value, email: f[3].value,
+        via: '관리자 등록', at: EM.now().slice(0, 10), done: EM.now().slice(0, 10)
+      });
+      add.classList.remove('show'); render();
+      EM.toast(LB[tab] + ' 지정을 등록했습니다.');
+    }
+  });
+  add.addEventListener('input', addCheck);
+  function addCheck() {
+    var f = add.querySelectorAll('[data-af]'), ok = picked != null;
+    Array.prototype.forEach.call(f, function (i) { if (!i.value.trim()) ok = false; });
+    Array.prototype.forEach.call(add.querySelectorAll('.pxa-file'), function (b) { if (b.hidden) ok = false; });
+    add.querySelector('[data-aok]').disabled = !ok;
+  }
 
   /* 행 더보기 메뉴 */
   var cur = null;
@@ -173,15 +304,43 @@
     menu.style.left = Math.max(8, r.right - menu.offsetWidth) + 'px';
   });
   document.addEventListener('click', function () { menu.hidden = true; });
+  /* 확인 모달 (Figma 16874:98927) — 보완 요청 · 반려 · 철회 */
+  var ASK = {
+    fix:  { t:'서류 보완을 요청하시겠어요?', d:'신청 기관에 서류 재제출 안내가 발송됩니다.',
+            lb:'보완요청 사유', ph:'보완요청 사유 입력', ok:'보완 요청', to:'보완요청' },
+    deny: { t:'해당 {L} 지정 건을 반려하시겠어요?', lb:'반려 사유', ph:'반려 사유 입력',
+            note:'반려 후에는 취소할 수 없습니다.', ok:'반려', to:'반려' },
+    drop: { t:'해당 {L} 지정을 철회하시겠어요?', lb:'철회 사유', ph:'철회 사유 입력',
+            note:'철회 후에는 취소할 수 없습니다.', ok:'철회', to:'지정철회' }
+  };
+  var dlg = document.getElementById('pxDlg');
   menu.addEventListener('click', function (e) {
     var a = e.target.closest('[data-act]'); if (!a || !cur) return;
     e.stopPropagation(); menu.hidden = true;
-    var to = a.dataset.act === 'fix' ? '보완요청' : a.dataset.act === 'deny' ? '반려' : '지정철회';
-    cur.st = (to === '보완요청' && cur.st === '보완요청') ? '재보완요청' : to;
-    cur.done = EM.now().slice(0, 10);
-    if (cur.fromPass) saveInbox(cur);
-    render();
-    EM.toast(a.querySelector('.t').textContent + ' 처리했습니다.');
+    var k = a.dataset.act, m = ASK[k], L = LB[tab], x = cur;
+    dlg.querySelector('.pxd-t').textContent = m.t.replace('{L}', L);
+    dlg.querySelector('.pxd-d').textContent = m.d || '';
+    dlg.querySelector('.pxd-d').hidden = !m.d;
+    dlg.querySelector('.pxd-lb').textContent = m.lb;
+    var ta = dlg.querySelector('#pxDlgTa'); ta.value = ''; ta.placeholder = m.ph;
+    dlg.querySelector('.pxd-note').textContent = m.note || '';
+    dlg.querySelector('.pxd-note').hidden = !m.note;
+    var ok = dlg.querySelector('[data-dok]'); ok.textContent = m.ok; ok.disabled = true;
+    dlg.classList.add('show');
+    dlg.onsubmit = function () {
+      x.st = (m.to === '보완요청' && x.st === '보완요청') ? '재보완요청' : m.to;
+      x.done = EM.now().slice(0, 10);
+      if (x.fromPass) saveInbox(x);
+      render(); EM.toast(m.ok + ' 처리했습니다.');
+    };
+  });
+  dlg.addEventListener('input', function (e) {
+    if (e.target.id === 'pxDlgTa') dlg.querySelector('[data-dok]').disabled = !e.target.value.trim();
+  });
+  dlg.addEventListener('click', function (e) {
+    if (e.target === dlg || e.target.closest('[data-dx]') || e.target.closest('[data-dno]')) { dlg.classList.remove('show'); return; }
+    var ok = e.target.closest('[data-dok]');
+    if (ok && !ok.disabled) { dlg.classList.remove('show'); if (dlg.onsubmit) dlg.onsubmit(); }
   });
 
   /* 주주PASS 쪽 기록도 같이 고친다 */
