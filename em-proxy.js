@@ -362,7 +362,8 @@
         '<i class="ck ph ph-check"></i></button>';
     }).join('') +
       (multi ? '<div class="pxa-ddft"><button class="btn dark" type="button" id="pxaAddSel" ' +
-        (Object.keys(SEL).length ? '' : 'disabled') + '>위임 주주 선택</button></div>' : '');
+        (Object.keys(SEL).length ? '' : 'disabled') + '>위임 주주 선택' +
+        (Object.keys(SEL).length ? ' (' + Object.keys(SEL).length + ')' : '') + '</button></div>' : '');
     dd.hidden = false;
   }
   function ddClose() { var dd = add.querySelector('#pxaDD'); if (dd) { dd.hidden = true; } SEL = {}; }

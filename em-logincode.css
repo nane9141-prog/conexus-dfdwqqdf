@@ -380,7 +380,7 @@ table.pxa-tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:14p
 .pxa-ddi.lock .t1{color:#737373}
 .pxa-ddi .ck{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:16px;color:#0A0A0A;opacity:0}
 .pxa-ddi.on .ck{opacity:1}
-.pxa-ddft{padding:4px}
+.pxa-ddft{position:sticky;bottom:0;z-index:2;padding:4px;background:#fff;border-top:1px solid #F5F5F5}
 .pxa-ddft .btn{width:100%;height:32px}
 .pxa-ddempty{padding:20px;text-align:center;font-size:14px;color:#737373}
 .pxa-rm{width:24px;height:24px;border:0;background:none;padding:0;cursor:pointer;color:#737373;border-radius:6px}
