@@ -205,3 +205,16 @@ table.lctbl .lc-empty{padding:72px 16px;text-align:center;color:#737373;cursor:d
 .lc-kgrid{display:grid;grid-template-columns:repeat(3,1fr)}
 .lc-chk{display:flex;align-items:center;gap:8px;font-size:14px;line-height:14px;letter-spacing:-.01em;color:#0A0A0A;cursor:pointer}
 .lc-chk input{width:16px;height:16px;margin:0;accent-color:#171717}
+
+/* 담당자 · 대리인 지정 관리 — 행 더보기 메뉴 */
+.px-more{width:28px;height:28px;border:0;background:none;border-radius:8px;cursor:pointer;color:#0A0A0A;
+  display:inline-flex;align-items:center;justify-content:center}
+.px-more:hover{background:#F5F5F5}
+.px-more i{font-size:16px}
+.px-menu{position:fixed;z-index:120;width:168px;padding:4px;background:#fff;border:1px solid rgba(10,10,10,.1);
+  border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.1);display:flex;flex-direction:column;gap:2px}
+.px-menu[hidden]{display:none}
+.px-menu button{display:flex;align-items:center;gap:6px;height:28px;padding:0 8px;border:0;border-radius:8px;
+  background:none;font-family:inherit;font-size:14px;letter-spacing:-.01em;color:#0A0A0A;cursor:pointer;text-align:left}
+.px-menu button:hover{background:#F5F5F5}
+.px-menu button i{font-size:16px;color:#525252}
