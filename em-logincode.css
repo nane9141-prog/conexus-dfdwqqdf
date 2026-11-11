@@ -311,3 +311,52 @@ table.pxa-tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:14p
 .pxa-tbl .qin:focus{border-color:#A3A3A3}
 .pxa-tbl tr.errrow td{height:auto;padding:0 16px 8px;border-top:0;color:#E11D48;font-size:12px;text-align:right}
 .pxa-tbl td.mu{color:#A3A3A3}
+
+/* 위임인 표 — 이름 칸만 말줄임, 나머지는 한 줄로 다 보여 준다 */
+.pxa-tbl{table-layout:fixed}
+.pxa-tbl th,.pxa-tbl td{white-space:nowrap}
+.pxa-tbl th:nth-child(1),.pxa-tbl td:nth-child(1),
+.pxa-tbl th:nth-child(2),.pxa-tbl td:nth-child(2){overflow:hidden;text-overflow:ellipsis}
+.pxa-tbl th:nth-child(3),.pxa-tbl td:nth-child(3){width:168px}
+.pxa-tbl th.n,.pxa-tbl td.n{width:124px}
+
+/* 상세 시트 (Figma 16923:209256 · 17138:71071) */
+.lc-sheet .sheet-body{display:flex;flex-direction:column;gap:0}
+.pxs-st{display:flex;align-items:center;gap:12px;padding:12px;background:#FAFAFA;border-radius:10px;margin-bottom:24px}
+.pxs-st .k{font-size:12px;font-weight:600;color:#737373}
+.pxs-sec{font-size:14px;font-weight:600;color:#0A0A0A;margin-bottom:8px}
+.pxs-sec.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.pxs-r{display:flex;align-items:center;gap:8px;min-height:28px}
+.pxs-r .k{width:100px;flex:none;font-size:12px;font-weight:600;color:#737373}
+.pxs-r .v{flex:1;min-width:0;font-size:14px;color:#0A0A0A}
+.pxs-code{color:#0071F3}
+.pxs-line{height:1px;background:#E5E5E5;margin:24px 0}
+.pxs-doc{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.pxs-doc .t{font-size:14px;font-weight:500;color:#0A0A0A}
+.pxs-doc .hint{font-size:12px;line-height:16px;color:#737373}
+.pxs-log{display:flex;flex-direction:column;gap:4px;margin-bottom:16px}
+.pxs-log .hd{display:flex;align-items:center;gap:8px}
+.pxs-log .hd .w{font-size:12px;color:#737373}
+.pxs-log .bd{font-size:14px;line-height:20px;color:#0A0A0A}
+.lc-sheet .sheet-ft{display:flex;gap:8px}
+.lc-sheet .sheet-ft .btn{flex:1;min-width:0}
+.lc-sheet .btn.danger{background:rgba(220,38,38,.1);border-color:transparent;color:#E9081B}
+.lc-mod{text-align:center;font-size:12px;color:#737373}
+
+/* 승인 모달 */
+.pxk-box{background:#FAFAFA;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.pxk-box .r{display:flex;gap:8px;font-size:14px;line-height:20px}
+.pxk-box .r .k{flex:none;font-weight:600;color:#0A0A0A}
+.pxk-box .r .v{color:#737373}
+.pxk-alert{display:flex;align-items:flex-start;gap:6px;margin-top:12px;padding:10px 12px;background:#EEF5FF;
+  border-radius:10px;font-size:14px;line-height:20px;color:#0071F3}
+.pxk-alert i{font-size:16px;flex:none;margin-top:2px}
+.pxk-ck{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:none;border:0;padding:0;
+  cursor:pointer;text-align:left;font-family:inherit}
+.pxk-ck .bx{flex:none;width:16px;height:16px;border:1px solid #E5E5E5;border-radius:4px;background:#fff;position:relative}
+.pxk-ck .bx::after{content:"";position:absolute;left:4.8px;top:2.4px;width:4px;height:7.6px;
+  border:1.8px solid #fff;border-left:0;border-top:0;transform:rotate(45deg);opacity:0}
+.pxk-ck.on .bx{background:#171717;border-color:#171717}
+.pxk-ck.on .bx::after{opacity:1}
+.pxk-ck .lb{font-size:12px;line-height:16px;color:#0A0A0A}
+#pxOkDlg .pxd-ft{align-items:center}

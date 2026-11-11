@@ -110,6 +110,23 @@
 
     '<div class="pxa-ov" id="pxAddDlg"><div class="pxa" id="pxaIn"></div></div>' +
 
+    '<div class="sheet-ov lc-sheet" id="pxSheet"><div class="sheet">' +
+      '<button class="sheet-x" type="button" data-sx aria-label="닫기"><i class="ph ph-x" style="font-size:16px"></i></button>' +
+      '<div class="sheet-hd"><div class="sheet-t" id="pxShT">담당자 지정 상세</div></div>' +
+      '<div class="sheet-body" id="pxShBody"></div>' +
+      '<div class="lc-shft"><div class="sheet-ft" id="pxShFt"></div>' +
+        '<div class="lc-mod" id="pxShMod"></div></div></div></div>' +
+
+    '<div class="pxd-ov" id="pxOkDlg"><div class="pxd" style="width:480px">' +
+      '<button class="pxd-x" type="button" data-kx aria-label="닫기"><i class="ph ph-x"></i></button>' +
+      '<div class="pxd-hd"><div class="pxd-t" id="pxOkT"></div><div class="pxd-d">아래 항목을 확인 후 승인해 주세요.</div></div>' +
+      '<div class="pxd-bd"><div class="pxk-box" id="pxOkBox"></div>' +
+        '<div class="pxk-alert"><i class="ph ph-warning-circle"></i><span id="pxOkNote"></span></div></div>' +
+      '<div class="pxd-ft"><button class="pxk-ck" type="button" id="pxOkCk"><span class="bx"></span>' +
+        '<span class="lb">증빙 서류를 모두 검토했으며, 이상 없음을 확인합니다.</span></button>' +
+        '<button class="btn" type="button" data-kno>취소</button>' +
+        '<button class="btn dark" type="button" data-kok disabled>승인</button></div></div></div>' +
+
     '<div class="px-menu" id="pxMenu" hidden>' +
       '<button type="button" data-act="fix"><i class="ph ph-paper-plane-tilt"></i><span class="t"></span></button>' +
       '<button type="button" data-act="deny"><i class="ph ph-prohibit"></i><span class="t"></span></button>' +
@@ -212,7 +229,7 @@
       (opt.intl
         ? '<div class="pxa-row"><select data-af class="w120"><option value="" selected disabled>국가 선택</option>' +
             COUNTRY.map(function (c) { return '<option>' + c + '</option>'; }).join('') + '</select>' +
-          '<input data-af type="tel" inputmode="numeric" placeholder="휴대폰번호 (숫자만 입력)"></div>'
+          '<input data-af type="tel" inputmode="numeric" maxlength="12" placeholder="휴대폰번호 (숫자만 입력)"></div>'
         : '<input data-af' + (opt.opt ? ' data-opt' : '') + ' type="' + (opt.type || 'text') + '"' +
           (opt.num ? ' inputmode="numeric"' : '') + (opt.max ? ' maxlength="' + opt.max + '"' : '') +
           ' placeholder="' + ph + '">') +
@@ -247,7 +264,7 @@
     if (!isP || AD.kind === 'indi') {
       h += fdHtml('nm', '이름', '이름 입력');
       if (!isP || AD.loc === 'home') h += fdHtml('bd', '생년월일', '생년월일 8자리 (숫자만 입력)', { num: 1, max: 8 });
-      h += fdHtml('ph', '휴대폰번호', '휴대폰번호 (숫자만 입력)', (isP && AD.loc === 'abroad') ? { intl: 1 } : { num: 1 });
+      h += fdHtml('ph', '휴대폰번호', '휴대폰번호 (숫자만 입력)', (isP && AD.loc === 'abroad') ? { intl: 1 } : { num: 1, max: 12 });
       h += fdHtml('em', '이메일', '이메일 입력', { type: 'email' });
     } else {
       h += fdHtml('nm', '법인(기관)명', AD.loc === 'home' ? '기업명 입력' : '법인(기관)명 입력');
@@ -256,7 +273,7 @@
       h += fdHtml('mg', '담당자명', '담당자명 입력');
       h += fdHtml('dp', '부서 (선택)', '부서명 입력', { opt: 1 });
       h += fdHtml('ps', '직급 (선택)', '직급명 입력', { opt: 1 });
-      h += fdHtml('ph', '휴대폰번호', '휴대폰번호 (숫자만 입력)', AD.loc === 'abroad' ? { intl: 1 } : { num: 1 });
+      h += fdHtml('ph', '휴대폰번호', '휴대폰번호 (숫자만 입력)', AD.loc === 'abroad' ? { intl: 1 } : { num: 1, max: 12 });
       h += fdHtml('em', '이메일', '이메일 입력', { type: 'email' });
     }
 
@@ -333,6 +350,7 @@
     host.__list = L;
   }
   add.addEventListener('input', function (e) {
+    if (e.target.type === 'tel') e.target.value = e.target.value.replace(/\D/g, '').slice(0, 12);
     if (e.target.id === 'pxaQ') { AD.picks = []; paintPick(); addCheck(); return; }
     if (e.target.classList.contains('qin')) {
       var r = AD.picks[+e.target.dataset.q];
@@ -419,6 +437,144 @@
     var b = add.querySelector('[data-aok]'); if (b) b.disabled = !ok;
   }
 
+  /* ═══ 상세 시트 (Figma 16923:209256 계열 · 17138:71071 계열) ═══ */
+  var sheet = document.getElementById('pxSheet'), SX = null;
+  var DOCS3 = [
+    ['대리권 증명 서류', '대상 주주총회와 위임 범위가 명시된 위임장을 첨부해 주세요'],
+    ['보유주식 증빙 서류', '주주명부 기준일 현재 주식 보유 내역을 확인할 수 있는 잔고증명서를 첨부해 주세요'],
+    ['서명권자 증빙 서류', '대표 서명 권한을 증명하는 서류(이사직임증명서, 이사회 결의서 등)를 첨부해 주세요']
+  ];
+  var MDOCS3 = [
+    ['대리권 증빙 서류', '대상 주주총회와 위임 범위가 명시된 위임장(POA)을 첨부해 주세요.'],
+    ['보유주식 증빙 서류', '주주명부 기준일 현재 보유 주식을 확인할 수 있는 잔고증명서 등을 첨부해 주세요.'],
+    ['서명권자 증빙 서류', '대표 서명 권한을 증명하는 서류(이사직임증명서, 이사회 결의서 등)를 첨부해 주세요.']
+  ];
+  /* 처리 사유 — 상태에 맞는 이력을 만든다 */
+  function logs(x) {
+    var L = [], who = ' · 박지용', isP = (x.kind === 'proxy');
+    if (x.st === '지정철회') L.push(['지정철회', '2026-03-11 15:20' + who,
+      isP ? '위임인이 대리인 지정 철회를 요청했습니다.' : '신청 기관에서 지정철회를 요청했습니다.']);
+    if (x.st === '반려') L.push(['반려', '2026-03-10 11:04' + who,
+      isP ? '재제출된 위임장의 대리인 성명이 신청 정보와 달라 반려합니다.'
+          : '재제출된 보유주식 증빙 서류가 실제 보유 주식 수 정보와 달라 반려합니다.']);
+    if (x.st === '보완요청' || x.st === '재보완요청' || x.st === '반려' || x.st === '지정철회')
+      L.push(['보완요청', '2026-03-08 09:41' + who,
+        isP ? '위임장에 위임 주식수가 기재되어 있지 않습니다. 확인 후 다시 첨부해 주세요.'
+            : '담당자 서명권자 증빙 서류가 첨부되지 않았습니다. 서명권자 증빙 서류를 추가로 첨부해 주세요.']);
+    return L;
+  }
+  function kv(k, v) { return '<div class="pxs-r"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>'; }
+  function fileRow(nm) {
+    return '<div class="pxa-file"><span class="ic"><i class="ph ph-file"></i></span>' +
+      '<span class="nm">' + nm + '.pdf</span><span class="sz">1.2MB</span>' +
+      '<button class="x" type="button"><i class="ph ph-download-simple"></i></button></div>';
+  }
+  function openSheet(x) {
+    SX = x;
+    var isP = (x.kind === 'proxy'), L = LB[x.kind], done = (x.st === '승인완료');
+    var lock = (x.st === '승인완료' || x.st === '반려' || x.st === '지정철회');
+    document.getElementById('pxShT').textContent = L + ' 지정 상세';
+
+    var h = '<div class="pxs-st"><span class="k">처리상태</span>' +
+      '<span class="lc-b ' + TONE[x.st] + '"><i></i>' + x.st + '</span></div>';
+
+    h += '<div class="pxs-sec">' + (isP ? '위임인 정보' : '신청 기관 정보') + '</div>' +
+      (isP
+        ? kv('위임인', esc(x.org)) + kv('주주 번호', esc(x.no)) +
+          kv('휴대폰번호', '010-1234-5678') + kv('이메일', 'ir@irkuddos.co.kr') +
+          kv('보유 주식수', cm(x.sh) + '주')
+        : kv('기관(법인)명', esc(x.org)) + kv('주주 번호', esc(x.no)) + kv('보유 주식수', cm(x.sh) + '주'));
+
+    h += '<div class="pxs-line"></div><div class="pxs-sec">' + L + ' 정보</div>' +
+      kv('이름', esc(x.nm)) + kv('생년월일', '1985.06.19') +
+      kv('휴대폰번호', '010-1234-5678') + kv('이메일', esc(x.email)) +
+      (isP ? kv('위임 주식수', cm(x.sh) + '주') : '') +
+      kv('참석자 코드', done ? '<span class="pxs-code">EG-20240302</span>'
+        : '<span class="pxs-code">' + (isP ? '승인 시 대리인 지정 안내와 참석자 코드가 이메일로 전송됩니다.'
+                                            : '승인 시 참석자 코드가 담당자 이메일로 전송됩니다.') + '</span>');
+
+    h += '<div class="pxs-line"></div><div class="pxs-sec row">제출 서류' +
+      '<button class="btn" type="button" data-sfix' + (lock ? ' disabled' : '') +
+        '><i class="ph ph-paper-plane-tilt"></i>서류 보완요청</button></div>';
+    (isP ? DOCS3 : MDOCS3).forEach(function (d) {
+      h += '<div class="pxs-doc"><div class="t">' + d[0] + '</div>' + fileRow(d[0]) +
+        '<div class="hint">' + d[1] + '</div></div>';
+    });
+
+    var LG = logs(x);
+    if (LG.length) {
+      h += '<div class="pxs-line"></div><div class="pxs-sec">처리 사유</div>';
+      LG.forEach(function (g) {
+        h += '<div class="pxs-log"><div class="hd"><span class="lc-b ' + TONE[g[0]] + '"><i></i>' + g[0] + '</span>' +
+          '<span class="w">' + g[1] + '</span></div><div class="bd">' + g[2] + '</div></div>';
+      });
+    }
+    document.getElementById('pxShBody').innerHTML = h;
+
+    var ft = '';
+    if (x.st === '승인대기' || x.st === '보완요청' || x.st === '재보완요청')
+      ft = '<button class="btn danger" type="button" data-sa="deny">' + L + ' 지정 반려</button>' +
+           '<button class="btn dark" type="button" data-sa="ok">' + L + ' 지정 승인</button>';
+    else if (x.st === '승인완료')
+      ft = '<button class="btn danger" type="button" data-sa="drop">' + L + ' 지정 철회</button>' +
+           '<button class="btn" type="button" data-sa="close">닫기</button>';
+    else ft = '<button class="btn" type="button" data-sa="close" style="flex:1">닫기</button>';
+    document.getElementById('pxShFt').innerHTML = ft;
+    document.getElementById('pxShMod').textContent = '최종 수정 ' + (x.done !== '-' ? x.done + ' 15:58' : x.at + ' 15:58') + ' · 박지용';
+    sheet.classList.add('show');
+  }
+  body.addEventListener('click', function (e) {
+    if (e.target.closest('[data-more]')) return;
+    var tr = e.target.closest('tr[data-k]'); if (!tr) return;
+    var x = rows().filter(function (r) { return r.k === tr.dataset.k; })[0];
+    if (x) openSheet(x);
+  });
+  sheet.addEventListener('click', function (e) {
+    if (e.target.closest('[data-sx]') || e.target === sheet) { sheet.classList.remove('show'); return; }
+    if (e.target.closest('[data-sfix]')) { askDlg('fix', SX); return; }
+    var a = e.target.closest('[data-sa]'); if (!a || !SX) return;
+    var k = a.dataset.sa;
+    if (k === 'close') { sheet.classList.remove('show'); return; }
+    if (k === 'ok') { okDlg(SX); return; }
+    askDlg(k === 'deny' ? 'deny' : 'drop', SX);
+  });
+
+  /* 승인 모달 */
+  var okdlg = document.getElementById('pxOkDlg'), okX = null, okAgree = false;
+  function okDlg(x) {
+    okX = x; okAgree = false;
+    var isP = (x.kind === 'proxy');
+    document.getElementById('pxOkT').textContent = LB[x.kind] + ' 지정 승인';
+    document.getElementById('pxOkBox').innerHTML = isP
+      ? '<div class="r"><span class="k">위임장 증빙 :</span><span class="v">위임인 서명 및 날인 여부</span></div>' +
+        '<div class="r"><span class="k">신청 정보 :</span><span class="v">입력 정보와 제출 서류 일치 여부</span></div>'
+      : '<div class="r"><span class="k">보유 주식 증빙 :</span><span class="v">기관 투표권자명 및 주식수 일치 여부</span></div>' +
+        '<div class="r"><span class="k">대리권 증빙 :</span><span class="v">위임장 서명 · 날인 및 권한 범위</span></div>' +
+        '<div class="r"><span class="k">서명권자 증빙 :</span><span class="v">대표 권한 및 자격 증명</span></div>';
+    document.getElementById('pxOkNote').textContent = isP
+      ? '대리인 지정 안내가 메일로 전송됩니다.'
+      : '담당자 이메일로 담당자 지정 안내와 참석자 코드가 전송됩니다.';
+    document.getElementById('pxOkCk').classList.remove('on');
+    okdlg.querySelector('[data-kok]').disabled = true;
+    okdlg.classList.add('show');
+  }
+  okdlg.addEventListener('click', function (e) {
+    if (e.target === okdlg || e.target.closest('[data-kx]') || e.target.closest('[data-kno]')) { okdlg.classList.remove('show'); return; }
+    if (e.target.closest('#pxOkCk')) {
+      okAgree = !okAgree;
+      document.getElementById('pxOkCk').classList.toggle('on', okAgree);
+      okdlg.querySelector('[data-kok]').disabled = !okAgree;
+      return;
+    }
+    var ok = e.target.closest('[data-kok]');
+    if (ok && !ok.disabled) {
+      okX.st = '승인완료'; okX.done = EM.now().slice(0, 10);
+      if (okX.fromPass) saveInbox(okX);
+      okdlg.classList.remove('show'); sheet.classList.remove('show');
+      render(); EM.toast(LB[okX.kind] + ' 지정을 승인했습니다.');
+    }
+  });
+
   /* 행 더보기 메뉴 */
   var cur = null;
   body.addEventListener('click', function (e) {
@@ -445,10 +601,8 @@
             note:'철회 후에는 취소할 수 없습니다.', ok:'철회', to:'지정철회' }
   };
   var dlg = document.getElementById('pxDlg');
-  menu.addEventListener('click', function (e) {
-    var a = e.target.closest('[data-act]'); if (!a || !cur) return;
-    e.stopPropagation(); menu.hidden = true;
-    var k = a.dataset.act, m = ASK[k], L = LB[tab], x = cur;
+  function askDlg(k, x) {
+    var m = ASK[k], L = LB[x.kind];
     dlg.querySelector('.pxd-t').textContent = m.t.replace('{L}', L);
     dlg.querySelector('.pxd-d').textContent = m.d || '';
     dlg.querySelector('.pxd-d').hidden = !m.d;
@@ -462,8 +616,14 @@
       x.st = (m.to === '보완요청' && x.st === '보완요청') ? '재보완요청' : m.to;
       x.done = EM.now().slice(0, 10);
       if (x.fromPass) saveInbox(x);
+      sheet.classList.remove('show');
       render(); EM.toast(m.ok + ' 처리했습니다.');
     };
+  }
+  menu.addEventListener('click', function (e) {
+    var a = e.target.closest('[data-act]'); if (!a || !cur) return;
+    e.stopPropagation(); menu.hidden = true;
+    askDlg(a.dataset.act, cur);
   });
   dlg.addEventListener('input', function (e) {
     if (e.target.id === 'pxDlgTa') dlg.querySelector('[data-dok]').disabled = !e.target.value.trim();
