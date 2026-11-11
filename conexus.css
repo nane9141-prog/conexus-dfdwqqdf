@@ -5,11 +5,11 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-s
   /* ===== 주주총회 설정 ===== */
   .hidden{display:none !important}
   .settings{display:flex;gap:32px;padding:20px;width:100%}
-  .st-nav{width:180px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:20px;align-self:flex-start}
-  .st-item{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;font-size:14px;color:var(--muted-fg);font-weight:500;cursor:pointer;text-align:left;background:none;border:none;width:100%;font-family:inherit;letter-spacing:inherit}
+  .st-nav{width:208px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:20px;align-self:flex-start}
+  .st-item{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;font-size:14px;color:var(--muted-fg);font-weight:500;cursor:pointer;text-align:left;background:none;border:none;width:100%;font-family:inherit;letter-spacing:inherit}
   .st-item:hover{background:var(--muted)}
   .st-item.active{background:var(--muted);font-weight:600;color:#0a0a0a}
-  .st-item .st-lbl{flex:1}
+  .st-item .st-lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .st-item .st-chk{width:16px;height:16px;color:var(--muted-fg);opacity:0;flex:none}
   .st-item.done .st-chk{opacity:1}
   .st-body{flex:1;min-width:0}
@@ -508,11 +508,11 @@ body{font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-s
   /* ===== 주주총회 설정 ===== */
   .hidden{display:none !important}
   .settings{display:flex;gap:32px;padding:20px;width:100%}
-  .st-nav{width:180px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:20px;align-self:flex-start}
-  .st-item{display:flex;align-items:center;gap:8px;padding:8px 16px;border-radius:8px;font-size:14px;color:var(--muted-fg);font-weight:500;cursor:pointer;text-align:left;background:none;border:none;width:100%;font-family:inherit;letter-spacing:inherit}
+  .st-nav{width:208px;flex:none;display:flex;flex-direction:column;gap:4px;position:sticky;top:20px;align-self:flex-start}
+  .st-item{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:8px;font-size:14px;color:var(--muted-fg);font-weight:500;cursor:pointer;text-align:left;background:none;border:none;width:100%;font-family:inherit;letter-spacing:inherit}
   .st-item:hover{background:var(--muted)}
   .st-item.active{background:var(--muted);font-weight:600;color:#0a0a0a}
-  .st-item .st-lbl{flex:1}
+  .st-item .st-lbl{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .st-item .st-chk{width:16px;height:16px;color:var(--muted-fg);opacity:0;flex:none}
   .st-item.done .st-chk{opacity:1}
   .st-body{flex:1;min-width:0}
