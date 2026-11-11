@@ -69,6 +69,7 @@
     return (c === '요청일' || c === '처리일' || t === '-') ? '<span class="mu">' + esc(t) + '</span>' : esc(t);
   }
 
+  var SEARCH_KEY = [['투표권자'],['주주명'],['주주 번호'],['실질계좌번호']];
   var tab = 'mgr', chip = 'all', page = 1, size = 25, LASTP = 1;
   function DOCF(t, d) {
     return '<div class="pxa-doc"><label>' + t + '</label>' +
@@ -203,7 +204,6 @@
   });
   /* 지정 등록 모달 (Figma 16880:169454 · 17138:61851) */
   var add = document.getElementById('pxAddDlg');
-  var SEARCH_KEY = [['투표권자','투표권자'],['주주명','주주명'],['주주 번호','주주 번호'],['실질계좌번호','실질계좌번호']];
   var picked = null;
   function addOpen() {
     var L = LB[tab];
