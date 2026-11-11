@@ -364,7 +364,7 @@ table.pxa-tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:14p
 /* 검색 결과 드롭다운 (Figma 16880:201519) */
 .pxa-in{position:relative}
 .pxa-dd{position:absolute;left:0;top:calc(100% + 4px);z-index:40;width:100%;min-width:144px;max-height:300px;
-  overflow:auto;padding:4px;background:#fff;border:1px solid rgba(10,10,10,.1);border-radius:10px;
+  overflow:auto;padding:4px 4px 0;background:#fff;border:1px solid rgba(10,10,10,.1);border-radius:10px;
   box-shadow:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -2px rgba(0,0,0,.1)}
 .pxa-dd[hidden]{display:none}
 .pxa-ddi{position:relative;display:flex;flex-direction:column;gap:2px;width:100%;min-height:64px;
@@ -380,7 +380,8 @@ table.pxa-tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:14p
 .pxa-ddi.lock .t1{color:#737373}
 .pxa-ddi .ck{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:16px;color:#0A0A0A;opacity:0}
 .pxa-ddi.on .ck{opacity:1}
-.pxa-ddft{position:sticky;bottom:0;z-index:2;padding:4px;background:#fff;border-top:1px solid #F5F5F5}
+.pxa-ddft{position:sticky;bottom:0;z-index:2;margin:0 -4px;padding:4px;background:#fff;
+  border-top:1px solid #F5F5F5;border-radius:0 0 9px 9px}
 .pxa-ddft .btn{width:100%;height:32px}
 .pxa-ddempty{padding:20px;text-align:center;font-size:14px;color:#737373}
 .pxa-rm{width:24px;height:24px;border:0;background:none;padding:0;cursor:pointer;color:#737373;border-radius:6px}
