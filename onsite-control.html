@@ -4593,12 +4593,22 @@ document.addEventListener('click',function(e){
   };
 })();
 </script>
-<script src="conexus.js?v=fwk9"></script>
+<script src="conexus.js?v=fwl1"></script>
 <script src="cx-relay.js?v=13"></script>
-<script>/* 이 화면을 조작하기 시작하면 그때부터 현장 화면으로 내보낸다 —
-   제어 화면이 여러 대 떠 있어도 서로 상태를 덮어쓰지 않는다 */
+<script>/* 송출 주인 정하기 — 제어 화면이 여러 대 떠 있어도 서로 상태를 덮어쓰지 않도록
+   한 화면만 내보낸다. 조작하면 바로 주인이 되고, 주인이 없거나 끊긴 지 오래면
+   새로 연 화면이 알아서 이어받는다(새로고침해도 시청 화면이 멈추지 않는다). */
 (function(){
+  var OWN='cx.ocown', ME=Math.random().toString(36).slice(2), GAP=12000;
+  function now(){ return Date.now(); }
+  function owner(){
+    try{ return JSON.parse(localStorage.getItem(OWN)||'null'); }catch(e){ return null; }
+  }
+  function claim(){
+    try{ localStorage.setItem(OWN, JSON.stringify({id:ME, ts:now()})); }catch(e){}
+  }
   function on(){
+    claim();
     if(window.__ocActive) return;
     window.__ocActive = true;
     if(window.OC && OC.fire) OC.fire();
@@ -4606,6 +4616,14 @@ document.addEventListener('click',function(e){
   ['pointerdown','keydown'].forEach(function(ev){
     document.addEventListener(ev, on, true);
   });
+  /* 주인이 없거나 오래 끊겼으면 이 화면이 이어받는다 */
+  function check(){
+    var o=owner();
+    if(window.__ocActive){ if(!o || o.id===ME || now()-o.ts>GAP) claim(); return; }
+    if(!o || now()-o.ts>GAP) on();
+  }
+  check();
+  setInterval(check, 4000);
 })();
 /* 주주PASS 시청 화면에서 올라온 질의 · 발언 · 동의를 받아 각 목록에 얹는다 */
 (function(){
